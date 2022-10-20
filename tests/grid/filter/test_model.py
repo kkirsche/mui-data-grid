@@ -2,13 +2,13 @@ from typing import TypeAlias
 
 from pytest import mark
 
-from mui.grid.filter.model import (
+from mui.v5.grid.filter.model import (
     GridFilterModel,
     _LinkOperator,
     _QuickFilterLogicOperator,
     _QuickFilterValues,
 )
-from mui.grid.link.operator import GridLinkOperator
+from mui.v5.grid.link.operator import GridLinkOperator
 
 GridFilterModelTestCase: TypeAlias = tuple[
     _LinkOperator, _QuickFilterLogicOperator, _QuickFilterValues

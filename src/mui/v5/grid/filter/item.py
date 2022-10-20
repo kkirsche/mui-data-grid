@@ -2,7 +2,7 @@ from typing import Any, Optional, TypeAlias
 
 from pydantic import Field
 
-from mui.grid.base import GridBaseModel
+from mui.v5.grid.base import GridBaseModel
 
 _ColumnField: TypeAlias = str
 _Id: TypeAlias = int | str | None

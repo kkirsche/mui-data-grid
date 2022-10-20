@@ -2,7 +2,7 @@ from typing import TypeAlias
 
 from pytest import mark
 
-from mui.grid.filter.item import (
+from mui.v5.grid.filter.item import (
     GridFilterItem,
     _ColumnField,
     _Id,

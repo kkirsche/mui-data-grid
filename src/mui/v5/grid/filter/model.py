@@ -2,8 +2,8 @@ from typing import Any, TypeAlias
 
 from pydantic import Field
 
-from mui.grid.base import GridBaseModel
-from mui.grid.link.operator import GridLinkOperator
+from mui.v5.grid.base import GridBaseModel
+from mui.v5.grid.link.operator import GridLinkOperator
 
 _LinkOperator: TypeAlias = GridLinkOperator | None
 _QuickFilterLogicOperator: TypeAlias = GridLinkOperator | None
