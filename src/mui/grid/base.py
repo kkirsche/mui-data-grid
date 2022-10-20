@@ -5,7 +5,7 @@ from pydantic import BaseModel, Extra, root_validator
 
 
 class GridBaseModel(BaseModel):
-    _optional_keys: ClassVar[set[Sequence[str]]] = {}
+    _optional_keys: ClassVar[set[Sequence[str]]] = set()
 
     @root_validator(pre=True)
     def ensure_optional_keys_exist(cls, haystack: object) -> object:
