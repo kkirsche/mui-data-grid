@@ -1,8 +1,8 @@
-from collections.abc import MutableMapping, Sequence
-from typing import Any, ClassVar, TypeAlias
+from typing import Any, TypeAlias
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import Field
 
+from mui.grid.base import GridBaseModel
 from mui.grid.link.operator import GridLinkOperator
 
 _LinkOperator: TypeAlias = GridLinkOperator | None
@@ -10,7 +10,7 @@ _QuickFilterLogicOperator: TypeAlias = GridLinkOperator | None
 _QuickFilterValues: TypeAlias = list[Any] | None
 
 
-class GridFilterModel(BaseModel):
+class GridFilterModel(GridBaseModel):
     """A grid filter model.
 
     Documentation:
@@ -49,35 +49,8 @@ class GridFilterModel(BaseModel):
         alias="quickFilterValues",
     )
 
-    _optional_keys: ClassVar[set[Sequence[str]]] = {
+    _optional_keys = {
         ("linkOperator", "link_operator"),
         ("quickFilterLogicOperator", "quick_filter_logic_operator"),
         ("quickFilterValues", "quick_filter_values"),
     }
-
-    @root_validator(pre=True)
-    def ensure_optional_keys_exist(cls, haystack: object) -> object:
-        """A validator that runs before validating the attribute's values.
-
-        This validator ensures that at least one key per tuple exists if the received
-        object is a mutable mapping, such as a dictionary.
-
-        Arguments:
-            haystack (object): The haystack, or incoming value, being evaluated to
-                identify if it has at least one of the optional keys (needles).
-                The name comes from looking for a needle in a haystack.
-
-        Returns:
-            object: The haystack, with the keys added to the mapping, if it was an
-                object we could mutate.
-        """
-        if isinstance(haystack, MutableMapping):
-            for keys in cls._optional_keys:
-                found_needle = any(needle in haystack for needle in keys)
-                if not found_needle:
-                    key = keys[0]
-                    haystack[key] = None
-        return haystack
-
-    class Config:
-        allow_population_by_field_name = True

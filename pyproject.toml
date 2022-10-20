@@ -10,7 +10,6 @@ packages = [{ include = "mui", from = "src" }]
 python = "^3.10"
 pydantic = ">=1,<2"
 
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.3"
 mypy = "^0.982"
