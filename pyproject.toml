@@ -5,6 +5,7 @@ description = ""
 authors = ["Kevin Kirsche <kev.kirsche@one.verizon.com>"]
 readme = "README.md"
 packages = [{ include = "mui", from = "src" }]
+include = ["src/mui/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
