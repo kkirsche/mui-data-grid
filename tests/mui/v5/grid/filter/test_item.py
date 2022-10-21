@@ -109,5 +109,4 @@ def test_valid_grid_filter_items_snake_case_parse_missing_keys(
             }
             if k in d:
                 del d[k]
-            print("SENDING", d)
             GridFilterItem.parse_obj(d)

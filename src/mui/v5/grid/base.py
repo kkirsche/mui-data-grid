@@ -8,7 +8,7 @@ class GridBaseModel(BaseModel):
     _optional_keys: ClassVar[set[Sequence[str]]] = set()
 
     @root_validator(pre=True)
-    def ensure_optional_keys_exist(cls, haystack: object) -> object:
+    def ensure_optional_keys_exist(cls, haystack: object) -> object:  # noqa: B902
         """A validator that runs before validating the attribute's values.
 
         This validator ensures that at least one key per tuple exists if the received
