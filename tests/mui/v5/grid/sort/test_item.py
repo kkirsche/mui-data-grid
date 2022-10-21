@@ -3,16 +3,16 @@ from typing import Literal, TypeAlias, Union
 from pytest import mark
 
 from mui.v5.grid.sort.direction import GridSortDirection
-from mui.v5.grid.sort.item import GridSortItem, _Field, _Sort
+from mui.v5.grid.sort.item import Field, GridSortItem, Sort
 
-_SortTest: TypeAlias = Union[_Sort, Literal["asc", "desc"]]
-GridSortModelItemTestCase: TypeAlias = tuple[_Field, _SortTest]
+SortTest: TypeAlias = Union[Sort, Literal["asc", "desc"]]
+GridSortModelItemTestCase: TypeAlias = tuple[Field, SortTest]
 GridSortItemTestCases: TypeAlias = list[GridSortModelItemTestCase]
 COLUMNS = "field,sort"
 
 
-valid_field_values: list[_Field] = ["field1", "field2.nested_field3"]
-valid_sort_values: list[_SortTest] = [
+valid_field_values: list[Field] = ["field1", "field2.nested_field3"]
+valid_sort_values: list[SortTest] = [
     "asc",
     "desc",
     GridSortDirection.ASC,
@@ -34,7 +34,7 @@ valid_test_cases = generate_valid_test_cases()
 
 
 @mark.parametrize(COLUMNS, valid_test_cases)
-def test_valid_grid_sort_item_parse(field: _Field, sort: _SortTest) -> None:
+def test_valid_grid_sort_item_parse(field: Field, sort: SortTest) -> None:
     GridSortItem.parse_obj(
         {
             "field": field,
@@ -44,9 +44,7 @@ def test_valid_grid_sort_item_parse(field: _Field, sort: _SortTest) -> None:
 
 
 @mark.parametrize(COLUMNS, valid_test_cases)
-def test_valid_grid_sort_item_parse_missing_keys(
-    field: _Field, sort: _SortTest
-) -> None:
+def test_valid_grid_sort_item_parse_missing_keys(field: Field, sort: SortTest) -> None:
     for key_tuple in GridSortItem._optional_keys:
         for k in key_tuple:
             d = {

@@ -1,13 +1,12 @@
-from collections.abc import Sequence
-from typing import ClassVar, TypeAlias
+from typing import TypeAlias
 
-from pydantic import Field
+from pydantic import Field as PyField
 
-from mui.v5.grid.base import GridBaseModel
+from mui.v5.grid.base import GridBaseModel, OptionalKeys
 from mui.v5.grid.sort.direction import GridSortDirection
 
-_Field: TypeAlias = str
-_Sort: TypeAlias = GridSortDirection | None
+Field: TypeAlias = str
+Sort: TypeAlias = GridSortDirection | None
 
 
 class GridSortItem(GridBaseModel):
@@ -24,16 +23,16 @@ class GridSortItem(GridBaseModel):
         sort (GridSortDirection): The direction of the column that the grid should sort.
     """
 
-    field: _Field = Field(
+    field: Field = PyField(
         default=...,
         title="Field",
         description="The direction of the column that the grid should sort.",
     )
 
-    sort: _Sort = Field(
+    sort: Sort = PyField(
         default=...,
         title="Sort",
         description="The direction of the column that the grid should sort.",
     )
 
-    _optional_keys: ClassVar[set[Sequence[str]]] = set()
+    _optional_keys: OptionalKeys = set()
