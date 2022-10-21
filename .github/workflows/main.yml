@@ -81,22 +81,22 @@ jobs:
         run: poetry install --with github-actions
       
       - name: Run bandit
-        run: poetry run bandit --recursive .
+        run: poetry run bandit --recursive src tests *.py
 
       - name: Run isort
-        run: poetry run isort .
+        run: poetry run isort src tests *.py
 
       - name: Run black
-        run: poetry run black .
+        run: poetry run black src tests *.py
       
       - name: Run codespell
-        run: poetry run codespell --write-changes .
+        run: poetry run codespell --write-changes src tests *.md *.py
       
       - name: Run flake8
-        run: poetry run flake8 .
+        run: poetry run flake8 src tests *.py
 
       - name: Run mypy
-        run: poetry run mypy .
+        run: poetry run mypy src tests *.py
 
       - name: Run pytest
         run: poetry run pytest -v
