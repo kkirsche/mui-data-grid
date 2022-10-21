@@ -37,7 +37,7 @@ valid_test_cases = generate_valid_test_cases()
 
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
-def test_valid_grid_filter_models_camel_case_parse(
+def test_valid_grid_filter_item_camel_case_parse(
     column_field: ColumnField,
     identifier: Id,
     operator_value: OperatorValue,
@@ -54,7 +54,7 @@ def test_valid_grid_filter_models_camel_case_parse(
 
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
-def test_valid_grid_filter_models_camel_case_parse_missing_keys(
+def test_valid_grid_filter_item_camel_case_parse_missing_keys(
     column_field: ColumnField,
     identifier: Id,
     operator_value: OperatorValue,
@@ -74,7 +74,7 @@ def test_valid_grid_filter_models_camel_case_parse_missing_keys(
 
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
-def test_valid_grid_filter_models_snake_case_parse(
+def test_valid_grid_filter_item_snake_case_parse(
     column_field: ColumnField,
     identifier: Id,
     operator_value: OperatorValue,
@@ -91,7 +91,7 @@ def test_valid_grid_filter_models_snake_case_parse(
 
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
-def test_valid_grid_filter_items_snake_case_parse_missing_keys(
+def test_valid_grid_filter_item_snake_case_parse_missing_keys(
     column_field: ColumnField,
     identifier: Id,
     operator_value: OperatorValue,

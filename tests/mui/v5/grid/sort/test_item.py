@@ -34,9 +34,7 @@ valid_test_cases = generate_valid_test_cases()
 
 
 @mark.parametrize(COLUMNS, valid_test_cases)
-def test_valid_grid_filter_models_camel_case_parse(
-    field: _Field, sort: _SortTest
-) -> None:
+def test_valid_grid_sort_item_parse(field: _Field, sort: _SortTest) -> None:
     GridSortItem.parse_obj(
         {
             "field": field,
@@ -46,34 +44,7 @@ def test_valid_grid_filter_models_camel_case_parse(
 
 
 @mark.parametrize(COLUMNS, valid_test_cases)
-def test_valid_grid_filter_models_camel_case_parse_missing_keys(
-    field: _Field, sort: _SortTest
-) -> None:
-    for key_tuple in GridSortItem._optional_keys:
-        for k in key_tuple:
-            d = {
-                "field": field,
-                "sort": sort,
-            }
-            if k in d:
-                del d[k]
-            GridSortItem.parse_obj(d)
-
-
-@mark.parametrize(COLUMNS, valid_test_cases)
-def test_valid_grid_filter_models_snake_case_parse(
-    field: _Field, sort: _SortTest
-) -> None:
-    GridSortItem.parse_obj(
-        {
-            "field": field,
-            "sort": sort,
-        }
-    )
-
-
-@mark.parametrize(COLUMNS, valid_test_cases)
-def test_valid_grid_filter_items_snake_case_parse_missing_keys(
+def test_valid_grid_sort_item_parse_missing_keys(
     field: _Field, sort: _SortTest
 ) -> None:
     for key_tuple in GridSortItem._optional_keys:
