@@ -49,6 +49,7 @@ def test_valid_grid_filter_models_camel_case_parse(
 ) -> None:
     GridFilterModel.parse_obj(
         {
+            "items": [],
             "linkOperator": link_operator,
             "quickFilterLogicOperator": quick_filter_logic_operator,
             "quickFilterValues": quick_filter_values,
@@ -67,6 +68,7 @@ def test_valid_grid_filter_models_camel_case_parse_missing_keys(
     for key_tuple in GridFilterModel._optional_keys:
         for k in key_tuple:
             d = {
+                "items": [],
                 "linkOperator": link_operator,
                 "quickFilterLogicOperator": quick_filter_logic_operator,
                 "quickFilterValues": quick_filter_values,
@@ -86,6 +88,7 @@ def test_valid_grid_filter_models_snake_case_parse(
 ) -> None:
     GridFilterModel.parse_obj(
         {
+            "items": [],
             "link_operator": link_operator,
             "quick_filter_logic_operator": quick_filter_logic_operator,
             "quick_filter_values": quick_filter_values,
@@ -104,6 +107,7 @@ def test_valid_grid_filter_models_snake_case_parse_missing_keys(
     for key_tuple in GridFilterModel._optional_keys:
         for k in key_tuple:
             d = {
+                "items": [],
                 "link_operator": link_operator,
                 "quick_filter_logic_operator": quick_filter_logic_operator,
                 "quick_filter_values": quick_filter_values,

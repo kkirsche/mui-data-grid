@@ -13,5 +13,5 @@ def grid_filter_model_from_request(key: str = "filter_model") -> GridFilterModel
         GridFilterModel: _description_
     """
     return request.args.get(
-        key=key, default=GridFilterModel(), type=GridFilterModel.parse_raw
+        key=key, default=GridFilterModel(items=[]), type=GridFilterModel.parse_raw
     )

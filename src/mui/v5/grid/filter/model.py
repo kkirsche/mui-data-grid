@@ -3,6 +3,7 @@ from typing import Any, Optional, TypeAlias
 from pydantic import Field
 
 from mui.v5.grid.base import GridBaseModel
+from mui.v5.grid.filter.item import GridFilterItem
 from mui.v5.grid.link.operator import GridLinkOperator
 
 # type aliases require the use of `Optional` instead of `|` for use at
@@ -19,6 +20,7 @@ class GridFilterModel(GridBaseModel):
         https://mui.com/x/api/data-grid/grid-filter-model/
 
     Attributes:
+        items (list[GridFilterItem]): The individual filters.
         link_operator (GridLinkOperator | None | not set):
             - GridLinkOperator.And: the row must pass all the filter items.
             - GridLinkOperator.Or: the row must pass at least on filter item.
@@ -32,6 +34,11 @@ class GridFilterModel(GridBaseModel):
             - Alias: quickFilterValues
     """
 
+    items: list[GridFilterItem] = Field(
+        default_factory=list,
+        title="Items",
+        description="The individual filters to apply",
+    )
     link_operator: LinkOperator = Field(
         default=None,
         title="Link Operator",
