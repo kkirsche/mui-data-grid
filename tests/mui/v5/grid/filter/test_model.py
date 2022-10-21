@@ -4,18 +4,18 @@ from pytest import mark
 
 from mui.v5.grid.filter.model import (
     GridFilterModel,
-    _LinkOperator,
-    _QuickFilterLogicOperator,
-    _QuickFilterValues,
+    LinkOperator,
+    QuickFilterLogicOperator,
+    QuickFilterValues,
 )
 from mui.v5.grid.link.operator import GridLinkOperator
 
 GridFilterModelTestCase: TypeAlias = tuple[
-    _LinkOperator, _QuickFilterLogicOperator, _QuickFilterValues
+    LinkOperator, QuickFilterLogicOperator, QuickFilterValues
 ]
 GridFilterModelTestCases: TypeAlias = list[GridFilterModelTestCase]
 
-valid_filter_values: list[_QuickFilterValues] = [[], None]
+valid_filter_values: list[QuickFilterValues] = [[], None]
 
 
 def generate_valid_test_cases() -> GridFilterModelTestCases:
@@ -43,9 +43,9 @@ valid_test_cases = generate_valid_test_cases()
     "link_operator,quick_filter_logic_operator,quick_filter_values", valid_test_cases
 )
 def test_valid_grid_filter_models_camel_case_parse(
-    link_operator: _LinkOperator,
-    quick_filter_logic_operator: _QuickFilterLogicOperator,
-    quick_filter_values: _QuickFilterValues,
+    link_operator: LinkOperator,
+    quick_filter_logic_operator: QuickFilterLogicOperator,
+    quick_filter_values: QuickFilterValues,
 ) -> None:
     GridFilterModel.parse_obj(
         {
@@ -60,9 +60,9 @@ def test_valid_grid_filter_models_camel_case_parse(
     "link_operator,quick_filter_logic_operator,quick_filter_values", valid_test_cases
 )
 def test_valid_grid_filter_models_camel_case_parse_missing_keys(
-    link_operator: _LinkOperator,
-    quick_filter_logic_operator: _QuickFilterLogicOperator,
-    quick_filter_values: _QuickFilterValues,
+    link_operator: LinkOperator,
+    quick_filter_logic_operator: QuickFilterLogicOperator,
+    quick_filter_values: QuickFilterValues,
 ) -> None:
     for key_tuple in GridFilterModel._optional_keys:
         for k in key_tuple:
@@ -80,9 +80,9 @@ def test_valid_grid_filter_models_camel_case_parse_missing_keys(
     "link_operator,quick_filter_logic_operator,quick_filter_values", valid_test_cases
 )
 def test_valid_grid_filter_models_snake_case_parse(
-    link_operator: _LinkOperator,
-    quick_filter_logic_operator: _QuickFilterLogicOperator,
-    quick_filter_values: _QuickFilterValues,
+    link_operator: LinkOperator,
+    quick_filter_logic_operator: QuickFilterLogicOperator,
+    quick_filter_values: QuickFilterValues,
 ) -> None:
     GridFilterModel.parse_obj(
         {
@@ -97,9 +97,9 @@ def test_valid_grid_filter_models_snake_case_parse(
     "link_operator,quick_filter_logic_operator,quick_filter_values", valid_test_cases
 )
 def test_valid_grid_filter_models_snake_case_parse_missing_keys(
-    link_operator: _LinkOperator,
-    quick_filter_logic_operator: _QuickFilterLogicOperator,
-    quick_filter_values: _QuickFilterValues,
+    link_operator: LinkOperator,
+    quick_filter_logic_operator: QuickFilterLogicOperator,
+    quick_filter_values: QuickFilterValues,
 ) -> None:
     for key_tuple in GridFilterModel._optional_keys:
         for k in key_tuple:

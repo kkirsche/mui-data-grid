@@ -1,13 +1,13 @@
-from typing import Any, Optional, TypeAlias
+from typing import Any, Optional, TypeAlias, Union
 
 from pydantic import Field
 
 from mui.v5.grid.base import GridBaseModel
 
-_ColumnField: TypeAlias = str
-_Id: TypeAlias = int | str | None
-_OperatorValue: TypeAlias = str | None
-_Value: TypeAlias = Optional[Any]
+ColumnField: TypeAlias = str
+Id: TypeAlias = Optional[Union[int, str]]
+OperatorValue: TypeAlias = Optional[str]
+Value: TypeAlias = Optional[Any]
 
 
 class GridFilterItem(GridBaseModel):
@@ -29,26 +29,24 @@ class GridFilterItem(GridBaseModel):
             is correct compared to this value.
     """
 
-    column_field: _ColumnField = Field(
+    column_field: ColumnField = Field(
         default=...,
         title="Column Field",
         description="The column from which we want to filter the rows.",
         alias="columnField",
     )
-    id: _Id = Field(
+    id: Id = Field(
         default=None,
         title="Identifier",
         description="A unique identifier if a model contains several items",
     )
-    operator_value: _OperatorValue = Field(
+    operator_value: OperatorValue = Field(
         default=None,
         title="Operator Value",
         description="The name of the operator we want to apply.",
         alias="operatorValue",
     )
-    value: _Value = Field(
-        default=None, title="Value", description="The filtering value"
-    )
+    value: Value = Field(default=None, title="Value", description="The filtering value")
 
     _optional_keys = {
         # be careful, this is a tuple because of the trailing comma

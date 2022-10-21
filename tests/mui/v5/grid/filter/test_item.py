@@ -3,21 +3,19 @@ from typing import TypeAlias
 from pytest import mark
 
 from mui.v5.grid.filter.item import (
+    ColumnField,
     GridFilterItem,
-    _ColumnField,
-    _Id,
-    _OperatorValue,
-    _Value,
+    Id,
+    OperatorValue,
+    Value,
 )
 
-GridFilterModelItemTestCase: TypeAlias = tuple[
-    _ColumnField, _Id, _OperatorValue, _Value
-]
+GridFilterModelItemTestCase: TypeAlias = tuple[ColumnField, Id, OperatorValue, Value]
 GridFilterItemTestCases: TypeAlias = list[GridFilterModelItemTestCase]
 
-valid_id_types: list[_Id] = ["str", 1, None]
-valid_operator_values: list[_OperatorValue] = ["str", None]
-valid_values: list[_Value] = ["str", None, True, [], {}, 1, 1.1]
+valid_id_types: list[Id] = ["str", 1, None]
+valid_operator_values: list[OperatorValue] = ["str", None]
+valid_values: list[Value] = ["str", None, True, [], {}, 1, 1.1]
 
 
 def generate_valid_test_cases() -> GridFilterItemTestCases:
@@ -40,10 +38,10 @@ valid_test_cases = generate_valid_test_cases()
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
 def test_valid_grid_filter_models_camel_case_parse(
-    column_field: _ColumnField,
-    identifier: _Id,
-    operator_value: _OperatorValue,
-    value: _Value,
+    column_field: ColumnField,
+    identifier: Id,
+    operator_value: OperatorValue,
+    value: Value,
 ) -> None:
     GridFilterItem.parse_obj(
         {
@@ -57,10 +55,10 @@ def test_valid_grid_filter_models_camel_case_parse(
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
 def test_valid_grid_filter_models_camel_case_parse_missing_keys(
-    column_field: _ColumnField,
-    identifier: _Id,
-    operator_value: _OperatorValue,
-    value: _Value,
+    column_field: ColumnField,
+    identifier: Id,
+    operator_value: OperatorValue,
+    value: Value,
 ) -> None:
     for key_tuple in GridFilterItem._optional_keys:
         for k in key_tuple:
@@ -77,10 +75,10 @@ def test_valid_grid_filter_models_camel_case_parse_missing_keys(
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
 def test_valid_grid_filter_models_snake_case_parse(
-    column_field: _ColumnField,
-    identifier: _Id,
-    operator_value: _OperatorValue,
-    value: _Value,
+    column_field: ColumnField,
+    identifier: Id,
+    operator_value: OperatorValue,
+    value: Value,
 ) -> None:
     GridFilterItem.parse_obj(
         {
@@ -94,10 +92,10 @@ def test_valid_grid_filter_models_snake_case_parse(
 
 @mark.parametrize("column_field,identifier,operator_value,value", valid_test_cases)
 def test_valid_grid_filter_items_snake_case_parse_missing_keys(
-    column_field: _ColumnField,
-    identifier: _Id,
-    operator_value: _OperatorValue,
-    value: _Value,
+    column_field: ColumnField,
+    identifier: Id,
+    operator_value: OperatorValue,
+    value: Value,
 ) -> None:
     for key_tuple in GridFilterItem._optional_keys:
         for k in key_tuple:

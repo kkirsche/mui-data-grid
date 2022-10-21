@@ -1,13 +1,15 @@
-from typing import Any, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from pydantic import Field
 
 from mui.v5.grid.base import GridBaseModel
 from mui.v5.grid.link.operator import GridLinkOperator
 
-_LinkOperator: TypeAlias = GridLinkOperator | None
-_QuickFilterLogicOperator: TypeAlias = GridLinkOperator | None
-_QuickFilterValues: TypeAlias = list[Any] | None
+# type aliases require the use of `Optional` instead of `|` for use at
+# runtime in Pydantic
+LinkOperator: TypeAlias = Optional[GridLinkOperator]
+QuickFilterLogicOperator: TypeAlias = Optional[GridLinkOperator]
+QuickFilterValues: TypeAlias = Optional[list[Any]]
 
 
 class GridFilterModel(GridBaseModel):
@@ -30,19 +32,19 @@ class GridFilterModel(GridBaseModel):
             - Alias: quickFilterValues
     """
 
-    link_operator: _LinkOperator = Field(
+    link_operator: LinkOperator = Field(
         default=None,
         title="Link Operator",
         description="Whether the row row must pass all filter items.",
         alias="linkOperator",
     )
-    quick_filter_logic_operator: _QuickFilterLogicOperator = Field(
+    quick_filter_logic_operator: QuickFilterLogicOperator = Field(
         default=None,
         title="Quick Filter Logic Operator",
         description="Whether the row must pass all values or at least one value.",
         alias="quickFilterLogicOperator",
     )
-    quick_filter_values: _QuickFilterValues = Field(
+    quick_filter_values: QuickFilterValues = Field(
         default=None,
         title="Quick Filter Values",
         description="Values used to quick filter rows.",
