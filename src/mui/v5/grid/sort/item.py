@@ -1,4 +1,4 @@
-from typing_extensions import TypeAlias
+from typing_extensions import ClassVar, TypeAlias
 
 from pydantic import Field as PyField
 
@@ -35,4 +35,4 @@ class GridSortItem(GridBaseModel):
         description="The direction of the column that the grid should sort.",
     )
 
-    _optional_keys: OptionalKeys = set()
+    _optional_keys: ClassVar[OptionalKeys] = set()
