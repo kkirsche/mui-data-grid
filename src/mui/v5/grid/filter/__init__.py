@@ -7,6 +7,7 @@ from mui.v5.grid.filter.item import (
 )
 from mui.v5.grid.filter.model import (
     GridFilterModel,
+    Items,
     LinkOperator,
     QuickFilterLogicOperator,
     QuickFilterValues,
@@ -18,6 +19,7 @@ __all__ = [
     "GridFilterItem",
     "GridFilterModel",
     "Id",
+    "Items",
     "LinkOperator",
     "OperatorValue",
     "QuickFilterLogicOperator",

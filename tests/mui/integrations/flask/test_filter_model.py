@@ -1,24 +1,41 @@
-from flask import Flask, request
+from urllib.parse import quote
+
+from flask import Flask
+from pytest import mark
 
 from mui.integrations.flask.filter_model import grid_filter_model_from_request
+from mui.v5.grid.filter import (
+    Items,
+    LinkOperator,
+    QuickFilterLogicOperator,
+    QuickFilterValues,
+)
+from mui.v5.grid.filter.model import GridFilterModel
+from tests.mui.v5.grid.filter.test_model import columns, generate_valid_test_cases
 
 app = Flask(__name__)
 
 
-def test_filter_models() -> None:
+valid_test_cases = generate_valid_test_cases()
+
+
+@mark.parametrize(columns, valid_test_cases)
+def test_filter_models(
+    items: Items,
+    link_operator: LinkOperator,
+    quick_filter_logic_operator: QuickFilterLogicOperator,
+    quick_filter_values: QuickFilterValues,
+) -> None:
     key = "filter_model"
     with app.app_context():
+        model = GridFilterModel(
+            items=items,
+            link_operator=link_operator,
+            quick_filter_logic_operator=quick_filter_logic_operator,
+            quick_filter_values=quick_filter_values,
+        )
+        query_str = quote(model.json())
         with app.test_request_context(
-            path=(
-                f"/?{key}"
-                + r"=%7B%22items%22:["
-                + r"%7B%22columnField%22:%22id%22,%22operatorValue%22:%22!%3D%22,"
-                + r"%22id%22:85484,%22value%22:%221234%22%7D]%7D"
-            ),
+            path=(f"/?{key}={query_str}"),
         ):
-            print(request.args)
             model = grid_filter_model_from_request()
-            assert len(model.items) == 1
-            assert model.link_operator is None
-            assert model.quick_filter_logic_operator is None
-            assert model.quick_filter_values is None

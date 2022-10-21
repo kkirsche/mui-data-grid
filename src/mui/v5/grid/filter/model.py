@@ -8,6 +8,7 @@ from mui.v5.grid.link.operator import GridLinkOperator
 
 # type aliases require the use of `Optional` instead of `|` for use at
 # runtime in Pydantic
+Items: TypeAlias = list[GridFilterItem]
 LinkOperator: TypeAlias = Optional[GridLinkOperator]
 QuickFilterLogicOperator: TypeAlias = Optional[GridLinkOperator]
 QuickFilterValues: TypeAlias = Optional[list[Any]]
@@ -34,7 +35,7 @@ class GridFilterModel(GridBaseModel):
             - Alias: quickFilterValues
     """
 
-    items: list[GridFilterItem] = Field(
+    items: Items = Field(
         default_factory=list,
         title="Items",
         description="The individual filters to apply",
