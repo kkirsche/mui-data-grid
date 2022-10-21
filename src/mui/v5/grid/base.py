@@ -1,7 +1,7 @@
 from collections.abc import MutableMapping, Sequence
-from typing_extensions import TypeAlias, ClassVar
 
 from pydantic import BaseModel, Extra, root_validator
+from typing_extensions import ClassVar, TypeAlias
 
 OptionalKeys: TypeAlias = set[Sequence[str]]
 

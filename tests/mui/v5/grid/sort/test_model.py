@@ -1,7 +1,6 @@
-from typing_extensions import TypeAlias
-
 from pydantic import parse_obj_as
 from pytest import mark
+from typing_extensions import TypeAlias
 
 from mui.v5.grid.sort.model import GridSortModel
 from tests.mui.v5.grid.sort.test_item import generate_valid_test_cases

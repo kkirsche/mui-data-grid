@@ -1,6 +1,5 @@
-from typing_extensions import TypeAlias
-
 from pytest import mark
+from typing_extensions import TypeAlias
 
 from mui.v5.grid.filter.item import (
     ColumnField,

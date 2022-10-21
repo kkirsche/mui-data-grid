@@ -1,6 +1,5 @@
-from typing_extensions import ClassVar, TypeAlias
-
 from pydantic import Field as PyField
+from typing_extensions import ClassVar, TypeAlias
 
 from mui.v5.grid.base import GridBaseModel, OptionalKeys
 from mui.v5.grid.sort.direction import GridSortDirection

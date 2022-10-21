@@ -1,7 +1,7 @@
 from typing import Literal, Union
-from typing_extensions import TypeAlias
 
 from pytest import mark
+from typing_extensions import TypeAlias
 
 from mui.v5.grid.sort.direction import GridSortDirection
 from mui.v5.grid.sort.item import Field, GridSortItem, Sort
