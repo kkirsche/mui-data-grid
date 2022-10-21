@@ -20,14 +20,15 @@ python -m pip install -U mui-data-grid
 
 or with extras:
 
-````sh
+```sh
 python -m pip install -U mui-data-grid[flask]
+```
 
 ### Poetry
 
 ```sh
 poetry add mui-data-grid
-````
+```
 
 ## Usage
 
@@ -54,9 +55,12 @@ app = Flask(__name__)
 def print_sorted_details() -> Response:
     sort_model = grid_sort_model_from_request(key="sort_model[]")
     filter_model = grid_filter_model_from_request(key="filter_model")
-    return jsonify(
-        {"sort_model[]": sort_model.dict(), "filter_model": filter_model.dict()}
-    )
+    return jsonify({
+            # sort_model is a list[GridSortItem]
+            "sort_model[]": [model.dict() for model in sort_model],
+            # filter_model is GridFilterModel
+            "filter_model": filter_model.dict()
+    })
 
 
 if __name__ == "__main__":

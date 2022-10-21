@@ -16,7 +16,14 @@ app = Flask(__name__)
 def print_sorted_details() -> Response:
     sort_model = grid_sort_model_from_request(key="sort_model[]")
     filter_model = grid_filter_model_from_request(key="filter_model")
-    return jsonify({"sort_model[]": sort_model, "filter_model": filter_model.dict()})
+    return jsonify(
+        {
+            # sort_model is a list[GridSortItem]
+            "sort_model[]": [model.dict() for model in sort_model],
+            # filter_model is GridFilterModel
+            "filter_model": filter_model.dict(),
+        }
+    )
 
 
 if __name__ == "__main__":
