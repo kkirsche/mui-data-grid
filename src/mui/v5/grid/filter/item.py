@@ -1,4 +1,5 @@
-from typing import Any, Optional, TypeAlias, Union
+from typing import Any, Optional, Union
+from typing_extensions import TypeAlias
 
 from pydantic import Field
 

@@ -1,5 +1,5 @@
-from typing import Any, Optional, TypeAlias
-
+from typing import Any, Optional
+from typing_extensions import TypeAlias
 from pydantic import Field
 
 from mui.v5.grid.base import GridBaseModel

@@ -1,4 +1,4 @@
-from typing import TypeAlias
+from typing_extensions import TypeAlias
 
 from mui.v5.grid.sort.item import GridSortItem
 

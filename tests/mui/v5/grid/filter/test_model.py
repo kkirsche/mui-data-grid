@@ -1,5 +1,5 @@
-from typing import Any, Literal, TypeAlias, cast
-
+from typing import Any, Literal, cast
+from typing_extensions import TypeAlias
 from pytest import mark
 
 from mui.v5.grid.filter.model import (

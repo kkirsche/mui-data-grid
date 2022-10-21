@@ -1,4 +1,5 @@
-from typing import Literal, TypeAlias, Union
+from typing import Literal, Union
+from typing_extensions import TypeAlias
 
 from pytest import mark
 
