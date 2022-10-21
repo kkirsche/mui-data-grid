@@ -3,11 +3,11 @@ from typing_extensions import TypeAlias, ClassVar
 
 from pydantic import BaseModel, Extra, root_validator
 
-OptionalKeys: TypeAlias = ClassVar[set[Sequence[str]]]
+OptionalKeys: TypeAlias = set[Sequence[str]]
 
 
 class GridBaseModel(BaseModel):
-    _optional_keys: OptionalKeys = set()
+    _optional_keys: ClassVar[OptionalKeys] = set()
 
     @root_validator(pre=True)
     def ensure_optional_keys_exist(cls, haystack: object) -> object:  # noqa: B902
