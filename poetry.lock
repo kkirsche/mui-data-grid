@@ -119,6 +119,17 @@ python-versions = ">=3.6,<4.0"
 natsort = ">=7.1.1"
 
 [[package]]
+name = "exceptiongroup"
+version = "1.0.0rc9"
+description = "Backport of PEP 654 (exception groups)"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+test = ["pytest (>=6)"]
+
+[[package]]
 name = "flake8"
 version = "5.0.4"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -201,6 +212,35 @@ python-versions = ">=3.7"
 [package.dependencies]
 gitdb = ">=4.0.1,<5"
 typing-extensions = {version = ">=3.7.4.3", markers = "python_version < \"3.8\""}
+
+[[package]]
+name = "hypothesis"
+version = "6.56.3"
+description = "A library for property-based testing"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+attrs = ">=19.2.0"
+exceptiongroup = {version = ">=1.0.0rc8", markers = "python_version < \"3.11\""}
+sortedcontainers = ">=2.1.0,<3.0.0"
+
+[package.extras]
+all = ["backports.zoneinfo (>=0.2.1)", "black (>=19.10b0)", "click (>=7.0)", "django (>=3.2)", "dpcontracts (>=0.4)", "importlib-metadata (>=3.6)", "lark-parser (>=0.6.5)", "libcst (>=0.3.16)", "numpy (>=1.9.0)", "pandas (>=1.0)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "tzdata (>=2022.5)"]
+cli = ["black (>=19.10b0)", "click (>=7.0)", "rich (>=9.0.0)"]
+codemods = ["libcst (>=0.3.16)"]
+dateutil = ["python-dateutil (>=1.4)"]
+django = ["django (>=3.2)"]
+dpcontracts = ["dpcontracts (>=0.4)"]
+ghostwriter = ["black (>=19.10b0)"]
+lark = ["lark-parser (>=0.6.5)"]
+numpy = ["numpy (>=1.9.0)"]
+pandas = ["pandas (>=1.0)"]
+pytest = ["pytest (>=4.6)"]
+pytz = ["pytz (>=2014.1)"]
+redis = ["redis (>=3.0.0)"]
+zoneinfo = ["backports.zoneinfo (>=0.2.1)", "tzdata (>=2022.5)"]
 
 [[package]]
 name = "importlib-metadata"
@@ -481,6 +521,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+description = "Sorted Containers -- Sorted List, Sorted Dict, Sorted Set"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "stevedore"
 version = "3.5.2"
 description = "Manage dynamic plugins for Python applications"
@@ -551,7 +599,7 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "zipp"
-version = "3.9.0"
+version = "3.10.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 category = "dev"
 optional = false
@@ -567,7 +615,7 @@ flask = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "32effb370d35347e34ca74f59e32ab88e8a2cdee6b029ea76ec719c6211c93f4"
+content-hash = "a6badd18a8760da37c029510e0a0ff326346719114de94a6f7051431586424db"
 
 [metadata.files]
 ast-decompiler = [
@@ -616,6 +664,10 @@ example-isort-sorting-plugin = [
     {file = "example_isort_sorting_plugin-0.0.3-py3-none-any.whl", hash = "sha256:643c348a97d537bce87ffd027083463c56ee47b61d68158ad0b5ec848c93d24b"},
     {file = "example_isort_sorting_plugin-0.0.3.tar.gz", hash = "sha256:1cb716db8abfbe067f85848e6b6e24cdc8b5d6def18b055039e7c2dbc3e57948"},
 ]
+exceptiongroup = [
+    {file = "exceptiongroup-1.0.0rc9-py3-none-any.whl", hash = "sha256:2e3c3fc1538a094aab74fad52d6c33fc94de3dfee3ee01f187c0e0c72aec5337"},
+    {file = "exceptiongroup-1.0.0rc9.tar.gz", hash = "sha256:9086a4a21ef9b31c72181c77c040a074ba0889ee56a7b289ff0afb0d97655f96"},
+]
 flake8 = [
     {file = "flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248"},
     {file = "flake8-5.0.4.tar.gz", hash = "sha256:6fbe320aad8d6b95cec8b8e47bc933004678dc63095be98528b7bdd2a9f510db"},
@@ -639,6 +691,10 @@ gitdb = [
 gitpython = [
     {file = "GitPython-3.1.29-py3-none-any.whl", hash = "sha256:41eea0deec2deea139b459ac03656f0dd28fc4a3387240ec1d3c259a2c47850f"},
     {file = "GitPython-3.1.29.tar.gz", hash = "sha256:cc36bfc4a3f913e66805a28e84703e419d9c264c1077e537b54f0e1af85dbefd"},
+]
+hypothesis = [
+    {file = "hypothesis-6.56.3-py3-none-any.whl", hash = "sha256:802d236d03dbd54e0e1c55c0daa2ec41aeaadc87a4dcbb41421b78bf3f7a7789"},
+    {file = "hypothesis-6.56.3.tar.gz", hash = "sha256:15dae5d993339aefa57e00f5cb5a5817ff300eeb661d96d1c9d094eb62b04c9a"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-4.2.0-py3-none-any.whl", hash = "sha256:057e92c15bc8d9e8109738a48db0ccb31b4d9d5cfbee5a8670879a30be66304b"},
@@ -861,6 +917,10 @@ smmap = [
     {file = "smmap-5.0.0-py3-none-any.whl", hash = "sha256:2aba19d6a040e78d8b09de5c57e96207b09ed71d8e55ce0959eeee6c8e190d94"},
     {file = "smmap-5.0.0.tar.gz", hash = "sha256:c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936"},
 ]
+sortedcontainers = [
+    {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
+    {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
+]
 stevedore = [
     {file = "stevedore-3.5.2-py3-none-any.whl", hash = "sha256:fa2630e3d0ad3e22d4914aff2501445815b9a4467a6edc49387c667a38faf5bf"},
     {file = "stevedore-3.5.2.tar.gz", hash = "sha256:cf99f41fc0d5a4f185ca4d3d42b03be9011b0a1ec1a4ea1a282be1b4b306dcc2"},
@@ -912,6 +972,6 @@ werkzeug = [
     {file = "Werkzeug-2.2.2.tar.gz", hash = "sha256:7ea2d48322cc7c0f8b3a215ed73eabd7b5d75d0b50e31ab006286ccff9e00b8f"},
 ]
 zipp = [
-    {file = "zipp-3.9.0-py3-none-any.whl", hash = "sha256:972cfa31bc2fedd3fa838a51e9bc7e64b7fb725a8c00e7431554311f180e9980"},
-    {file = "zipp-3.9.0.tar.gz", hash = "sha256:3a7af91c3db40ec72dd9d154ae18e008c69efe8ca88dde4f9a731bb82fe2f9eb"},
+    {file = "zipp-3.10.0-py3-none-any.whl", hash = "sha256:4fcb6f278987a6605757302a6e40e896257570d11c51628968ccb2a47e80c6c1"},
+    {file = "zipp-3.10.0.tar.gz", hash = "sha256:7a7262fd930bd3e36c50b9a64897aec3fafff3dfdeec9623ae22b40e93f99bb8"},
 ]

@@ -6,10 +6,10 @@ from typing_extensions import TypeAlias
 from mui.v5.grid.sort.direction import GridSortDirection
 from mui.v5.grid.sort.item import Field, GridSortItem, Sort
 
+COLUMNS = "field,sort"
 SortTest: TypeAlias = Union[Sort, Literal["asc", "desc"]]
 GridSortModelItemTestCase: TypeAlias = tuple[Field, SortTest]
 GridSortItemTestCases: TypeAlias = list[GridSortModelItemTestCase]
-COLUMNS = "field,sort"
 
 
 valid_field_values: list[Field] = ["field1", "field2.nested_field3"]

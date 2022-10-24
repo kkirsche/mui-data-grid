@@ -4,24 +4,31 @@
 from flask import Flask, jsonify
 from flask.wrappers import Response
 
-from mui.integrations.flask import (
-    grid_filter_model_from_request,
-    grid_sort_model_from_request,
-)
+from mui.v5.integrations.flask import get_grid_models_from_request
 
 app = Flask(__name__)
+
+FILTER_MODEL_KEY = "filter_model"
+SORT_MODEL_KEY = "sort_model[]"
+PAGINATION_MODEL_KEY = None  # stored inline in the query string, not encoded as an obj
 
 
 @app.route("/")
 def print_sorted_details() -> Response:
-    sort_model = grid_sort_model_from_request(key="sort_model[]")
-    filter_model = grid_filter_model_from_request(key="filter_model")
+    models = get_grid_models_from_request(
+        filter_model_key=FILTER_MODEL_KEY,
+        pagination_model_key=PAGINATION_MODEL_KEY,
+        sort_model_key=SORT_MODEL_KEY,
+    )
     return jsonify(
         {
             # sort_model is a list[GridSortItem]
-            "sort_model[]": [model.dict() for model in sort_model],
+            SORT_MODEL_KEY: [model.dict() for model in models.sort_model],
             # filter_model is GridFilterModel
-            "filter_model": filter_model.dict(),
+            FILTER_MODEL_KEY: models.filter_model.dict(),
+            # pagination_model is a GridPaginationModel
+            # providing a consistent interface to pagination parameters
+            PAGINATION_MODEL_KEY: models.pagination_model,
         }
     )
 

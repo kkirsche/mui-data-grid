@@ -5,14 +5,14 @@ from flask import Flask
 from pydantic import parse_obj_as
 from pytest import mark
 
-from mui.integrations.flask.sort_model import grid_sort_model_from_request
 from mui.v5.grid.sort import GridSortModel
-from tests.mui.v5.grid.sort.test_model import columns, valid_test_cases
+from mui.v5.integrations.flask.sort.model import get_grid_sort_model_from_request
+from tests.mui.v5.grid.sort.test_model import COLUMNS, valid_test_cases
 
 app = Flask(__name__)
 
 
-@mark.parametrize(columns, valid_test_cases)
+@mark.parametrize(COLUMNS, valid_test_cases)
 def test_sort_models(sort_model: GridSortModel | list[dict[str, object]]) -> None:
     key = "sort_model[]"
     with app.app_context():
@@ -25,4 +25,4 @@ def test_sort_models(sort_model: GridSortModel | list[dict[str, object]]) -> Non
         with app.test_request_context(
             path=(f"/?{key}={query_str}"),
         ):
-            model = grid_sort_model_from_request()
+            model = get_grid_sort_model_from_request()

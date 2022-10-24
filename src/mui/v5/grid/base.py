@@ -1,3 +1,4 @@
+"""The base module contains the base pydantic model used throughout mui-data-grid."""
 from collections.abc import MutableMapping, Sequence
 
 from pydantic import BaseModel, Extra, root_validator
@@ -7,6 +8,13 @@ OptionalKeys: TypeAlias = set[Sequence[str]]
 
 
 class GridBaseModel(BaseModel):
+    """The base model for all mui-data-grid pydantic models.
+
+    Attributes:
+        _optional_keys: Keys which may not be present in the incoming structures.
+            This feature is used to represent `?` parameters in TypeScript interfaces.
+    """
+
     _optional_keys: ClassVar[OptionalKeys] = set()
 
     @root_validator(pre=True)

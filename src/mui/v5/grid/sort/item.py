@@ -1,7 +1,7 @@
 from pydantic import Field as PyField
-from typing_extensions import ClassVar, TypeAlias
+from typing_extensions import TypeAlias
 
-from mui.v5.grid.base import GridBaseModel, OptionalKeys
+from mui.v5.grid.base import GridBaseModel
 from mui.v5.grid.sort.direction import GridSortDirection
 
 Field: TypeAlias = str
@@ -33,5 +33,3 @@ class GridSortItem(GridBaseModel):
         title="Sort",
         description="The direction of the column that the grid should sort.",
     )
-
-    _optional_keys: ClassVar[OptionalKeys] = set()

@@ -1,8 +1,11 @@
 from mui.v5.grid.filter.item import (
+    CamelCaseGridFilterItemDict,
     ColumnField,
     GridFilterItem,
+    GridFilterItemDict,
     Id,
     OperatorValue,
+    SnakeCaseGridFilterItemDict,
     Value,
 )
 from mui.v5.grid.filter.model import (
@@ -15,8 +18,10 @@ from mui.v5.grid.filter.model import (
 
 # isort: unique-list
 __all__ = [
+    "CamelCaseGridFilterItemDict",
     "ColumnField",
     "GridFilterItem",
+    "GridFilterItemDict",
     "GridFilterModel",
     "Id",
     "Items",
@@ -24,5 +29,6 @@ __all__ = [
     "OperatorValue",
     "QuickFilterLogicOperator",
     "QuickFilterValues",
+    "SnakeCaseGridFilterItemDict",
     "Value",
 ]

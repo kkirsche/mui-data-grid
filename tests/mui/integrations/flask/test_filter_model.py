@@ -3,7 +3,6 @@ from urllib.parse import quote
 from flask import Flask
 from pytest import mark
 
-from mui.integrations.flask.filter_model import grid_filter_model_from_request
 from mui.v5.grid.filter import (
     Items,
     LinkOperator,
@@ -11,6 +10,7 @@ from mui.v5.grid.filter import (
     QuickFilterValues,
 )
 from mui.v5.grid.filter.model import GridFilterModel
+from mui.v5.integrations.flask.filter.model import get_grid_filter_model_from_request
 from tests.mui.v5.grid.filter.test_model import columns, generate_valid_test_cases
 
 app = Flask(__name__)
@@ -38,4 +38,4 @@ def test_filter_models(
         with app.test_request_context(
             path=(f"/?{key}={query_str}"),
         ):
-            model = grid_filter_model_from_request()
+            model = get_grid_filter_model_from_request()

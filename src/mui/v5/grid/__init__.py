@@ -10,7 +10,9 @@ from mui.v5.grid.filter import (
     QuickFilterValues,
     Value,
 )
-from mui.v5.grid.link import GridLinkOperator
+from mui.v5.grid.link import GridLinkOperator, GridLinkOperatorLiterals
+from mui.v5.grid.pagination import GridPaginationModel
+from mui.v5.grid.request import RequestGridModels
 from mui.v5.grid.sort import Field, GridSortDirection, GridSortItem, GridSortModel, Sort
 
 # isort: unique-list
@@ -20,6 +22,8 @@ __all__ = [
     "GridFilterItem",
     "GridFilterModel",
     "GridLinkOperator",
+    "GridLinkOperatorLiterals",
+    "GridPaginationModel",
     "GridSortDirection",
     "GridSortItem",
     "GridSortModel",
@@ -29,6 +33,7 @@ __all__ = [
     "OperatorValue",
     "QuickFilterLogicOperator",
     "QuickFilterValues",
+    "RequestGridModels",
     "Sort",
     "Value",
 ]

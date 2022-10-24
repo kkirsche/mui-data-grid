@@ -1,7 +1,12 @@
+"""The item module contains the representations of a grid filter model's individual
+filter items.
+
+Each filter item corresponds to a configured filter from the data grid's filter window.
+"""
 from typing import Any, Optional, Union
 
 from pydantic import Field
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, TypedDict
 
 from mui.v5.grid.base import GridBaseModel
 
@@ -9,6 +14,65 @@ ColumnField: TypeAlias = str
 Id: TypeAlias = Optional[Union[int, str]]
 OperatorValue: TypeAlias = Optional[str]
 Value: TypeAlias = Optional[Any]
+
+
+class SnakeCaseGridFilterItemDict(TypedDict):
+    """The dictionary representation of a valid snake case grid filter item.
+
+    Documentation:
+        https://mui.com/x/api/data-grid/grid-filter-item/
+
+    Attributes:
+        column_field (str): The column from which we want to filter the rows.
+            - Alias: columnField
+        id (str | int | not set): Must be unique. Only useful when the model contains
+            several items.
+        operator_value (str | None | not set): The name of the operator we want to
+            apply. Will become required on @mui/x-data-grid@6.X.
+            - Alias: operatorValue
+        value: (Any | None | not set): The filtering value.
+            The operator filtering function will decide for each row if the row values
+            is correct compared to this value.
+    """
+
+    column_field: ColumnField
+    id: Id
+    operator_value: OperatorValue
+    value: Value
+
+
+class CamelCaseGridFilterItemDict(TypedDict):
+    """The dictionary representation of a valid camel case grid filter item.
+
+    Documentation:
+        https://mui.com/x/api/data-grid/grid-filter-item/
+
+    Attributes:
+        columnField (str): The column from which we want to filter the rows.
+            - Alias: columnField
+        id (str | int | not set): Must be unique. Only useful when the model contains
+            several items.
+        operatorValue (str | None | not set): The name of the operator we want to
+            apply. Will become required on @mui/x-data-grid@6.X.
+            - Alias: operatorValue
+        value: (Any | None | not set): The filtering value.
+            The operator filtering function will decide for each row if the row values
+            is correct compared to this value.
+    """
+
+    columnField: ColumnField
+    id: Id
+    operatorValue: OperatorValue
+    value: Value
+
+
+"""The GridFilterItemDict is an alias for either a snake or camel case grid filter item.
+
+Both formats are supported by the GridFilterItem model.
+"""
+GridFilterItemDict: TypeAlias = (
+    CamelCaseGridFilterItemDict | SnakeCaseGridFilterItemDict
+)
 
 
 class GridFilterItem(GridBaseModel):
