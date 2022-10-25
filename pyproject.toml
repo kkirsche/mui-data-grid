@@ -49,6 +49,7 @@ line-length = 88
 target-version = ['py310']
 
 [tool.mypy]
+exclude = ['^compat\.py$']
 follow_imports = "normal"
 plugins = ["pydantic.mypy"]
 python_version = "3.10"
@@ -72,3 +73,20 @@ warn_untyped_fields = true
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers --strict-config -p no:pastebin -p no:nose"
 testpaths = ["tests"]
+
+[tool.interrogate]
+color = true
+exclude = ["tests"]
+fail-under = 75
+ignore-init-method = false
+ignore-init-module = true
+ignore-magic = false
+ignore-module = false
+ignore-nested-classes = false
+ignore-nested-functions = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-semiprivate = false
+ignore-setters = false
+quiet = false
+verbose = 1

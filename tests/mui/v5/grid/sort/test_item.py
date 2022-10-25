@@ -1,12 +1,10 @@
-from typing import Literal
-
 from hypothesis import given
 from hypothesis import strategies as st
 
 from mui.v5.grid.sort.direction import GridSortDirection
-from mui.v5.grid.sort.item import GridSortItem, Sort
+from mui.v5.grid.sort.item import GridSortItem, Sort, SortLiterals
 
-valid_sort_values: list[Sort | Literal["asc", "desc"]] = [
+valid_sort_values: list[Sort | SortLiterals] = [
     "asc",
     "desc",
     GridSortDirection.ASC,

@@ -4,9 +4,9 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from mui.v5.grid.filter.item import GridFilterItem
-from mui.v5.grid.link.operator import GridLinkOperator
+from mui.v5.grid.link.operator import GridLinkOperator, GridLinkOperatorLiterals
 
-valid_operators = [
+valid_operators: list[GridLinkOperator | GridLinkOperatorLiterals | None] = [
     "and",
     "or",
     GridLinkOperator.And,
