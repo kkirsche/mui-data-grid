@@ -1,3 +1,4 @@
+"""The item module holds the GridSortItem and related types."""
 from typing import Optional
 
 from pydantic import Field as PyField

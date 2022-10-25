@@ -82,7 +82,7 @@ testpaths = ["tests"]
 [tool.interrogate]
 color = true
 exclude = ["tests"]
-fail-under = 75
+fail-under = 95
 ignore-init-method = false
 ignore-init-module = true
 ignore-magic = false
