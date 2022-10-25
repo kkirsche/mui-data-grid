@@ -2,8 +2,9 @@
 
 Supports parsing a GridPaginationModel from Flask's request.args
 """
-from flask import request
 from typing import Union
+
+from flask import request
 
 from mui.v5.grid.pagination import GridPaginationModel
 

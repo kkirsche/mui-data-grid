@@ -1,7 +1,6 @@
 from enum import unique
-from typing import Literal
 
-from typing_extensions import TypeAlias
+from typing_extensions import Literal, TypeAlias
 
 from mui.compat import StrEnum
 

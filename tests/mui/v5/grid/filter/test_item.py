@@ -1,12 +1,12 @@
-from types import NoneType
+from typing import Dict
 
 from hypothesis import given
 from hypothesis import strategies as st
 
 from mui.v5.grid.filter.item import GridFilterItem
-from mui.v5.grid.link.operator import GridLinkOperator, GridLinkOperatorLiterals
+from mui.v5.grid.link.operator import GridLinkOperator
 
-valid_operators: list[GridLinkOperator | GridLinkOperatorLiterals | None] = [
+valid_operators = [
     "and",
     "or",
     GridLinkOperator.And,
@@ -38,23 +38,23 @@ SnakeCaseGridFilterItemData = st.fixed_dictionaries(  # type: ignore[misc]
 
 @given(filter_item_dict=CamelCaseGridFilterItemData)
 def test_parse_valid_grid_filter_item_camel_case_dict(
-    filter_item_dict: dict[str, object]
+    filter_item_dict: Dict[str, object]
 ) -> None:
     assert "columnField" in filter_item_dict
     parsed = GridFilterItem.parse_obj(filter_item_dict)
     assert isinstance(parsed.column_field, str)
-    assert isinstance(parsed.id, (str, int, NoneType))
-    assert isinstance(parsed.operator_value, (str, NoneType))
-    assert isinstance(parsed.value, (str, NoneType, bool, float))
+    assert isinstance(parsed.id, (str, int)) or parsed.id is None
+    assert isinstance(parsed.operator_value, str) or parsed.operator_value is None
+    assert isinstance(parsed.value, (str, bool, float)) or parsed.value is None
 
 
 @given(filter_item_dict=SnakeCaseGridFilterItemData)
 def test_parse_valid_grid_filter_item_snake_case_dict(
-    filter_item_dict: dict[str, object]
+    filter_item_dict: Dict[str, object]
 ) -> None:
     assert "column_field" in filter_item_dict
     parsed = GridFilterItem.parse_obj(filter_item_dict)
     assert isinstance(parsed.column_field, str)
-    assert isinstance(parsed.id, (str, int, NoneType))
-    assert isinstance(parsed.operator_value, (str, NoneType))
-    assert isinstance(parsed.value, (str, NoneType, bool, float))
+    assert isinstance(parsed.id, (str, int)) or parsed.id is None
+    assert isinstance(parsed.operator_value, str) or parsed.operator_value is None
+    assert isinstance(parsed.value, (str, bool, float)) or parsed.value is None

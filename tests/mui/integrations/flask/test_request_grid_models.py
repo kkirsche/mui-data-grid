@@ -1,3 +1,4 @@
+from typing import Dict
 from urllib.parse import quote
 
 from flask import Flask
@@ -30,7 +31,7 @@ SNAKE_SORT_MODEL_KEY = "sort_model[]"
 SNAKE_FILTER_MODEL_KEY = "filter_model"
 SNAKE_PAGINATION_MODEL_KEY = "pagination_model"
 
-EMPTY_DICT: dict[str, SearchStrategy[object]] = {}
+EMPTY_DICT: Dict[str, SearchStrategy[object]] = {}
 
 SnakeCaseFlatRequestGridModelsData = st.fixed_dictionaries(
     mapping=EMPTY_DICT,
@@ -83,7 +84,7 @@ CamelCaseNestedRequestGridModelsData = st.fixed_dictionaries(
 
 @given(CamelCaseFlatRequestGridModelsData)
 def test_parse_request_grid_models_from_flask_request(
-    models_dict: dict[str, object]
+    models_dict: Dict[str, object]
 ) -> None:
     with app.app_context():
         model = RequestGridModels.parse_obj(models_dict)

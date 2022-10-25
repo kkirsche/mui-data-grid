@@ -1,3 +1,5 @@
+from typing import Dict
+
 from hypothesis import given
 from hypothesis import strategies as st
 from hypothesis.strategies import builds
@@ -28,7 +30,7 @@ def test_parse_valid_grid_pagination_model_generated(
 
 @given(CamelCaseGridPaginationModelData)
 def test_parse_valid_grid_pagination_model_camel_case_dict(
-    model_dict: dict[str, int]
+    model_dict: Dict[str, int]
 ) -> None:
     assert "page" in model_dict
     assert "pageSize" in model_dict
@@ -39,7 +41,7 @@ def test_parse_valid_grid_pagination_model_camel_case_dict(
 
 @given(SnakeCaseGridPaginationModelData)
 def test_parse_valid_grid_pagination_model_snake_case_dict(
-    model_dict: dict[str, int]
+    model_dict: Dict[str, int]
 ) -> None:
     assert "page" in model_dict
     assert "page_size" in model_dict

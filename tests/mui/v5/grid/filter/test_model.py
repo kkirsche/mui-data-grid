@@ -1,4 +1,4 @@
-from types import NoneType
+from typing import Dict
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -51,23 +51,41 @@ SnakeCaseGridFilterModelData = st.fixed_dictionaries(  # type: ignore[misc]
 
 @given(CamelCaseGridFilterModelData)
 def test_valid_grid_filter_model_camel_case_parse(
-    filter_item_dict: dict[str, object]
+    filter_item_dict: Dict[str, object]
 ) -> None:
     parsed = GridFilterModel.parse_obj(filter_item_dict)
     assert isinstance(parsed.items, list)
     assert all(isinstance(item, GridFilterItem) for item in parsed.items)
-    assert isinstance(parsed.link_operator, (GridLinkOperator, NoneType))
-    assert isinstance(parsed.quick_filter_logic_operator, (GridLinkOperator, NoneType))
-    assert isinstance(parsed.quick_filter_values, (list, NoneType))
+    assert (
+        isinstance(parsed.link_operator, GridLinkOperator)
+        or parsed.link_operator is None
+    )
+    assert (
+        isinstance(parsed.quick_filter_logic_operator, GridLinkOperator)
+        or parsed.quick_filter_logic_operator is None
+    )
+    assert (
+        isinstance(parsed.quick_filter_values, list)
+        or parsed.quick_filter_values is None
+    )
 
 
 @given(SnakeCaseGridFilterModelData)
 def test_valid_grid_filter_model_snake_case_parse(
-    filter_item_dict: dict[str, object]
+    filter_item_dict: Dict[str, object]
 ) -> None:
     parsed = GridFilterModel.parse_obj(filter_item_dict)
     assert isinstance(parsed.items, list)
     assert all(isinstance(item, GridFilterItem) for item in parsed.items)
-    assert isinstance(parsed.link_operator, (GridLinkOperator, NoneType))
-    assert isinstance(parsed.quick_filter_logic_operator, (GridLinkOperator, NoneType))
-    assert isinstance(parsed.quick_filter_values, (list, NoneType))
+    assert (
+        isinstance(parsed.link_operator, GridLinkOperator)
+        or parsed.link_operator is None
+    )
+    assert (
+        isinstance(parsed.quick_filter_logic_operator, GridLinkOperator)
+        or parsed.quick_filter_logic_operator is None
+    )
+    assert (
+        isinstance(parsed.quick_filter_values, list)
+        or parsed.quick_filter_values is None
+    )

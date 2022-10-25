@@ -1,4 +1,3 @@
-from types import NoneType
 from urllib.parse import quote
 
 from flask import Flask
@@ -25,11 +24,18 @@ def test_parse_grid_filter_model_from_flask_request(instance: GridFilterModel) -
             assert model is not None
             assert isinstance(model.items, list)
             assert all(isinstance(item, GridFilterItem) for item in model.items)
-            assert isinstance(model.link_operator, (GridLinkOperator, NoneType))
-            assert isinstance(
-                model.quick_filter_logic_operator, (GridLinkOperator, NoneType)
+            assert (
+                isinstance(model.link_operator, (GridLinkOperator))
+                or model.link_operator is None
             )
-            assert isinstance(model.quick_filter_values, (str, NoneType, bool, float))
+            assert (
+                isinstance(model.quick_filter_logic_operator, (GridLinkOperator))
+                or model.quick_filter_logic_operator is None
+            )
+            assert (
+                isinstance(model.quick_filter_values, (str, bool, float))
+                or model.quick_filter_values is None
+            )
             assert model.link_operator == instance.link_operator
             assert (
                 model.quick_filter_logic_operator

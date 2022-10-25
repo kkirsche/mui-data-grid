@@ -1,10 +1,12 @@
+from typing import Dict
+
 from hypothesis import given
 from hypothesis import strategies as st
 
 from mui.v5.grid.sort.direction import GridSortDirection
-from mui.v5.grid.sort.item import GridSortItem, Sort, SortLiterals
+from mui.v5.grid.sort.item import GridSortItem
 
-valid_sort_values: list[Sort | SortLiterals] = [
+valid_sort_values = [
     "asc",
     "desc",
     GridSortDirection.ASC,
@@ -18,5 +20,5 @@ GridSortItemData = st.fixed_dictionaries(
 
 
 @given(GridSortItemData)
-def test_valid_grid_sort_item_parse(sort_item_dict: dict[str, object]) -> None:
+def test_valid_grid_sort_item_parse(sort_item_dict: Dict[str, object]) -> None:
     GridSortItem.parse_obj(sort_item_dict)

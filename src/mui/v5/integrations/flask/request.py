@@ -2,6 +2,7 @@
 
 Supports parsing the filter, pagination, and sort models from Flask's request.args."""
 from typing import Optional
+
 from mui.v5.grid.request import RequestGridModels
 from mui.v5.integrations.flask.filter.model import get_grid_filter_model_from_request
 from mui.v5.integrations.flask.pagination.model import (

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 from pydantic import Field as PyField
 from typing_extensions import TypeAlias
@@ -7,8 +7,8 @@ from mui.v5.grid.base import GridBaseModel
 from mui.v5.grid.sort.direction import GridSortDirection, GridSortDirectionLiterals
 
 Field: TypeAlias = str
-Sort: TypeAlias = Union[GridSortDirection, None]
-SortLiterals: TypeAlias = Union[GridSortDirectionLiterals, None]
+Sort: TypeAlias = Optional[GridSortDirection]
+SortLiterals: TypeAlias = Optional[GridSortDirectionLiterals]
 
 
 class GridSortItem(GridBaseModel):
