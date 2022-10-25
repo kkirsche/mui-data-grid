@@ -1,6 +1,7 @@
 """The request module contains the model used to store parsed models."""
+from typing import ClassVar
+
 from pydantic import Field, validator
-from typing_extensions import ClassVar
 
 from mui.v5.grid.base import GridBaseModel, OptionalKeys
 from mui.v5.grid.filter import GridFilterItem, GridFilterModel

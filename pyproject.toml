@@ -1,6 +1,7 @@
 [tool.poetry]
 authors = ["Kevin Kirsche <kev.kirsche@gmail.com>"]
 description = "Unofficial backend utilities for using Material-UI's X-Data-Grid component"
+documentation = "https://mui-data-grid.readthedocs.io/en/latest/"
 include = ["src/mui/py.typed", "LICENSE"]
 license = "MIT"
 name = "mui-data-grid"
