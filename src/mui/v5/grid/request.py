@@ -1,7 +1,8 @@
 """The request module contains the model used to store parsed models."""
-from pydantic import Field
+from pydantic import Field, validator
+from typing_extensions import ClassVar
 
-from mui.v5.grid.base import GridBaseModel
+from mui.v5.grid.base import GridBaseModel, OptionalKeys
 from mui.v5.grid.filter import GridFilterItem, GridFilterModel
 from mui.v5.grid.link import GridLinkOperator
 from mui.v5.grid.pagination import GridPaginationModel
@@ -61,3 +62,21 @@ class RequestGridModels(GridBaseModel):
         alias="sortModel",
         example=[GridSortItem(field="fieldName", sort=GridSortDirection.DESC)],
     )
+
+    @validator("filter_model", pre=True)
+    def ensure_filter_model_isnt_none(cls, v: object) -> object:  # noqa: B902
+        return GridFilterModel() if v is None else v
+
+    @validator("pagination_model", pre=True)
+    def ensure_pagination_model_isnt_none(cls, v: object) -> object:  # noqa: B902
+        return GridPaginationModel() if v is None else v
+
+    @validator("sort_model", pre=True)
+    def ensure_sort_model_isnt_none(cls, v: object) -> object:  # noqa: B902
+        return GridSortModel() if v is None else v
+
+    _optional_keys: ClassVar[OptionalKeys] = {
+        ("pagination_model", "paginationModel"),
+        ("sort_model", "sortModel"),
+        ("filter_model", "filterModel"),
+    }

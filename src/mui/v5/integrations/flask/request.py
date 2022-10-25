@@ -13,7 +13,6 @@ def get_grid_models_from_request(
     sort_model_key: str = "sort_model[]",
     filter_model_key: str = "filter_model",
     pagination_model_key: str | None = None,
-    raises: bool = False,
 ) -> RequestGridModels:
     """Parses the filter, sort, and pagination models from the request.
 
