@@ -1,11 +1,11 @@
 """The base module contains the base pydantic model used throughout mui-data-grid."""
 from collections.abc import MutableMapping, Sequence
-from typing import ClassVar, Set
+from typing import ClassVar, AbstractSet
 
 from pydantic import BaseModel, Extra, root_validator
 from typing_extensions import TypeAlias
 
-OptionalKeys: TypeAlias = Set[Sequence[str]]
+OptionalKeys: TypeAlias = AbstractSet[Sequence[str]]
 
 
 class GridBaseModel(BaseModel):
