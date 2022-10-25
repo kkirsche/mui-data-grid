@@ -12,6 +12,8 @@ from mui.v5.grid.base import GridBaseModel
 
 ColumnField: TypeAlias = str
 Id: TypeAlias = Optional[Union[int, str]]
+# https://mui.com/x/react-data-grid/filtering/#customize-the-operators
+# https://mui.com/x/api/data-grid/grid-filter-operator/
 OperatorValue: TypeAlias = Optional[str]
 Value: TypeAlias = Optional[Any]
 
@@ -87,7 +89,8 @@ class GridFilterItem(GridBaseModel):
         id (str | int | not set): Must be unique. Only useful when the model contains
             several items.
         operator_value (str | None | not set): The name of the operator we want to
-            apply. Will become required on @mui/x-data-grid@6.X.
+            apply. Will become required on @mui/x-data-grid@6.X. This is a string value
+            because Material-UI supports arbitrary / custom operators.
             - Alias: operatorValue
         value: (Any | None | not set): The filtering value.
             The operator filtering function will decide for each row if the row values

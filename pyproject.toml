@@ -70,5 +70,5 @@ warn_required_dynamic_aliases = true
 warn_untyped_fields = true
 
 [tool.pytest.ini_options]
-addopts = "-ra --strict-markers --strict-config"
+addopts = "-ra --strict-markers --strict-config -p no:pastebin -p no:nose"
 testpaths = ["tests"]

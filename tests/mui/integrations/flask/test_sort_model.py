@@ -2,27 +2,25 @@ from json import dumps
 from urllib.parse import quote
 
 from flask import Flask
-from pydantic import parse_obj_as
-from pytest import mark
+from hypothesis import given
+from hypothesis import strategies as st
 
 from mui.v5.grid.sort import GridSortModel
+from mui.v5.grid.sort.item import GridSortItem
 from mui.v5.integrations.flask.sort.model import get_grid_sort_model_from_request
-from tests.mui.v5.grid.sort.test_model import COLUMNS, valid_test_cases
 
 app = Flask(__name__)
 
 
-@mark.parametrize(COLUMNS, valid_test_cases)
-def test_sort_models(sort_model: GridSortModel | list[dict[str, object]]) -> None:
+@given(st.lists(st.builds(GridSortItem)))
+def test_parse_grid_sort_model_from_flask_request(sort_model: GridSortModel) -> None:
     key = "sort_model[]"
     with app.app_context():
-        model = parse_obj_as(
-            type_=GridSortModel,
-            obj=sort_model,
-        )
-        json = dumps([item.dict() for item in model])
+        json = dumps([item.dict() for item in sort_model])
         query_str = quote(json)
         with app.test_request_context(
             path=(f"/?{key}={query_str}"),
         ):
-            model = get_grid_sort_model_from_request()
+            parsed_model = get_grid_sort_model_from_request()
+            assert isinstance(parsed_model, list)
+            assert all(isinstance(item, GridSortItem) for item in parsed_model)

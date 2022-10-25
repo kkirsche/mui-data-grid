@@ -1,41 +1,31 @@
+from types import NoneType
 from urllib.parse import quote
 
 from flask import Flask
-from pytest import mark
+from hypothesis import given
+from hypothesis import strategies as st
 
-from mui.v5.grid.filter import (
-    Items,
-    LinkOperator,
-    QuickFilterLogicOperator,
-    QuickFilterValues,
-)
+from mui.v5.grid.filter.item import GridFilterItem
 from mui.v5.grid.filter.model import GridFilterModel
+from mui.v5.grid.link.operator import GridLinkOperator
 from mui.v5.integrations.flask.filter.model import get_grid_filter_model_from_request
-from tests.mui.v5.grid.filter.test_model import columns, generate_valid_test_cases
 
 app = Flask(__name__)
 
 
-valid_test_cases = generate_valid_test_cases()
-
-
-@mark.parametrize(columns, valid_test_cases)
-def test_filter_models(
-    items: Items,
-    link_operator: LinkOperator,
-    quick_filter_logic_operator: QuickFilterLogicOperator,
-    quick_filter_values: QuickFilterValues,
-) -> None:
+@given(st.builds(GridFilterModel))
+def test_parse_grid_filter_model_from_flask_request(instance: GridFilterModel) -> None:
     key = "filter_model"
+    model = None
     with app.app_context():
-        model = GridFilterModel(
-            items=items,
-            link_operator=link_operator,
-            quick_filter_logic_operator=quick_filter_logic_operator,
-            quick_filter_values=quick_filter_values,
-        )
-        query_str = quote(model.json())
+        query_str = quote(instance.json())
         with app.test_request_context(
             path=(f"/?{key}={query_str}"),
         ):
             model = get_grid_filter_model_from_request()
+    assert model is not None
+    assert isinstance(model.items, list)
+    assert all(isinstance(item, GridFilterItem) for item in model.items)
+    assert isinstance(model.link_operator, (GridLinkOperator, NoneType))
+    assert isinstance(model.quick_filter_logic_operator, (GridLinkOperator, NoneType))
+    assert isinstance(model.quick_filter_values, (str, NoneType, bool, float))
