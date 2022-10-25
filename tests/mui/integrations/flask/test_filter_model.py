@@ -16,16 +16,22 @@ app = Flask(__name__)
 @given(st.builds(GridFilterModel))
 def test_parse_grid_filter_model_from_flask_request(instance: GridFilterModel) -> None:
     key = "filter_model"
-    model = None
     with app.app_context():
         query_str = quote(instance.json())
         with app.test_request_context(
             path=(f"/?{key}={query_str}"),
         ):
-            model = get_grid_filter_model_from_request()
-    assert model is not None
-    assert isinstance(model.items, list)
-    assert all(isinstance(item, GridFilterItem) for item in model.items)
-    assert isinstance(model.link_operator, (GridLinkOperator, NoneType))
-    assert isinstance(model.quick_filter_logic_operator, (GridLinkOperator, NoneType))
-    assert isinstance(model.quick_filter_values, (str, NoneType, bool, float))
+            model = get_grid_filter_model_from_request(key=key)
+            assert model is not None
+            assert isinstance(model.items, list)
+            assert all(isinstance(item, GridFilterItem) for item in model.items)
+            assert isinstance(model.link_operator, (GridLinkOperator, NoneType))
+            assert isinstance(
+                model.quick_filter_logic_operator, (GridLinkOperator, NoneType)
+            )
+            assert isinstance(model.quick_filter_values, (str, NoneType, bool, float))
+            assert model.link_operator == instance.link_operator
+            assert (
+                model.quick_filter_logic_operator
+                == instance.quick_filter_logic_operator
+            )
