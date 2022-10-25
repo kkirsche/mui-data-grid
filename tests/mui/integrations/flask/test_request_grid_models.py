@@ -3,6 +3,7 @@ from urllib.parse import quote
 from flask import Flask
 from hypothesis import given
 from hypothesis import strategies as st
+from hypothesis.strategies import SearchStrategy
 
 from mui.v5.grid.filter.model import GridFilterModel
 from mui.v5.grid.pagination.model import GridPaginationModel
@@ -29,8 +30,10 @@ SNAKE_SORT_MODEL_KEY = "sort_model[]"
 SNAKE_FILTER_MODEL_KEY = "filter_model"
 SNAKE_PAGINATION_MODEL_KEY = "pagination_model"
 
+EMPTY_DICT: dict[str, SearchStrategy[object]] = {}
+
 SnakeCaseFlatRequestGridModelsData = st.fixed_dictionaries(
-    mapping={},
+    mapping=EMPTY_DICT,
     optional={
         SNAKE_FILTER_MODEL_KEY: st.one_of(
             CamelCaseGridFilterModelData, SnakeCaseGridFilterModelData
@@ -41,7 +44,7 @@ SnakeCaseFlatRequestGridModelsData = st.fixed_dictionaries(
     },
 )
 SnakeCaseNestedRequestGridModelsData = st.fixed_dictionaries(
-    mapping={},
+    mapping=EMPTY_DICT,
     optional={
         SNAKE_FILTER_MODEL_KEY: st.one_of(
             CamelCaseGridFilterModelData, SnakeCaseGridFilterModelData
@@ -54,7 +57,7 @@ SnakeCaseNestedRequestGridModelsData = st.fixed_dictionaries(
 )
 
 CamelCaseFlatRequestGridModelsData = st.fixed_dictionaries(
-    mapping={},
+    mapping=EMPTY_DICT,
     optional={
         CAMEL_FILTER_MODEL_KEY: st.one_of(
             CamelCaseGridFilterModelData, SnakeCaseGridFilterModelData
@@ -65,7 +68,7 @@ CamelCaseFlatRequestGridModelsData = st.fixed_dictionaries(
     },
 )
 CamelCaseNestedRequestGridModelsData = st.fixed_dictionaries(
-    mapping={},
+    mapping=EMPTY_DICT,
     optional={
         CAMEL_FILTER_MODEL_KEY: st.one_of(
             CamelCaseGridFilterModelData, SnakeCaseGridFilterModelData

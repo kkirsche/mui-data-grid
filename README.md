@@ -8,7 +8,7 @@ This is an unofficial toolbox to make integrating a Python web application with 
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.7+
 
 ## Installation
 
@@ -54,6 +54,8 @@ PAGINATION_MODEL_KEY = None  # stored inline in the query string, not encoded as
 
 @app.route("/")
 def print_sorted_details() -> Response:
+    # models will return default values if the keys don't exist,
+    # so you can choose what features you integrate, and when.
     models = get_grid_models_from_request(
         filter_model_key=FILTER_MODEL_KEY,
         pagination_model_key=PAGINATION_MODEL_KEY,
