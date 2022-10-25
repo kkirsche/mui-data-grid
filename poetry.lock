@@ -615,7 +615,7 @@ flask = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "a6badd18a8760da37c029510e0a0ff326346719114de94a6f7051431586424db"
+content-hash = "6e361c40227c75a0ff70985c9dd7e7ae94746dafac0fc2d280624d9c1e2669bb"
 
 [metadata.files]
 ast-decompiler = [
