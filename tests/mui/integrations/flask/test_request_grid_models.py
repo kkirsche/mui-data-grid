@@ -83,7 +83,79 @@ CamelCaseNestedRequestGridModelsData = st.fixed_dictionaries(
 
 
 @given(CamelCaseFlatRequestGridModelsData)
-def test_parse_request_grid_models_from_flask_request(
+def test_parse_flat_camel_case_request_grid_models_from_flask_request(
+    models_dict: Dict[str, object]
+) -> None:
+    with app.app_context():
+        model = RequestGridModels.parse_obj(models_dict)
+        query_str = quote(model.json())
+        with app.test_request_context(
+            path=(f"/?{query_str}"),
+        ):
+            model = get_grid_models_from_request(
+                sort_model_key=CAMEL_SORT_MODEL_KEY,
+                filter_model_key=CAMEL_FILTER_MODEL_KEY,
+                pagination_model_key=CAMEL_PAGINATION_MODEL_KEY,
+            )
+            # grid filter model validation
+            assert isinstance(model.filter_model, GridFilterModel)
+            # grid sort model validation
+            assert isinstance(model.sort_model, list)
+            assert all(isinstance(item, GridSortItem) for item in model.sort_model)
+            # grid pagination model validation
+            assert isinstance(model.pagination_model, GridPaginationModel)
+
+
+@given(CamelCaseNestedRequestGridModelsData)
+def test_parse_nested_camel_case_request_grid_models_from_flask_request(
+    models_dict: Dict[str, object]
+) -> None:
+    with app.app_context():
+        model = RequestGridModels.parse_obj(models_dict)
+        query_str = quote(model.json())
+        with app.test_request_context(
+            path=(f"/?{query_str}"),
+        ):
+            model = get_grid_models_from_request(
+                sort_model_key=CAMEL_SORT_MODEL_KEY,
+                filter_model_key=CAMEL_FILTER_MODEL_KEY,
+                pagination_model_key=CAMEL_PAGINATION_MODEL_KEY,
+            )
+            # grid filter model validation
+            assert isinstance(model.filter_model, GridFilterModel)
+            # grid sort model validation
+            assert isinstance(model.sort_model, list)
+            assert all(isinstance(item, GridSortItem) for item in model.sort_model)
+            # grid pagination model validation
+            assert isinstance(model.pagination_model, GridPaginationModel)
+
+
+@given(SnakeCaseFlatRequestGridModelsData)
+def test_parse_flat_snake_case_request_grid_models_from_flask_request(
+    models_dict: Dict[str, object]
+) -> None:
+    with app.app_context():
+        model = RequestGridModels.parse_obj(models_dict)
+        query_str = quote(model.json())
+        with app.test_request_context(
+            path=(f"/?{query_str}"),
+        ):
+            model = get_grid_models_from_request(
+                sort_model_key=CAMEL_SORT_MODEL_KEY,
+                filter_model_key=CAMEL_FILTER_MODEL_KEY,
+                pagination_model_key=CAMEL_PAGINATION_MODEL_KEY,
+            )
+            # grid filter model validation
+            assert isinstance(model.filter_model, GridFilterModel)
+            # grid sort model validation
+            assert isinstance(model.sort_model, list)
+            assert all(isinstance(item, GridSortItem) for item in model.sort_model)
+            # grid pagination model validation
+            assert isinstance(model.pagination_model, GridPaginationModel)
+
+
+@given(SnakeCaseNestedRequestGridModelsData)
+def test_parse_nested_snake_case_request_grid_models_from_flask_request(
     models_dict: Dict[str, object]
 ) -> None:
     with app.app_context():

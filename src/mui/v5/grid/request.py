@@ -57,7 +57,7 @@ class RequestGridModels(GridBaseModel):
         example=GridPaginationModel(page=3, page_size=30),
     )
     sort_model: GridSortModel = Field(
-        default_factory=GridSortModel,
+        default_factory=list,
         title="Sort Model",
         description="The sort model representing how to sort the table's data.",
         alias="sortModel",
@@ -77,7 +77,7 @@ class RequestGridModels(GridBaseModel):
     @validator("sort_model", pre=True)
     def ensure_sort_model_isnt_none(cls, v: object) -> object:  # noqa: B902
         """Ensures that the key used the correct default when dynamically set."""
-        return GridSortModel() if v is None else v
+        return [] if v is None else v
 
     _optional_keys: ClassVar[OptionalKeys] = {
         ("pagination_model", "paginationModel"),
