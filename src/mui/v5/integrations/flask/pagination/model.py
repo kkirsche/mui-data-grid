@@ -3,12 +3,13 @@
 Supports parsing a GridPaginationModel from Flask's request.args
 """
 from flask import request
+from typing import Union
 
 from mui.v5.grid.pagination import GridPaginationModel
 
 
 def get_grid_pagination_model_from_request(
-    key: str | None = None,
+    key: Union[str, None] = None,
 ) -> GridPaginationModel:
     """Retrieves a GridPaginationModel from request.args.
 

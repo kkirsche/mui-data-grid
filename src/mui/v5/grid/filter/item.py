@@ -72,9 +72,9 @@ class CamelCaseGridFilterItemDict(TypedDict):
 
 Both formats are supported by the GridFilterItem model.
 """
-GridFilterItemDict: TypeAlias = (
-    CamelCaseGridFilterItemDict | SnakeCaseGridFilterItemDict
-)
+GridFilterItemDict: TypeAlias = Union[
+    CamelCaseGridFilterItemDict, SnakeCaseGridFilterItemDict
+]
 
 
 class GridFilterItem(GridBaseModel):
