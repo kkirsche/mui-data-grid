@@ -81,7 +81,7 @@ jobs:
         run: poetry install --with github-actions
       
       - name: Run bandit
-        run: poetry run bandit --recursive src tests
+        run: poetry run bandit --recursive src
 
       - name: Run isort
         run: poetry run isort src tests
