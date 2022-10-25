@@ -1,3 +1,4 @@
+"""The direction module contains the sort direction enumeration and types."""
 from enum import unique
 
 from typing_extensions import Literal, TypeAlias
