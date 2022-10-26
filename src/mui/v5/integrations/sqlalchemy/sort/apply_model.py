@@ -1,0 +1,31 @@
+"""The apply_model module is responsible for applying a GridSortModel to a query."""
+from typing import TypeVar
+
+from sqlalchemy.orm import Query
+
+from mui.v5.grid.sort import GridSortModel
+from mui.v5.integrations.sqlalchemy.resolver import Resolver
+from mui.v5.integrations.sqlalchemy.sort.apply_item import get_sort_expression_from_item
+
+_Q = TypeVar("_Q")
+
+
+def apply_sort_to_query_from_model(
+    query: "Query[_Q]", model: GridSortModel, resolver: Resolver
+) -> "Query[_Q]":
+    """Applies a GridSortModel to a SQLAlchemy query.
+
+    Args:
+        query (Query[_Q]): The query to apply the sort model to.
+        model (GridSortModel): The sort model to apply to the query. This contains zero
+            or more GridSortItems.
+        resolver (Resolver): The resolver is responsible for retrieving the column or
+            other property on a SQLAlchemy model.
+
+    Returns:
+        Query[_Q]: The ordered query.
+    """
+    query.order_by(
+        get_sort_expression_from_item(item=item, resolver=resolver) for item in model
+    )
+    return query

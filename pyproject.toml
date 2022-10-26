@@ -17,7 +17,8 @@ pydantic = ">=1,<2"
 typing-extensions = ">=4.4.0,<5"
 
 [tool.poetry.extras]
-flask = ["flask"]
+flask = ["flask@>=2,<3"]
+sqlalchemy = ["sqlalchemy@>=1.4,<2"]
 
 [tool.poetry.group.github-actions.dependencies]
 bandit = "^1.7.4"
@@ -37,6 +38,11 @@ pyupgrade = "^3.1.0"
 
 [tool.poetry.group.flask.dependencies]
 flask = ">=2,<3"
+
+
+[tool.poetry.group.sqlalchemy.dependencies]
+sqlalchemy = ">=1.4,<2"
+sqlalchemy2-stubs = "^0.0.2a29"
 
 [build-system]
 requires = ["poetry-core"]
