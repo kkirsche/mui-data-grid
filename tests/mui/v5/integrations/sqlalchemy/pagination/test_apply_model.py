@@ -25,7 +25,7 @@ class Base(metaclass=DeclarativeMeta):
     __init__ = mapper_registry.constructor
 
 
-class TestModel(Base):
+class ExampleModel(Base):
     __tablename__ = "test_model"
 
     id = Column(Integer(), primary_key=True, autoincrement=True, comment="Identifier")
@@ -33,23 +33,24 @@ class TestModel(Base):
 
 
 @fixture(scope="module")
-def query() -> Generator["Query[TestModel]", None, None]:
+def query() -> Generator["Query[ExampleModel]", None, None]:
     """A fixture representing a SQLAlchemy query."""
     engine = create_engine("sqlite:///:memory:")
     session = Session(engine)
     Base.metadata.create_all(engine)
-    yield (session.query(TestModel))
+    yield (session.query(ExampleModel))
     Base.metadata.drop_all(engine)
 
 
 @given(model=st.builds(GridPaginationModel, page=st.integers(min_value=0)))
 def test_apply_limit_offset_to_query_from_model(
-    model: GridPaginationModel, query: "Query[TestModel]"
+    model: GridPaginationModel, query: "Query[ExampleModel]"
 ) -> None:
     paginated = apply_limit_offset_to_query_from_model(query=query, model=model)
     compiled = paginated.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert "LIMIT ?" in compiled_str
     assert "OFFSET ?" in compiled_str
-    assert compiled.params["param_1"] == 15
-    assert compiled.params["param_2"] == 0
+    print(model, compiled.params)
+    assert compiled.params["param_1"] == model.page_size
+    assert compiled.params["param_2"] == model.offset
