@@ -101,3 +101,10 @@ ignore-semiprivate = false
 ignore-setters = false
 quiet = false
 verbose = 1
+
+[tool.pyright]
+exclude = ["**/__pycache__", "**/.git"]
+include = ["src"]
+pythonPlatform = "All"
+pythonVersion = "3.7"
+typeCheckingMode = "strict"
