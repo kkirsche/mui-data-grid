@@ -79,3 +79,7 @@ def print_sorted_details() -> Response:
 if __name__ == "__main__":
     app.run()
 ```
+
+#### SQLAlchemy
+
+Documentation coming soon!
