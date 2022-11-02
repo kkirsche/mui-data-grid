@@ -1,5 +1,6 @@
 from pytest import mark
 from sqlalchemy.orm import Query
+from sqlalchemy.dialects import sqlite
 
 from mui.v5.grid import GridSortDirection, GridSortItem, GridSortModel
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
@@ -16,11 +17,16 @@ def test_apply_sort_to_query_from_model_single_field(
     item = GridSortItem(field="id", sort=direction)
     assert item.field in RESOLVABLE_FIELDS
     model: GridSortModel = [item]
-    sorted_results = apply_sort_to_query_from_model(
+    sorted_query = apply_sort_to_query_from_model(
         query=query, model=model, resolver=resolver
-    ).all()
-    assert len(sorted_results) > 0
+    )
+    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
+    assert f"ORDER BY {ExampleModel.__tablename__}.id {dir_str}" in compiled_str
 
+    sorted_results = sorted_query.all()
+    assert len(sorted_results) > 0
     for i, current_row in enumerate(sorted_results[1:]):
         prev_row = sorted_results[i]
         if item.sort == GridSortDirection.ASC:
@@ -53,11 +59,17 @@ def test_apply_sort_to_query_from_model_multiple_fields(
     for item in model:
         assert item.field in RESOLVABLE_FIELDS
 
-    sorted_results = apply_sort_to_query_from_model(
+    sorted_query = apply_sort_to_query_from_model(
         query=query, model=model, resolver=resolver
-    ).all()
-    assert len(sorted_results) > 0
+    )
+    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    tbl = ExampleModel.__tablename__
+    dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
+    assert f"ORDER BY {tbl}.grouping_id {dir_str}, {tbl}.id {dir_str}" in compiled_str
 
+    sorted_results = sorted_query.all()
+    assert len(sorted_results) > 0
     for i, current_row in enumerate(sorted_results[1:]):
         prev_row = sorted_results[i]
         if direction == GridSortDirection.ASC:
