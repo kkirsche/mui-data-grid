@@ -7,22 +7,6 @@ from mui.v5.integrations.sqlalchemy.sort import apply_sort_to_query_from_model
 from tests.conftest import RESOLVABLE_FIELDS, ExampleModel
 
 
-def _assert_desc_order(
-    last_model: ExampleModel, next_model: ExampleModel, key: str
-) -> None:
-    assert hasattr(last_model, key)
-    assert hasattr(next_model, key)
-    assert getattr(last_model, key) > getattr(next_model, key)
-
-
-def _assert_asc_order(
-    last_model: ExampleModel, next_model: ExampleModel, key: str
-) -> None:
-    assert hasattr(last_model, key)
-    assert hasattr(next_model, key)
-    assert getattr(last_model, key) < getattr(next_model, key)
-
-
 @mark.parametrize("direction", (GridSortDirection.ASC, GridSortDirection.DESC, None))
 def test_apply_sort_to_query_from_model_single_field(
     direction: GridSortDirection,
@@ -40,13 +24,50 @@ def test_apply_sort_to_query_from_model_single_field(
     for i, current_row in enumerate(sorted_results[1:]):
         prev_row = sorted_results[i]
         if item.sort == GridSortDirection.ASC:
-            _assert_asc_order(
-                last_model=prev_row, next_model=current_row, key=item.field
-            )
-        elif item.sort == GridSortDirection.DESC or item.sort is None:
+            assert prev_row.id < current_row.id
+        elif item.sort in {GridSortDirection.DESC, None}:
             # None defaults the operator to DESC
             # see src/mui/v5/integrations/sqlalchemy/sort/apply_item.py:_get_operator
             # for more details.
-            _assert_desc_order(
-                last_model=prev_row, next_model=current_row, key=item.field
-            )
+            assert prev_row.id > current_row.id
+
+
+@mark.parametrize(
+    "direction",
+    (
+        GridSortDirection.ASC,
+        GridSortDirection.DESC,
+        None,
+    ),
+)
+def test_apply_sort_to_query_from_model_multiple_fields(
+    direction: GridSortDirection,
+    query: "Query[ExampleModel]",
+    resolver: Resolver,
+) -> None:
+    # order matters with how we're using the fields!
+    model: GridSortModel = [
+        GridSortItem(field="grouping_id", sort=direction),
+        GridSortItem(field="id", sort=direction),
+    ]
+    for item in model:
+        assert item.field in RESOLVABLE_FIELDS
+
+    sorted_results = apply_sort_to_query_from_model(
+        query=query, model=model, resolver=resolver
+    ).all()
+    assert len(sorted_results) > 0
+
+    for i, current_row in enumerate(sorted_results[1:]):
+        prev_row = sorted_results[i]
+        if direction == GridSortDirection.ASC:
+            assert prev_row.id < current_row.id
+            if prev_row.grouping_id != current_row.grouping_id:
+                assert prev_row.grouping_id < current_row.grouping_id
+        elif direction in {GridSortDirection.DESC, None}:
+            # None defaults the operator to DESC
+            # see src/mui/v5/integrations/sqlalchemy/sort/apply_item.py:_get_operator
+            # for more details.
+            assert prev_row.id > current_row.id
+            if prev_row.grouping_id != current_row.grouping_id:
+                assert prev_row.grouping_id > current_row.grouping_id
