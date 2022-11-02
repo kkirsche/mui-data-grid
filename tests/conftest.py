@@ -1,13 +1,15 @@
-from typing import Generator
-from uuid import uuid4
+from random import randrange
+from typing import Generator, cast
 
 from pytest import fixture
-from sqlalchemy import Column, DateTime, String, create_engine, func
+from sqlalchemy import Column, Integer, create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeMeta, Query, Session, registry
+
 from mui.v5.integrations.sqlalchemy import Resolver
 
 GENERATED_MODEL_COUNT = 1000
+RESOLVABLE_FIELDS = ("id", "random_number", "randomNumber")
 mapper_registry = registry()
 
 
@@ -23,33 +25,24 @@ class Base(metaclass=DeclarativeMeta):
 class ExampleModel(Base):
     __tablename__ = "test_model"
 
+    def __hash__(self) -> int:
+        return hash((self.id,))
+
     id = Column(
-        String(length=255),
-        comment="Identifier",
-        nullable=False,
+        Integer(),
+        autoincrement=True,
         primary_key=True,
+        comment="Identifier",
     )
-    created_at = Column(
-        DateTime(timezone=True),
-        comment="Created At Time",
-        nullable=False,
-        server_default=func.datetime("now"),
-    )
-    name = Column(String(length=255), nullable=False, comment="The model's name.")
+    random_number = Column(Integer(), comment="A random number")
 
 
-def example_model_resolver(field: str) -> "Column[String] | Column[DateTime]":
-    match field:
-        case "id":
-            return ExampleModel.id
-        case "created_at":
-            return ExampleModel.created_at
-        case "createdAt":
-            return ExampleModel.created_at
-        case "name":
-            return ExampleModel.name
-        case _:
-            raise ValueError("Resolver does not support this field name")
+def example_model_resolver(field: str) -> "Column[Integer]":
+    if field == "id":
+        return cast("Column[Integer]", ExampleModel.id)
+    if field in {"random_number", "randomNumber"}:
+        return cast("Column[Integer]", ExampleModel.random_number)
+    raise ValueError("Resolver does not support this field name")
 
 
 @fixture(scope="session")
@@ -68,8 +61,8 @@ def engine() -> Generator[Engine, None, None]:
 @fixture(scope="session")
 def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
     session = Session(bind=engine)
-    for i in range(1, model_count + 1):
-        session.add(ExampleModel(id=str(uuid4()), name=f"model {i}"))
+    for _ in range(1, model_count + 1):
+        session.add(ExampleModel(random_number=randrange(model_count + 1)))
     session.commit()
     yield session
 

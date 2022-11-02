@@ -15,6 +15,8 @@ def apply_sort_to_query_from_model(
 ) -> "Query[_Q]":
     """Applies a GridSortModel to a SQLAlchemy query.
 
+    If the model is an empty list, the query is returned, as-is.
+
     Args:
         query (Query[_Q]): The query to apply the sort model to.
         model (GridSortModel): The sort model to apply to the query. This contains zero
@@ -25,7 +27,23 @@ def apply_sort_to_query_from_model(
     Returns:
         Query[_Q]: The ordered query.
     """
-    query.order_by(
-        get_sort_expression_from_item(item=item, resolver=resolver) for item in model
+    if len(model) == 0:
+        return query
+
+    query = query.order_by(
+        # But, since this doesn't accept lists or kwargs, we unpack the list's values
+        # using the splat (*) operator.
+        #
+        # Example:
+        # >>> def print_each(*args: int) -> None:
+        # ...     for arg in args:
+        # ...         print(arg)
+        # ...
+        # >>> l = [1, 2, 3]
+        # >>> print_each(*l)
+        # 1
+        # 2
+        # 3
+        *[get_sort_expression_from_item(item=item, resolver=resolver) for item in model]
     )
     return query

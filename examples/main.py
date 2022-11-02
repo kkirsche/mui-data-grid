@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""An example script demonstrating how to use this library."""
 # examples/main.py
 
 from flask import Flask, jsonify
@@ -15,6 +16,14 @@ PAGINATION_MODEL_KEY = None  # stored inline in the query string, not encoded as
 
 @app.route("/")
 def print_sorted_details() -> Response:
+    """This method will act as an echo server for the caller.
+
+    Query Parameters:
+        filter_model: The Material-UI Data Grid Filter Model.
+        page: The current page number.
+        pageSize: The size of each page.
+        sort_model[]: The Material-UI Data Grid Sort Model.
+    """
     models = get_grid_models_from_request(
         filter_model_key=FILTER_MODEL_KEY,
         pagination_model_key=PAGINATION_MODEL_KEY,
