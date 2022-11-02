@@ -1,6 +1,6 @@
 from pytest import mark
-from sqlalchemy.orm import Query
 from sqlalchemy.dialects import sqlite
+from sqlalchemy.orm import Query
 
 from mui.v5.grid import GridSortDirection, GridSortItem, GridSortModel
 from mui.v5.integrations.sqlalchemy.resolver import Resolver

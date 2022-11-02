@@ -15,13 +15,15 @@ This is an unofficial toolbox to make integrating a Python web application with 
 ### Pip
 
 ```sh
-python -m pip install -U mui-data-grid
+python -m pip install -U 'mui-data-grid'
 ```
 
 or with extras:
 
 ```sh
-python -m pip install -U mui-data-grid[flask]
+python -m pip install -U 'mui-data-grid[flask]'
+python -m pip install -U 'mui-data-grid[sqlalchemy]'
+python -m pip install -U 'mui-data-grid[flask, sqlalchemy]'
 ```
 
 ### Poetry
