@@ -1,50 +1,25 @@
-from datetime import datetime, timezone
-from typing import Generator
-
 from hypothesis import given
 from hypothesis import strategies as st
-from pytest import fixture
-from sqlalchemy import Column, DateTime, Integer, create_engine
 from sqlalchemy.dialects import sqlite
-from sqlalchemy.orm import DeclarativeMeta, Query, Session, registry
+from sqlalchemy.orm import Query
 
 from mui.v5.grid import GridPaginationModel
 from mui.v5.integrations.sqlalchemy.pagination import (
     apply_limit_offset_to_query_from_model,
 )
-
-mapper_registry = registry()
-
-
-class Base(metaclass=DeclarativeMeta):
-    __abstract__ = True
-
-    registry = mapper_registry
-    metadata = mapper_registry.metadata
-
-    __init__ = mapper_registry.constructor
+from tests.conftest import GENERATED_MODEL_COUNT, ExampleModel
 
 
-class ExampleModel(Base):
-    __tablename__ = "test_model"
-
-    id = Column(Integer(), primary_key=True, autoincrement=True, comment="Identifier")
-    date = Column(DateTime, onupdate=datetime.now(tz=timezone.utc))
-
-
-@fixture(scope="module")
-def query() -> Generator["Query[ExampleModel]", None, None]:
-    """A fixture representing a SQLAlchemy query."""
-    engine = create_engine("sqlite:///:memory:")
-    session = Session(engine)
-    Base.metadata.create_all(engine)
-    yield (session.query(ExampleModel))
-    Base.metadata.drop_all(engine)
-
-
-@given(model=st.builds(GridPaginationModel, page=st.integers(min_value=0)))
+@given(
+    model=st.builds(
+        GridPaginationModel,
+        # https://www.sqlite.org/datatype3.html - maximum 8-byte integer value
+        page=st.integers(min_value=0, max_value=GENERATED_MODEL_COUNT),
+        page_size=st.integers(min_value=1, max_value=GENERATED_MODEL_COUNT),
+    )
+)
 def test_apply_limit_offset_to_query_from_model(
-    model: GridPaginationModel, query: "Query[ExampleModel]"
+    model: GridPaginationModel, query: "Query[ExampleModel]", model_count: int
 ) -> None:
     paginated = apply_limit_offset_to_query_from_model(query=query, model=model)
     compiled = paginated.statement.compile(dialect=sqlite.dialect())
@@ -54,3 +29,9 @@ def test_apply_limit_offset_to_query_from_model(
     print(model, compiled.params)
     assert compiled.params["param_1"] == model.page_size
     assert compiled.params["param_2"] == model.offset
+    located = paginated.all()
+    final_row_number = model.offset + model.page_size
+    if model_count < final_row_number:
+        assert len(located) < model.page_size
+    else:
+        assert len(located) == model.page_size

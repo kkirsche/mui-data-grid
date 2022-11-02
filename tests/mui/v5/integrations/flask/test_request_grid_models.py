@@ -11,16 +11,15 @@ from mui.v5.grid.pagination.model import GridPaginationModel
 from mui.v5.grid.request import RequestGridModels
 from mui.v5.grid.sort.item import GridSortItem
 from mui.v5.integrations.flask.request import get_grid_models_from_request
-
-from ...grid.filter.test_model import (
+from tests.mui.v5.grid.filter.test_model import (
     CamelCaseGridFilterModelData,
     SnakeCaseGridFilterModelData,
 )
-from ...grid.pagination.test_model import (
+from tests.mui.v5.grid.pagination.test_model import (
     CamelCaseGridPaginationModelData,
     SnakeCaseGridPaginationModelData,
 )
-from ...grid.sort.test_item import GridSortItemData
+from tests.mui.v5.grid.sort.test_item import GridSortItemData
 
 app = Flask(__name__)
 
