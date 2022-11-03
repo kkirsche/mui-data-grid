@@ -89,20 +89,23 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         * <=: Less than or equal to
         * isEmpty: IS NULL
         * isNotEmpty: IS NOT NULL
-        * isAnyOf: IS
+        * isAnyOf: IN [?, ?, ?]
 
     Args:
-        item (GridFilterItem): _description_
-        resolver (Resolver): _description_
+        item (GridFilterItem): The item being applied to the column.
+        resolver (Resolver): The resolver to use to locate the column or
+            filterable expression.
 
     Returns:
-        Any: _description_
+        Any: The comparison operator for use in SQLAlchemy queries.
     """
     column = resolver(item.column_field)
     operator: Optional[Callable[[Any, Any], Any]] = None
+    # we have 1:1 mappings of these operators in Python
     if item.operator_value in {"==", "!=", ">", ">=", "<", "<="}:
         operator = _get_operator_value(item=item)
         return operator(column, item.value)
+    # special cases:
     elif item.operator_value == "isEmpty":
         return eq(column, None)
     elif item.operator_value == "isNotEmpty":
@@ -110,6 +113,8 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
     elif item.operator_value == "isAnyOf":
         # TODO: improve detection of this for error handling
         return column.in_(item.value)
+    else:
+        raise ValueError(f"Unsupported operator {item.operator_value}")
 
 
 def apply_filter_items_to_query_from_items(
