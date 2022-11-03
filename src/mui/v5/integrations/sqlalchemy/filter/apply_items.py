@@ -1,8 +1,8 @@
 """The apply_model module is responsible for applying a GridSortModel to a query."""
 from operator import eq, ge, gt, le, lt, ne
-from typing import Any, Callable, TypeVar, Optional
+from typing import Any, Callable, Optional, TypeVar
 
-from sqlalchemy import and_, or_, any_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.elements import BooleanClauseList
 
@@ -72,6 +72,32 @@ def _get_operator_value(item: GridFilterItem) -> Callable[[Any, Any], Any]:
 
 
 def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
+    """Applies the operator value represented by the GridFilterItem to the column.
+
+    This function uses the provided resolver to retrieve the SQLAlchemy's column, or
+    other filterable expression, and applies the appropriate SQLAlchemy or Python
+    operator.
+
+    This does not currently support custom operators.
+
+    Support:
+        * ==: Equal to
+        * !=: Not equal to
+        * >: Greater than
+        * <: Less than
+        * >=: Greater than or equal to
+        * <=: Less than or equal to
+        * isEmpty: IS NULL
+        * isNotEmpty: IS NOT NULL
+        * isAnyOf: IS
+
+    Args:
+        item (GridFilterItem): _description_
+        resolver (Resolver): _description_
+
+    Returns:
+        Any: _description_
+    """
     column = resolver(item.column_field)
     operator: Optional[Callable[[Any, Any], Any]] = None
     if item.operator_value in {"==", "!=", ">", ">=", "<", "<="}:
@@ -82,7 +108,8 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
     elif item.operator_value == "isNotEmpty":
         return ne(column, None)
     elif item.operator_value == "isAnyOf":
-        return eq(column, any_(item.value))
+        # TODO: improve detection of this for error handling
+        return column.in_(item.value)
 
 
 def apply_filter_items_to_query_from_items(
