@@ -8,7 +8,14 @@ from sqlalchemy.orm import DeclarativeMeta, Query, Session, registry
 from mui.v5.integrations.sqlalchemy import Resolver
 
 GENERATED_MODEL_COUNT = 1000
-RESOLVABLE_FIELDS = ("id", "grouping_id", "groupingId", "groupingID")
+RESOLVABLE_FIELDS = (
+    "id",
+    "grouping_id",
+    "groupingId",
+    "groupingID",
+    "null_field",
+    "nullField",
+)
 mapper_registry = registry()
 
 
@@ -38,6 +45,12 @@ class ExampleModel(Base):
         nullable=False,
         comment="A number to more easily group results to test multi-directional sort",
     )
+    null_field = Column(
+        Integer(),
+        nullable=True,
+        comment="A null field",
+        default=None,
+    )
 
 
 def example_model_resolver(field: str) -> "Column[Integer]":
@@ -47,6 +60,8 @@ def example_model_resolver(field: str) -> "Column[Integer]":
         return cast("Column[Integer]", ExampleModel.id)
     if field in {"grouping_id", "groupingId", "groupingID"}:
         return cast("Column[Integer]", ExampleModel.grouping_id)
+    if field in {"null_field", "nullField"}:
+        return cast("Column[Integer]", ExampleModel.null_field)
     raise ValueError("Resolver does not support this field name")
 
 

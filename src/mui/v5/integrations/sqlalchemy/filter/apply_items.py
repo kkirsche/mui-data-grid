@@ -114,7 +114,7 @@ def apply_filter_items_to_query_from_items(
             # and the filter value.
             # Basically, it builds something like this, dynamically:
             # .filter(and_(gt(Request.id, 100), eq(Request.title, "Example"))
-            _get_operator_value(item=item)(resolver(item.column_field), item.value)
+            apply_operator_to_column(item=item, resolver=resolver)
             for item in model.items
         )
     )
