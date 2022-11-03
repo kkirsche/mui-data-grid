@@ -57,7 +57,7 @@ def model_count() -> int:
 
 @fixture(scope="session")
 def engine() -> Generator[Engine, None, None]:
-    engine = create_engine(url="sqlite:///:memory:", future=True, echo=True)
+    engine = create_engine(url="sqlite:///:memory:", future=True)
     Base.metadata.create_all(bind=engine)
     yield engine
     Base.metadata.drop_all(bind=engine)
