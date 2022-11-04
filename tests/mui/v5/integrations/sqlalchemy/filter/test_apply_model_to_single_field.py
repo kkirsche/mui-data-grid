@@ -28,7 +28,7 @@ def test_apply_eq_apply_filter_to_query_from_model_single_field(
                     },
                 )
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -46,7 +46,7 @@ def test_apply_eq_apply_filter_to_query_from_model_single_field(
     assert row.id == EXPECTED_ID
 
 
-def test_apply_is_apply_filter_to_query_from_model_single_field(
+def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
     query: "Query[ExampleModel]",
     resolver: Resolver,
 ) -> None:
@@ -54,15 +54,13 @@ def test_apply_is_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "created_at",
-                        "value": THIRD_DAY.isoformat(),
-                        "operator_value": "is",
-                    },
-                )
+                {
+                    "column_field": "created_at",
+                    "value": THIRD_DAY.isoformat(),
+                    "operator_value": "is",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -91,15 +89,13 @@ def test_apply_ne_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "id",
-                        "value": TARGET_ID,
-                        "operator_value": "!=",
-                    },
-                )
+                {
+                    "column_field": "id",
+                    "value": TARGET_ID,
+                    "operator_value": "!=",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -127,15 +123,13 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "id",
-                        "value": TARGET_ID,
-                        "operator_value": operator,
-                    },
-                )
+                {
+                    "column_field": "id",
+                    "value": TARGET_ID,
+                    "operator_value": operator,
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -167,15 +161,13 @@ def test_apply_ge_le_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "id",
-                        "value": TARGET_ID,
-                        "operator_value": operator,
-                    },
-                )
+                {
+                    "column_field": "id",
+                    "value": TARGET_ID,
+                    "operator_value": operator,
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -208,15 +200,13 @@ def test_apply_is_empty_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": field,
-                        "value": None,
-                        "operator_value": "isEmpty",
-                    },
-                )
+                {
+                    "column_field": field,
+                    "value": None,
+                    "operator_value": "isEmpty",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -247,15 +237,13 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": field,
-                        "value": None,
-                        "operator_value": "isNotEmpty",
-                    },
-                )
+                {
+                    "column_field": field,
+                    "value": None,
+                    "operator_value": "isNotEmpty",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -284,15 +272,13 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "id",
-                        "value": TARGET_IDS,
-                        "operator_value": "isAnyOf",
-                    },
-                )
+                {
+                    "column_field": "id",
+                    "value": TARGET_IDS,
+                    "operator_value": "isAnyOf",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -321,15 +307,13 @@ def test_apply_contains_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "name",
-                        "value": ExampleModel.__name__,
-                        "operator_value": "contains",
-                    },
-                )
+                {
+                    "column_field": "name",
+                    "value": ExampleModel.__name__,
+                    "operator_value": "contains",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -358,15 +342,13 @@ def test_apply_starts_with_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "name",
-                        "value": ExampleModel.__name__,
-                        "operator_value": "startsWith",
-                    },
-                )
+                {
+                    "column_field": "name",
+                    "value": ExampleModel.__name__,
+                    "operator_value": "startsWith",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -392,15 +374,13 @@ def test_apply_ends_with_apply_filter_to_query_from_model_single_field(
     model = GridFilterModel.parse_obj(
         {
             "items": [
-                GridFilterItem.parse_obj(
-                    {
-                        "column_field": "name",
-                        "value": "0",
-                        "operator_value": "endsWith",
-                    },
-                )
+                {
+                    "column_field": "name",
+                    "value": "0",
+                    "operator_value": "endsWith",
+                },
             ],
-            "link_operator": None,
+            "link_operator": None,  # defaults to `or_`
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
