@@ -8,7 +8,7 @@ from mui.v5.integrations.sqlalchemy.resolver import Resolver
 from tests.conftest import ExampleModel
 
 
-def test_apply_eq_sort_to_query_from_model_single_field(
+def test_apply_eq_apply_filter_to_query_from_model_single_field(
     query: "Query[ExampleModel]",
     resolver: Resolver,
 ) -> None:
@@ -42,7 +42,7 @@ def test_apply_eq_sort_to_query_from_model_single_field(
     assert row.id == EXPECTED_ID
 
 
-def test_apply_ne_sort_to_query_from_model_single_field(
+def test_apply_ne_apply_filter_to_query_from_model_single_field(
     query: "Query[ExampleModel]",
     model_count: int,
     resolver: Resolver,
@@ -78,7 +78,7 @@ def test_apply_ne_sort_to_query_from_model_single_field(
 
 
 @mark.parametrize("operator", ("<", ">"))
-def test_apply_gt_lt_sort_to_query_from_model_single_field(
+def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
     operator: str,
     query: "Query[ExampleModel]",
     resolver: Resolver,
@@ -111,14 +111,14 @@ def test_apply_gt_lt_sort_to_query_from_model_single_field(
     rows = sorted_query.all()
     if operator == ">":
         assert len(rows) == 500
-        assert all(row.id > TARGET_ID for row in rows)
+        assert all(row.id > TARGET_ID for row in rows)  # pyright: ignore
     else:
         assert len(rows) == 499
-        assert all(row.id < TARGET_ID for row in rows)
+        assert all(row.id < TARGET_ID for row in rows)  # pyright: ignore
 
 
 @mark.parametrize("operator", (">=", "<="))
-def test_apply_ge_le_sort_to_query_from_model_single_field(
+def test_apply_ge_le_apply_filter_to_query_from_model_single_field(
     operator: str,
     query: "Query[ExampleModel]",
     resolver: Resolver,
@@ -159,7 +159,7 @@ def test_apply_ge_le_sort_to_query_from_model_single_field(
 
 
 @mark.parametrize("field", ("id", "null_field"))
-def test_apply_is_empty_sort_to_query_from_model_single_field(
+def test_apply_is_empty_apply_filter_to_query_from_model_single_field(
     field: str,
     query: "Query[ExampleModel]",
     model_count: int,
@@ -198,7 +198,7 @@ def test_apply_is_empty_sort_to_query_from_model_single_field(
 
 
 @mark.parametrize("field", ("id", "null_field"))
-def test_apply_is_not_empty_sort_to_query_from_model_single_field(
+def test_apply_is_not_empty_apply_filter_to_query_from_model_single_field(
     field: str,
     query: "Query[ExampleModel]",
     model_count: int,
@@ -236,9 +236,8 @@ def test_apply_is_not_empty_sort_to_query_from_model_single_field(
     assert all(row.null_field is None for row in rows)
 
 
-def test_apply_is_any_of_sort_to_query_from_model_single_field(
+def test_apply_is_any_of_apply_filter_to_query_from_model_single_field(
     query: "Query[ExampleModel]",
-    model_count: int,
     resolver: Resolver,
 ) -> None:
     TARGET_IDS = [1, 2, 3]
@@ -272,4 +271,112 @@ def test_apply_is_any_of_sort_to_query_from_model_single_field(
 
     rows = sorted_query.all()
     assert len(rows) == len(TARGET_IDS)
-    assert all(row.id in TARGET_IDS for row in rows)  # type: ignore
+    assert all(row.id in TARGET_IDS for row in rows)
+
+
+def test_apply_contains_apply_filter_to_query_from_model_single_field(
+    query: "Query[ExampleModel]",
+    model_count: int,
+    resolver: Resolver,
+) -> None:
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                GridFilterItem.parse_obj(
+                    {
+                        "column_field": "name",
+                        "value": ExampleModel.__name__,
+                        "operator_value": "contains",
+                    },
+                )
+            ],
+            "link_operator": None,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    sorted_query = apply_filter_to_query_from_model(
+        query=query, model=model, resolver=resolver
+    )
+    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    assert (
+        f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ? || '%')"
+        in compiled_str
+    )
+    print(compiled.params)
+    assert compiled.params["name_1"] == ExampleModel.__name__
+
+    rows = sorted_query.all()
+    assert len(rows) == model_count
+    assert all(ExampleModel.__name__ in row.name for row in rows)
+
+
+def test_apply_starts_with_apply_filter_to_query_from_model_single_field(
+    query: "Query[ExampleModel]",
+    model_count: int,
+    resolver: Resolver,
+) -> None:
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                GridFilterItem.parse_obj(
+                    {
+                        "column_field": "name",
+                        "value": ExampleModel.__name__,
+                        "operator_value": "startsWith",
+                    },
+                )
+            ],
+            "link_operator": None,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    sorted_query = apply_filter_to_query_from_model(
+        query=query, model=model, resolver=resolver
+    )
+    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    assert f"WHERE ({ExampleModel.__tablename__}.name LIKE ? || '%')" in compiled_str
+    print(compiled.params)
+    assert compiled.params["name_1"] == ExampleModel.__name__
+
+    rows = sorted_query.all()
+    assert len(rows) == model_count
+    assert all(ExampleModel.__name__ in row.name for row in rows)
+
+
+def test_apply_ends_with_apply_filter_to_query_from_model_single_field(
+    query: "Query[ExampleModel]",
+    model_count: int,
+    resolver: Resolver,
+) -> None:
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                GridFilterItem.parse_obj(
+                    {
+                        "column_field": "name",
+                        "value": "0",
+                        "operator_value": "endsWith",
+                    },
+                )
+            ],
+            "link_operator": None,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    sorted_query = apply_filter_to_query_from_model(
+        query=query, model=model, resolver=resolver
+    )
+    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    assert f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
+    print(compiled.params)
+    assert compiled.params["name_1"] == "0"
+
+    rows = sorted_query.all()
+    assert len(rows) == (model_count / 10)
+    assert all(ExampleModel.__name__ in row.name for row in rows)

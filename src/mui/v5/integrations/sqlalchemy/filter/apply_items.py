@@ -52,6 +52,9 @@ def _get_operator_value(item: GridFilterItem) -> Callable[[Any, Any], Any]:
     if item.operator_value == "==":
         # equal
         return eq
+    elif item.operator_value == "equals":
+        # equal
+        return eq
     elif item.operator_value == "!=":
         # not equal
         return ne
@@ -90,6 +93,9 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         * isEmpty: IS NULL
         * isNotEmpty: IS NOT NULL
         * isAnyOf: IN [?, ?, ?]
+        * contains: '%' || ? || '%'
+        * startsWith: ? || '%'
+        * endsWith: '%' || ?
 
     Args:
         item (GridFilterItem): The item being applied to the column.
@@ -102,7 +108,7 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
     column = resolver(item.column_field)
     operator: Optional[Callable[[Any, Any], Any]] = None
     # we have 1:1 mappings of these operators in Python
-    if item.operator_value in {"==", "!=", ">", ">=", "<", "<="}:
+    if item.operator_value in {"==", "equals", "!=", ">", ">=", "<", "<="}:
         operator = _get_operator_value(item=item)
         return operator(column, item.value)
     # special cases:
@@ -112,7 +118,17 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         return ne(column, None)
     elif item.operator_value == "isAnyOf":
         # TODO: improve detection of this for error handling
+        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.in_ # noqa
         return column.in_(item.value)
+    elif item.operator_value == "contains":
+        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.contains # noqa
+        return column.contains(item.value)
+    elif item.operator_value == "startsWith":
+        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.startswith # noqa
+        return column.startswith(item.value)
+    elif item.operator_value == "endsWith":
+        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.endswith # noqa
+        return column.endswith(item.value)
     else:
         raise ValueError(f"Unsupported operator {item.operator_value}")
 

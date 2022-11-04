@@ -1,9 +1,9 @@
-from typing import Generator, cast
+from typing import Generator, Optional, Union
 
 from pytest import fixture
-from sqlalchemy import Column, Integer, create_engine
+from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import DeclarativeMeta, Query, Session, registry
+from sqlalchemy.orm import DeclarativeMeta, Mapped, Query, Session, registry
 
 from mui.v5.integrations.sqlalchemy import Resolver
 
@@ -15,6 +15,7 @@ RESOLVABLE_FIELDS = (
     "groupingID",
     "null_field",
     "nullField",
+    "name",
 )
 mapper_registry = registry()
 
@@ -34,34 +35,41 @@ class ExampleModel(Base):
     def __hash__(self) -> int:
         return hash((self.id,))
 
-    id = Column(
+    id: Mapped[int] = Column(  # pyright: ignore
         Integer(),
         autoincrement=True,
         primary_key=True,
         comment="Identifier",
     )
-    grouping_id = Column(
+    grouping_id: Mapped[int] = Column(  # pyright: ignore
         Integer(),
         nullable=False,
         comment="A number to more easily group results to test multi-directional sort",
     )
-    null_field = Column(
+    null_field: Mapped[Optional[int]] = Column(  # pyright: ignore
         Integer(),
         nullable=True,
         comment="A null field",
         default=None,
     )
+    name: Mapped[str] = Column(  # pyright: ignore
+        String(),
+        nullable=False,
+        comment="The name of the model",
+    )
 
 
-def example_model_resolver(field: str) -> "Column[Integer]":
+def example_model_resolver(field: str) -> Union[int, str]:
     if field not in RESOLVABLE_FIELDS:
         raise ValueError("Incorrect configuration in RESOLVABLE_FIELDS constant")
     if field == "id":
-        return cast("Column[Integer]", ExampleModel.id)
+        return ExampleModel.id
     if field in {"grouping_id", "groupingId", "groupingID"}:
-        return cast("Column[Integer]", ExampleModel.grouping_id)
+        return ExampleModel.grouping_id
     if field in {"null_field", "nullField"}:
-        return cast("Column[Integer]", ExampleModel.null_field)
+        return ExampleModel.null_field
+    if field == "name":
+        return ExampleModel.name
     raise ValueError("Resolver does not support this field name")
 
 
@@ -83,7 +91,9 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
     session = Session(bind=engine)
     for i in range(1, model_count + 1):
         group = int(abs(i / 100))
-        session.add(ExampleModel(grouping_id=group))
+        session.add(
+            ExampleModel(name=f"{ExampleModel.__name__} {i}", grouping_id=group)
+        )
     session.commit()
     yield session
 
