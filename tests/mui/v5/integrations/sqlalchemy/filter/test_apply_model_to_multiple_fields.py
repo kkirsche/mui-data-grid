@@ -1,4 +1,5 @@
 from datetime import timedelta
+from itertools import product
 from typing import Optional
 
 from pytest import mark
@@ -11,6 +12,8 @@ from mui.v5.integrations.sqlalchemy.filter import apply_filter_to_query_from_mod
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
 from tests.conftest import FIRST_DATE_DATETIME, ExampleModel, calculate_grouping_id
 
+LINK_OPERATOR_ARGVALUES = (GridLinkOperator.And, GridLinkOperator.Or, None)
+
 
 def _sql_link_operator_from(
     link_operator: Optional[GridLinkOperator],
@@ -20,7 +23,7 @@ def _sql_link_operator_from(
 
 @mark.parametrize(
     argnames=("link_operator"),
-    argvalues=(GridLinkOperator.And, GridLinkOperator.Or, None),
+    argvalues=LINK_OPERATOR_ARGVALUES,
 )
 def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
@@ -129,7 +132,9 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
         )
 
 
+@mark.parametrize(argnames=("link_operator"), argvalues=LINK_OPERATOR_ARGVALUES)
 def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
     resolver: Resolver,
 ) -> None:
@@ -149,7 +154,7 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
                     "operator_value": "!=",
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -159,20 +164,37 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE {ExampleModel.__tablename__}.id != ?" in compiled_str
-    assert f"AND {ExampleModel.__tablename__}.grouping_id != ?" in compiled_str
+    assert (
+        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id != ?"
+        in compiled_str
+    )
     assert compiled.params["id_1"] == TARGET_ID
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
     rows = filtered_query.all()
-    assert len(rows) == 900
-    assert all(row.id != TARGET_ID for row in rows)
-    assert all(row.grouping_id != TARGET_GROUP for row in rows)
+    if link_operator == GridLinkOperator.And:
+        assert len(rows) == 900
+        assert all(row.id != TARGET_ID for row in rows)
+        assert all(row.grouping_id != TARGET_GROUP for row in rows)
+    else:
+        # because it's an `OR` clause, the != id ends up being the only
+        # thing that evaluates, as it has both the ID and the group, while
+        # the others at least have a differing ID.
+        assert len(rows) == 999
+        assert all(
+            row.id != TARGET_ID or row.grouping_id != TARGET_GROUP for row in rows
+        )
 
 
-@mark.parametrize("operator", ("<", ">"))
+@mark.parametrize(
+    argnames=("operator", "link_operator"),
+    argvalues=(tuple(product(("<", ">"), LINK_OPERATOR_ARGVALUES))),
+)
 def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
     resolver: Resolver,
 ) -> None:
@@ -192,7 +214,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
                     "operator_value": operator,
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -202,25 +224,48 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
-    assert f"AND {ExampleModel.__tablename__}.grouping_id {operator} ?" in compiled_str
+    assert (
+        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id {operator} ?"
+        in compiled_str
+    )
     assert compiled.params["id_1"] == TARGET_ID
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
     rows = filtered_query.all()
     if operator == ">":
-        assert len(rows) == 401
-        assert all(row.id > TARGET_ID for row in rows)  # pyright: ignore
-        assert all(row.grouping_id > TARGET_GROUP for row in rows)  # pyright: ignore
+        if link_operator == GridLinkOperator.And:
+            assert len(rows) == 401
+            assert all(row.id > TARGET_ID for row in rows)  # pyright: ignore
+            assert all(
+                row.grouping_id > TARGET_GROUP for row in rows
+            )  # pyright: ignore
+        else:
+            assert len(rows) == 500
+            assert all(
+                row.id > TARGET_ID or row.grouping_id > TARGET_GROUP for row in rows
+            )  # pyright: ignore
     else:
         assert len(rows) == 499
-        assert all(row.id < TARGET_ID for row in rows)  # pyright: ignore
-        assert all(row.grouping_id < TARGET_GROUP for row in rows)  # pyright: ignore
+        if link_operator == GridLinkOperator.And:
+            assert all(row.id < TARGET_ID for row in rows)  # pyright: ignore
+            assert all(
+                row.grouping_id < TARGET_GROUP for row in rows
+            )  # pyright: ignore
+        else:
+            assert all(
+                row.id < TARGET_ID or row.grouping_id < TARGET_GROUP for row in rows
+            )  # pyright: ignore
 
 
-@mark.parametrize("operator", (">=", "<="))
+@mark.parametrize(
+    argnames=("operator", "link_operator"),
+    argvalues=(tuple(product(("<=", ">="), LINK_OPERATOR_ARGVALUES))),
+)
 def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
     resolver: Resolver,
 ) -> None:
@@ -240,7 +285,7 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
                     "operator_value": operator,
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -250,8 +295,12 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
-    assert f"AND {ExampleModel.__tablename__}.grouping_id {operator} ?" in compiled_str
+    assert (
+        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id {operator} ?"
+        in compiled_str
+    )
     assert compiled.params["id_1"] == TARGET_ID
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
@@ -259,12 +308,27 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     row_count = len(rows)
     if operator == ">=":
         assert row_count == 501
-        assert all(row.id >= TARGET_ID for row in rows)
-        assert all(row.grouping_id >= TARGET_GROUP for row in rows)  # pyright: ignore
+        if link_operator == GridLinkOperator.And:
+            assert all(row.id >= TARGET_ID for row in rows)
+            assert all(
+                row.grouping_id >= TARGET_GROUP for row in rows
+            )  # pyright: ignore
+        else:
+            assert all(
+                row.id >= TARGET_ID or row.grouping_id >= TARGET_GROUP for row in rows
+            )
     else:
-        assert row_count == 500
-        assert all(row.id <= TARGET_ID for row in rows)
-        assert all(row.grouping_id <= TARGET_GROUP for row in rows)  # pyright: ignore
+        if link_operator == GridLinkOperator.And:
+            assert row_count == 500
+            assert all(row.id <= TARGET_ID for row in rows)
+            assert all(
+                row.grouping_id <= TARGET_GROUP for row in rows
+            )  # pyright: ignore
+        else:
+            assert row_count == 599
+            assert all(
+                row.id <= TARGET_ID or row.grouping_id <= TARGET_GROUP for row in rows
+            )  # pyright: ignore
 
 
 @mark.parametrize("field", ("id", "null_field"))
