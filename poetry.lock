@@ -691,7 +691,7 @@ sqlalchemy = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "9d0072aa57a6e6b221d61e9d8656b7b4f6f047b21b9ee64480031fa5fbfc8ed0"
+content-hash = "ad56a75ab1856bfd0a738f67c05018252187e9fab1299e1e0f4556b72809481f"
 
 [metadata.files]
 ast-decompiler = [
