@@ -84,6 +84,7 @@ warn_untyped_fields = true
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers --strict-config -p no:pastebin -p no:nose"
 minversion = "7.1"
+empty_parameter_set_mark = "fail_at_collect"
 testpaths = ["tests"]
 
 [tool.interrogate]

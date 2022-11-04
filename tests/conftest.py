@@ -73,6 +73,10 @@ def example_model_resolver(field: str) -> Union[int, str]:
     raise ValueError("Resolver does not support this field name")
 
 
+def calculate_grouping_id(model_id: int) -> int:
+    return int(abs(model_id / 100))
+
+
 @fixture(scope="session")
 def model_count() -> int:
     return GENERATED_MODEL_COUNT
