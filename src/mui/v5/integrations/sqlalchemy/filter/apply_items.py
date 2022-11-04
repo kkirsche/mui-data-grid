@@ -1,8 +1,10 @@
 """The apply_model module is responsible for applying a GridSortModel to a query."""
+from datetime import datetime
 from operator import eq, ge, gt, le, lt, ne
 from typing import Any, Callable, Optional, TypeVar
 
 from sqlalchemy import and_, or_
+from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.elements import BooleanClauseList
 
@@ -38,6 +40,9 @@ def _get_operator_value(item: GridFilterItem) -> Callable[[Any, Any], Any]:
 
     As an example, this function converts strings such as "==", "!=", and ">=" to the
     functions operator.eq, operator.ne, operator.ge respectively.
+
+    This has special support for the "equals" operator which is treated as an alias
+    for the "==" operator.
 
 
     Args:
@@ -90,6 +95,7 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         * <: Less than
         * >=: Greater than or equal to
         * <=: Less than or equal to
+        * equals: Equal to
         * isEmpty: IS NULL
         * isNotEmpty: IS NOT NULL
         * isAnyOf: IN [?, ?, ?]
@@ -112,6 +118,11 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         operator = _get_operator_value(item=item)
         return operator(column, item.value)
     # special cases:
+    elif item.operator_value == "is":
+        if isinstance(column.type, DateTime) and item.value is not None:
+            return eq(column, datetime.fromisoformat(item.value))
+        else:
+            return eq(column, item.value)
     elif item.operator_value == "isEmpty":
         return eq(column, None)
     elif item.operator_value == "isNotEmpty":

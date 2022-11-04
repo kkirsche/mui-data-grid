@@ -2,7 +2,7 @@ from pytest import mark
 from sqlalchemy.dialects import sqlite
 from sqlalchemy.orm import Query
 
-from mui.v5.grid import GridFilterItem, GridFilterModel, GridLinkOperator
+from mui.v5.grid import GridFilterModel, GridLinkOperator
 from mui.v5.integrations.sqlalchemy.filter import apply_filter_to_query_from_model
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
 from tests.conftest import ExampleModel, calculate_grouping_id
@@ -33,17 +33,17 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE {ExampleModel.__tablename__}.id = ?" in compiled_str
     assert f"AND {ExampleModel.__tablename__}.grouping_id = ?" in compiled_str
     assert compiled.params["id_1"] == TARGET_ID
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
-    row = sorted_query.first()
+    row = filtered_query.first()
     assert row is not None
     assert row.id == TARGET_ID
     assert row.grouping_id == TARGET_GROUP
@@ -74,17 +74,17 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE {ExampleModel.__tablename__}.id != ?" in compiled_str
     assert f"AND {ExampleModel.__tablename__}.grouping_id != ?" in compiled_str
     assert compiled.params["id_1"] == TARGET_ID
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     assert len(rows) == 900
     assert all(row.id != TARGET_ID for row in rows)
     assert all(row.grouping_id != TARGET_GROUP for row in rows)
@@ -117,17 +117,17 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
     assert f"AND {ExampleModel.__tablename__}.grouping_id {operator} ?" in compiled_str
     assert compiled.params["id_1"] == TARGET_ID
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     if operator == ">":
         assert len(rows) == 401
         assert all(row.id > TARGET_ID for row in rows)  # pyright: ignore
@@ -165,17 +165,17 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
     assert f"AND {ExampleModel.__tablename__}.grouping_id {operator} ?" in compiled_str
     assert compiled.params["id_1"] == TARGET_ID
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     row_count = len(rows)
     if operator == ">=":
         assert row_count == 501
@@ -212,15 +212,15 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE {ExampleModel.__tablename__}.{field} IS NULL" in compiled_str
     assert f"AND {ExampleModel.__tablename__}.grouping_id IS NULL" in compiled_str
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     row_count = len(rows)
     # always zero because grouping_id is never empty
     assert row_count == 0
@@ -254,15 +254,15 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE {ExampleModel.__tablename__}.{field} IS NOT NULL" in compiled_str
     assert f"AND {ExampleModel.__tablename__}.grouping_id IS NOT NULL" in compiled_str
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     row_count = len(rows)
     if field == "id":
         assert row_count == model_count
@@ -300,10 +300,10 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert (
         f"WHERE {ExampleModel.__tablename__}.id IN (__[POSTCOMPILE_id_1])"
@@ -316,7 +316,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
     assert compiled.params["id_1"] == [1, 2, 3]
     assert compiled.params["grouping_id_1"] == [0]
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     assert len(rows) == len(TARGET_IDS)
     assert all(row.id in TARGET_IDS for row in rows)
     assert all(row.grouping_id in TARGET_GROUPS for row in rows)
@@ -346,10 +346,10 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert (
         f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ? || '%')"
@@ -362,7 +362,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
     assert compiled.params["name_1"] == ExampleModel.__name__
     assert compiled.params["grouping_id_1"] == 0
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     assert len(rows) == model_count / 10
     assert all(ExampleModel.__name__ in row.name for row in rows)
     assert all("0" in str(row.grouping_id) for row in rows)
@@ -392,10 +392,10 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE ({ExampleModel.__tablename__}.name LIKE ? || '%')" in compiled_str
     assert (
@@ -404,7 +404,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
     assert compiled.params["name_1"] == ExampleModel.__name__
     assert compiled.params["grouping_id_1"] == 0
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     groups = model_count / 10
     assert len(rows) == (groups - 1)
     assert all(ExampleModel.__name__ in row.name for row in rows)
@@ -435,10 +435,10 @@ def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
             "quick_filter_values": None,
         }
     )
-    sorted_query = apply_filter_to_query_from_model(
+    filtered_query = apply_filter_to_query_from_model(
         query=query, model=model, resolver=resolver
     )
-    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
     assert (
@@ -447,7 +447,7 @@ def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
     assert compiled.params["name_1"] == "0"
     assert compiled.params["grouping_id_1"] == "0"
 
-    rows = sorted_query.all()
+    rows = filtered_query.all()
     assert len(rows) == 10
     assert all(ExampleModel.__name__ in row.name for row in rows)
     assert all(str(row.grouping_id).endswith("0") for row in rows)

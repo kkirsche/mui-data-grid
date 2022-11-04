@@ -18,7 +18,7 @@ typing-extensions = ">=4.4.0,<5"
 
 [tool.poetry.extras]
 flask = ["flask@>=2,<3"]
-sqlalchemy = ["sqlalchemy@>=1.4,<2"]
+sqlalchemy = ["sqlalchemy@>=1.4,<3"]
 
 [tool.poetry.group.github-actions.dependencies]
 bandit = "^1.7.4"
@@ -41,8 +41,8 @@ flask = ">=2,<3"
 
 
 [tool.poetry.group.sqlalchemy.dependencies]
-sqlalchemy = ">=1.4,<2"
-sqlalchemy2-stubs = "^0.0.2a29"
+sqlalchemy = ">=1.4,<3"
+sqlalchemy2-stubs = ">=0.0.2a29"
 
 [build-system]
 requires = ["poetry-core"]
