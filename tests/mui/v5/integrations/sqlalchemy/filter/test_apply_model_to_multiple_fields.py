@@ -331,9 +331,14 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
             )  # pyright: ignore
 
 
-@mark.parametrize("field", ("id", "null_field"))
+@mark.parametrize(
+    argnames=("field", "link_operator"),
+    argvalues=tuple(product(("id", "null_field"), LINK_OPERATOR_ARGVALUES)),
+)
 def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
+    link_operator: Optional[GridLinkOperator],
+    model_count: int,
     query: "Query[ExampleModel]",
     resolver: Resolver,
 ) -> None:
@@ -351,7 +356,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
                     "operatorValue": "isEmpty",
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -361,20 +366,35 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE {ExampleModel.__tablename__}.{field} IS NULL" in compiled_str
-    assert f"AND {ExampleModel.__tablename__}.grouping_id IS NULL" in compiled_str
+    assert (
+        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id IS NULL"
+        in compiled_str
+    )
 
     rows = filtered_query.all()
     row_count = len(rows)
-    # always zero because grouping_id is never empty
-    assert row_count == 0
-    assert all(row.null_field is None for row in rows)
-    assert all(row.grouping_id is None for row in rows)
+    if link_operator == GridLinkOperator.And:
+        # always zero because grouping_id is never empty
+        assert row_count == 0
+        assert all(row.null_field is None for row in rows)
+        assert all(row.grouping_id is None for row in rows)
+    else:
+        if field == "null_field":
+            assert row_count == model_count
+        else:
+            assert row_count == 0
+        assert all(row.null_field is None or row.grouping_id is None for row in rows)
 
 
-@mark.parametrize("field", ("id", "null_field"))
+@mark.parametrize(
+    argnames=("field", "link_operator"),
+    argvalues=tuple(product(("id", "null_field"), LINK_OPERATOR_ARGVALUES)),
+)
 def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
     model_count: int,
     resolver: Resolver,
@@ -393,7 +413,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
                     "operator_value": "isNotEmpty",
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -403,17 +423,27 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE {ExampleModel.__tablename__}.{field} IS NOT NULL" in compiled_str
-    assert f"AND {ExampleModel.__tablename__}.grouping_id IS NOT NULL" in compiled_str
+    assert (
+        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id IS NOT NULL"
+        in compiled_str
+    )
 
     rows = filtered_query.all()
     row_count = len(rows)
-    if field == "id":
+    if link_operator == GridLinkOperator.And:
+        if field == "id":
+            assert row_count == model_count
+        elif field == "null_field":
+            assert row_count == 0
+        assert all(row.grouping_id is not None for row in rows)
+    else:
+        # Or branch
         assert row_count == model_count
-    elif field == "null_field":
-        assert row_count == 0
-    assert all(row.null_field is None for row in rows)
-    assert all(row.grouping_id is not None for row in rows)
+        assert all(
+            row.null_field is not None or row.grouping_id is not None for row in rows
+        )
 
 
 def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
