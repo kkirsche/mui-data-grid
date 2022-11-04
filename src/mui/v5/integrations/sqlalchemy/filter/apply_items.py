@@ -4,9 +4,9 @@ from operator import eq, ge, gt, le, lt, ne
 from typing import Any, Callable, Optional, TypeVar
 
 from sqlalchemy import and_, or_
-from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.elements import BooleanClauseList
+from sqlalchemy.sql.sqltypes import DateTime
 
 from mui.v5.grid import GridFilterItem, GridFilterModel, GridLinkOperator
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
@@ -119,6 +119,8 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         return operator(column, item.value)
     # special cases:
     elif item.operator_value == "is":
+        # to compare a datetime, we need to do a datetime equality check,
+        # rather than comparing a string and datetime.
         if isinstance(column.type, DateTime) and item.value is not None:
             return eq(column, datetime.fromisoformat(item.value))
         else:

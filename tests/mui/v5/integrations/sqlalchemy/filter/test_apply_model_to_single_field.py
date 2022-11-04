@@ -1,4 +1,5 @@
 from datetime import timedelta
+
 from pytest import mark
 from sqlalchemy.dialects import sqlite
 from sqlalchemy.orm import Query
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Query
 from mui.v5.grid import GridFilterItem, GridFilterModel
 from mui.v5.integrations.sqlalchemy.filter import apply_filter_to_query_from_model
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
-from tests.conftest import ExampleModel, FIRST_DATE_DATETIME, FIRST_DATE_STR
+from tests.conftest import FIRST_DATE_DATETIME, ExampleModel
 
 
 @mark.parametrize("operator", ("==", "equals", "is"))
