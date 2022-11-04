@@ -506,7 +506,9 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
         )
 
 
+@mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
     model_count: int,
     resolver: Resolver,
@@ -525,7 +527,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
                     "operator_value": "contains",
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -535,24 +537,36 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert (
         f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ? || '%')"
         in compiled_str
     )
     assert (
-        f"AND ({ExampleModel.__tablename__}.grouping_id LIKE '%' || ? || '%')"
+        f"{sql_link_operator} ({ExampleModel.__tablename__}.grouping_id LIKE "
+        + "'%' || ? || '%')"
         in compiled_str
     )
     assert compiled.params["name_1"] == ExampleModel.__name__
     assert compiled.params["grouping_id_1"] == 0
 
     rows = filtered_query.all()
-    assert len(rows) == model_count / 10
-    assert all(ExampleModel.__name__ in row.name for row in rows)
-    assert all("0" in str(row.grouping_id) for row in rows)
+    if link_operator == GridLinkOperator.And:
+        assert len(rows) == model_count / 10
+        assert all(ExampleModel.__name__ in row.name for row in rows)
+        assert all("0" in str(row.grouping_id) for row in rows)
+    else:
+        # all have the name
+        assert len(rows) == model_count
+        assert all(
+            ExampleModel.__name__ in row.name or "0" in str(row.grouping_id)
+            for row in rows
+        )
 
 
+@mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
     model_count: int,
     resolver: Resolver,
@@ -571,7 +585,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
                     "operator_value": "startsWith",
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -581,40 +595,52 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE ({ExampleModel.__tablename__}.name LIKE ? || '%')" in compiled_str
     assert (
-        f"AND ({ExampleModel.__tablename__}.grouping_id LIKE ? || '%')" in compiled_str
+        f"{sql_link_operator} ({ExampleModel.__tablename__}.grouping_id LIKE ? || '%')"
+        in compiled_str
     )
     assert compiled.params["name_1"] == ExampleModel.__name__
     assert compiled.params["grouping_id_1"] == 0
 
     rows = filtered_query.all()
-    groups = model_count / 10
-    assert len(rows) == (groups - 1)
-    assert all(ExampleModel.__name__ in row.name for row in rows)
-    assert all(str(row.grouping_id).startswith("0") for row in rows)
+    if link_operator == GridLinkOperator.And:
+        groups = model_count / 10
+        assert len(rows) == (groups - 1)
+        assert all(row.name.startswith(ExampleModel.__name__) for row in rows)
+        assert all(str(row.grouping_id).startswith("0") for row in rows)
+    else:
+        assert len(rows) == model_count
+        assert all(
+            row.name.startswith(ExampleModel.__name__)
+            or str(row.grouping_id).startswith("0")
+            for row in rows
+        )
 
 
+@mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
-    model_count: int,
     resolver: Resolver,
 ) -> None:
+    VALUE = "0"
     model = GridFilterModel.parse_obj(
         {
             "items": [
                 {
                     "column_field": "name",
-                    "value": "0",
+                    "value": VALUE,
                     "operator_value": "endsWith",
                 },
                 {
                     "column_field": "grouping_id",
-                    "value": "0",
+                    "value": VALUE,
                     "operator_value": "endsWith",
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -624,14 +650,23 @@ def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
     assert (
-        f"AND ({ExampleModel.__tablename__}.grouping_id LIKE '%' || ?)" in compiled_str
+        f"{sql_link_operator} ({ExampleModel.__tablename__}.grouping_id LIKE '%' || ?)"
+        in compiled_str
     )
-    assert compiled.params["name_1"] == "0"
-    assert compiled.params["grouping_id_1"] == "0"
+    assert compiled.params["name_1"] == VALUE
+    assert compiled.params["grouping_id_1"] == VALUE
 
     rows = filtered_query.all()
-    assert len(rows) == 10
-    assert all(ExampleModel.__name__ in row.name for row in rows)
-    assert all(str(row.grouping_id).endswith("0") for row in rows)
+    if link_operator == GridLinkOperator.And:
+        assert len(rows) == 10
+        assert all(row.name.endswith(VALUE) for row in rows)
+        assert all(str(row.grouping_id).endswith(VALUE) for row in rows)
+    else:
+        assert len(rows) == 190
+        assert all(
+            row.name.endswith(VALUE) or str(row.grouping_id).endswith(VALUE)
+            for row in rows
+        )

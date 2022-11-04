@@ -363,7 +363,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_single_field(
 
     rows = filtered_query.all()
     assert len(rows) == model_count
-    assert all(ExampleModel.__name__ in row.name for row in rows)
+    assert all(row.name.startswith(ExampleModel.__name__) for row in rows)
 
 
 def test_apply_ends_with_apply_filter_to_query_from_model_single_field(
@@ -371,12 +371,13 @@ def test_apply_ends_with_apply_filter_to_query_from_model_single_field(
     model_count: int,
     resolver: Resolver,
 ) -> None:
+    VALUE = "0"
     model = GridFilterModel.parse_obj(
         {
             "items": [
                 {
                     "column_field": "name",
-                    "value": "0",
+                    "value": VALUE,
                     "operator_value": "endsWith",
                 },
             ],
@@ -391,8 +392,8 @@ def test_apply_ends_with_apply_filter_to_query_from_model_single_field(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
-    assert compiled.params["name_1"] == "0"
+    assert compiled.params["name_1"] == VALUE
 
     rows = filtered_query.all()
     assert len(rows) == (model_count / 10)
-    assert all(ExampleModel.__name__ in row.name for row in rows)
+    assert all(row.name.endswith(VALUE) for row in rows)
