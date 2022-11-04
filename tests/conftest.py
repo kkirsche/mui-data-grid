@@ -1,10 +1,25 @@
 from datetime import datetime, timedelta
-from typing import Generator, Optional, Union
+from typing import Generator, List, Optional, Union
 
 from pytest import fixture
-from sqlalchemy import Column, DateTime, Integer, String, create_engine, func
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    create_engine,
+    func,
+)
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import DeclarativeMeta, Mapped, Query, Session, registry
+from sqlalchemy.orm import (
+    DeclarativeMeta,
+    Mapped,
+    Query,
+    Session,
+    registry,
+    relationship,
+)
 
 from mui.v5.integrations.sqlalchemy import Resolver
 
@@ -68,6 +83,31 @@ class ExampleModel(Base):
         String(),
         nullable=False,
         comment="The name of the model",
+    )
+
+    children: Mapped[List["RelatedModel"]] = relationship(  # pyright: ignore
+        "RelatedModel", back_populates="parent", uselist=True
+    )
+
+
+class RelatedModel(Base):
+    __tablename__ = "test_related_model"
+
+    def __hash__(self) -> int:
+        return hash((self.id,))
+
+    id: Mapped[int] = Column(  # pyright: ignore
+        Integer(),
+        autoincrement=True,
+        comment="Identifier",
+        primary_key=True,
+    )
+    parent_id: Mapped[int] = Column(  # pyright: ignore
+        Integer(), ForeignKey(f"{ExampleModel.__tablename__}.id")
+    )
+
+    parent: Mapped["ExampleModel"] = relationship(  # pyright: ignore
+        "ExampleModel", back_populates="children", uselist=False
     )
 
 
@@ -157,6 +197,11 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
             grouping_id=group,
         )
         session.add(model)
+        session.commit()
+        session.refresh(model)
+        for _ in range(1, model_count + 1):
+            related_model = RelatedModel(parent_id=model.id)
+            session.add(related_model)
     session.commit()
     yield session
 
@@ -165,6 +210,12 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
 def query(session: Session) -> Generator["Query[ExampleModel]", None, None]:
     """A fixture representing a SQLAlchemy query."""
     yield (session.query(ExampleModel))
+
+
+@fixture(scope="module")
+def joined_query(session: Session) -> Generator["Query[ExampleModel]", None, None]:
+    """A fixture representing a SQLAlchemy query."""
+    yield (session.query(RelatedModel).join(ExampleModel))
 
 
 @fixture(scope="module")
