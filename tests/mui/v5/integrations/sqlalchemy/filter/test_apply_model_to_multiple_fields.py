@@ -446,7 +446,9 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
         )
 
 
+@mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
     query: "Query[ExampleModel]",
     resolver: Resolver,
 ) -> None:
@@ -469,7 +471,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
                     "operator_value": "isAnyOf",
                 },
             ],
-            "link_operator": GridLinkOperator.And,
+            "link_operator": link_operator,
             "quick_filter_logic_operator": None,
             "quick_filter_values": None,
         }
@@ -479,21 +481,29 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert (
         f"WHERE {ExampleModel.__tablename__}.id IN (__[POSTCOMPILE_id_1])"
         in compiled_str
     )
     assert (
-        f"AND {ExampleModel.__tablename__}.grouping_id IN (__[POSTCOMPILE_grouping_id_1])"  # noqa
+        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id IN "
+        + "(__[POSTCOMPILE_grouping_id_1])"
         in compiled_str
     )
     assert compiled.params["id_1"] == [1, 2, 3]
     assert compiled.params["grouping_id_1"] == [0]
 
     rows = filtered_query.all()
-    assert len(rows) == len(TARGET_IDS)
-    assert all(row.id in TARGET_IDS for row in rows)
-    assert all(row.grouping_id in TARGET_GROUPS for row in rows)
+    if link_operator == GridLinkOperator.And:
+        assert len(rows) == len(TARGET_IDS)
+        assert all(row.id in TARGET_IDS for row in rows)
+        assert all(row.grouping_id in TARGET_GROUPS for row in rows)
+    else:
+        assert len(rows) == 99
+        assert all(
+            row.id in TARGET_IDS or row.grouping_id in TARGET_GROUPS for row in rows
+        )
 
 
 def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
