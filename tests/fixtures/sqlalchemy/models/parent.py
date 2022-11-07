@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, relationship
@@ -57,3 +57,24 @@ class ParentModel(Base):
     children: Mapped[List["ChildModel"]] = relationship(  # pyright: ignore
         "ChildModel", back_populates="parent", uselist=True
     )
+
+    def __getattribute__(self, __name: str) -> Any:
+        """The custom getattribute implementation gives alias support to the columns.
+
+        Args:
+            __name: The argument being retrieved
+
+        Raises:
+            AttributeError: Raised when an attribute doesn't exist.
+
+        Returns:
+            The located attribute.
+        """
+        normalized_name = __name.lower()
+        if normalized_name == "createdat":
+            return self.created_at
+        elif normalized_name == "groupingid":
+            return self.grouping_id
+        elif normalized_name == "nullfield":
+            return self.null_field
+        return super().__getattribute__(__name)

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from random import choice
 from typing import Generator, Union
 
 from pytest import fixture
@@ -7,19 +8,18 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Query, Session
 
 from mui.v5.integrations.sqlalchemy import Resolver
-from tests.fixtures import Base, ChildModel, ParentModel
+from tests.fixtures import Base, Category, ChildModel, ParentModel
 
 GENERATED_MODEL_COUNT = 1000
 RESOLVABLE_FIELDS = (
-    "id",
-    "grouping_id",
-    "groupingId",
-    "groupingID",
-    "null_field",
-    "nullField",
-    "name",
     "created_at",
-    "createdAt",
+    "createdat",
+    "grouping_id",
+    "groupingid",
+    "id",
+    "name",
+    "null_field",
+    "nullfield",
 )
 FIRST_DATE_STR = "2022-11-01T12:00:00.000000+00:00"
 FIRST_DATE_DATETIME = datetime.fromisoformat(FIRST_DATE_STR)
@@ -40,17 +40,18 @@ def example_model_resolver(field: str) -> Union[int, str]:
     Returns:
         Union[int, str]: The column (which mypy thinks is actually it's value)
     """
-    if field not in RESOLVABLE_FIELDS:
+    normalized_field = field.lower()
+    if normalized_field not in RESOLVABLE_FIELDS:
         raise ValueError("Incorrect configuration in RESOLVABLE_FIELDS constant")
-    if field == "id":
+    if normalized_field == "id":
         return ParentModel.id
-    if field in {"grouping_id", "groupingId", "groupingID"}:
+    if field in {"grouping_id", "groupingid"}:
         return ParentModel.grouping_id
-    if field in {"null_field", "nullField"}:
+    if field in {"null_field", "nullfield"}:
         return ParentModel.null_field
     if field == "name":
         return ParentModel.name
-    if field in {"created_at", "createdAt"}:
+    if field in {"created_at", "createdat"}:
         return ParentModel.created_at
     raise ValueError("Resolver does not support this field name")
 
@@ -114,7 +115,9 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
         session.commit()
         session.refresh(model)
         for _ in range(1, model_count + 1):
-            related_model = ChildModel(parent_id=model.id)
+            related_model = ChildModel(
+                category=choice(list(Category)), parent_id=model.id
+            )
             session.add(related_model)
     session.commit()
     yield session
