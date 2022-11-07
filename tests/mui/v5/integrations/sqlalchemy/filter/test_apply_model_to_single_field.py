@@ -7,13 +7,14 @@ from sqlalchemy.orm import Query
 from mui.v5.grid import GridFilterItem, GridFilterModel
 from mui.v5.integrations.sqlalchemy.filter import apply_filter_to_query_from_model
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
-from tests.conftest import FIRST_DATE_DATETIME, ExampleModel
+from tests.conftest import FIRST_DATE_DATETIME
+from tests.fixtures.sqlalchemy import ParentModel
 
 
 @mark.parametrize("operator", ("==", "equals", "is"))
 def test_apply_eq_apply_filter_to_query_from_model_single_field(
     operator: str,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     EXPECTED_ID = 300
@@ -38,7 +39,7 @@ def test_apply_eq_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE {ExampleModel.__tablename__}.id = ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id = ?" in compiled_str
     assert compiled.params["id_1"] == EXPECTED_ID
 
     row = filtered_query.first()
@@ -47,7 +48,7 @@ def test_apply_eq_apply_filter_to_query_from_model_single_field(
 
 
 def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     THIRD_DAY = FIRST_DATE_DATETIME + timedelta(days=3)
@@ -70,7 +71,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE {ExampleModel.__tablename__}.created_at = ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.created_at = ?" in compiled_str
     assert compiled.params["created_at_1"] == THIRD_DAY
 
     rows = filtered_query.all()
@@ -81,7 +82,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
 
 
 def test_apply_ne_apply_filter_to_query_from_model_single_field(
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -105,7 +106,7 @@ def test_apply_ne_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE {ExampleModel.__tablename__}.id != ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id != ?" in compiled_str
     assert compiled.params["id_1"] == TARGET_ID
 
     rows = filtered_query.all()
@@ -116,7 +117,7 @@ def test_apply_ne_apply_filter_to_query_from_model_single_field(
 @mark.parametrize("operator", ("<", ">"))
 def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
     operator: str,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 500
@@ -139,7 +140,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id {operator} ?" in compiled_str
     assert compiled.params["id_1"] == TARGET_ID
 
     rows = filtered_query.all()
@@ -154,7 +155,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
 @mark.parametrize("operator", (">=", "<="))
 def test_apply_ge_le_apply_filter_to_query_from_model_single_field(
     operator: str,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 500
@@ -177,7 +178,7 @@ def test_apply_ge_le_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id {operator} ?" in compiled_str
     assert compiled.params["id_1"] == TARGET_ID
 
     rows = filtered_query.all()
@@ -193,7 +194,7 @@ def test_apply_ge_le_apply_filter_to_query_from_model_single_field(
 @mark.parametrize("field", ("id", "null_field"))
 def test_apply_is_empty_apply_filter_to_query_from_model_single_field(
     field: str,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -216,7 +217,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE {ExampleModel.__tablename__}.{field} IS NULL" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.{field} IS NULL" in compiled_str
 
     rows = filtered_query.all()
     row_count = len(rows)
@@ -230,7 +231,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_single_field(
 @mark.parametrize("field", ("id", "null_field"))
 def test_apply_is_not_empty_apply_filter_to_query_from_model_single_field(
     field: str,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -253,7 +254,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE {ExampleModel.__tablename__}.{field} IS NOT NULL" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.{field} IS NOT NULL" in compiled_str
 
     rows = filtered_query.all()
     row_count = len(rows)
@@ -265,7 +266,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_single_field(
 
 
 def test_apply_is_any_of_apply_filter_to_query_from_model_single_field(
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_IDS = [1, 2, 3]
@@ -289,7 +290,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_single_field(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert (
-        f"WHERE {ExampleModel.__tablename__}.id IN (__[POSTCOMPILE_id_1])"
+        f"WHERE {ParentModel.__tablename__}.id IN (__[POSTCOMPILE_id_1])"
         in compiled_str
     )
     assert compiled.params["id_1"] == [1, 2, 3]
@@ -300,7 +301,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_single_field(
 
 
 def test_apply_contains_apply_filter_to_query_from_model_single_field(
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -309,7 +310,7 @@ def test_apply_contains_apply_filter_to_query_from_model_single_field(
             "items": [
                 {
                     "column_field": "name",
-                    "value": ExampleModel.__name__,
+                    "value": ParentModel.__name__,
                     "operator_value": "contains",
                 },
             ],
@@ -324,18 +325,17 @@ def test_apply_contains_apply_filter_to_query_from_model_single_field(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     assert (
-        f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ? || '%')"
-        in compiled_str
+        f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ? || '%')" in compiled_str
     )
-    assert compiled.params["name_1"] == ExampleModel.__name__
+    assert compiled.params["name_1"] == ParentModel.__name__
 
     rows = filtered_query.all()
     assert len(rows) == model_count
-    assert all(ExampleModel.__name__ in row.name for row in rows)
+    assert all(ParentModel.__name__ in row.name for row in rows)
 
 
 def test_apply_starts_with_apply_filter_to_query_from_model_single_field(
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -344,7 +344,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_single_field(
             "items": [
                 {
                     "column_field": "name",
-                    "value": ExampleModel.__name__,
+                    "value": ParentModel.__name__,
                     "operator_value": "startsWith",
                 },
             ],
@@ -358,16 +358,16 @@ def test_apply_starts_with_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE ({ExampleModel.__tablename__}.name LIKE ? || '%')" in compiled_str
-    assert compiled.params["name_1"] == ExampleModel.__name__
+    assert f"WHERE ({ParentModel.__tablename__}.name LIKE ? || '%')" in compiled_str
+    assert compiled.params["name_1"] == ParentModel.__name__
 
     rows = filtered_query.all()
     assert len(rows) == model_count
-    assert all(row.name.startswith(ExampleModel.__name__) for row in rows)
+    assert all(row.name.startswith(ParentModel.__name__) for row in rows)
 
 
 def test_apply_ends_with_apply_filter_to_query_from_model_single_field(
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -391,7 +391,7 @@ def test_apply_ends_with_apply_filter_to_query_from_model_single_field(
     )
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    assert f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
+    assert f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
     assert compiled.params["name_1"] == VALUE
 
     rows = filtered_query.all()

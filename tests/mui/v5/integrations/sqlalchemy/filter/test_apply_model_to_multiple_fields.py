@@ -10,7 +10,8 @@ from typing_extensions import Literal
 from mui.v5.grid import GridFilterModel, GridLinkOperator
 from mui.v5.integrations.sqlalchemy.filter import apply_filter_to_query_from_model
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
-from tests.conftest import FIRST_DATE_DATETIME, ExampleModel, calculate_grouping_id
+from tests.conftest import FIRST_DATE_DATETIME, calculate_grouping_id
+from tests.fixtures.sqlalchemy import ParentModel
 
 LINK_OPERATOR_ARGVALUES = (GridLinkOperator.And, GridLinkOperator.Or, None)
 
@@ -27,7 +28,7 @@ def _sql_link_operator_from(
 )
 def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 300
@@ -57,9 +58,9 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE {ExampleModel.__tablename__}.id = ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id = ?" in compiled_str
     assert (
-        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id = ?"
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id = ?"
         in compiled_str
     )
     assert compiled.params["id_1"] == TARGET_ID
@@ -81,7 +82,7 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
 def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
     expected_id: int,
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     THIRD_DAY = FIRST_DATE_DATETIME + timedelta(days=3)
@@ -113,8 +114,8 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE {ExampleModel.__tablename__}.created_at = ?" in compiled_str
-    assert f"{sql_link_operator} {ExampleModel.__tablename__}.id = ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.created_at = ?" in compiled_str
+    assert f"{sql_link_operator} {ParentModel.__tablename__}.id = ?" in compiled_str
     assert compiled.params["created_at_1"] == THIRD_DAY
     assert compiled.params["id_1"] == expected_id
 
@@ -135,7 +136,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
 @mark.parametrize(argnames=("link_operator"), argvalues=LINK_OPERATOR_ARGVALUES)
 def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 300
@@ -165,9 +166,9 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE {ExampleModel.__tablename__}.id != ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id != ?" in compiled_str
     assert (
-        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id != ?"
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id != ?"
         in compiled_str
     )
     assert compiled.params["id_1"] == TARGET_ID
@@ -195,7 +196,7 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
 def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 500
@@ -225,9 +226,9 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id {operator} ?" in compiled_str
     assert (
-        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id {operator} ?"
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id {operator} ?"
         in compiled_str
     )
     assert compiled.params["id_1"] == TARGET_ID
@@ -266,7 +267,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
 def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 500
@@ -296,9 +297,9 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE {ExampleModel.__tablename__}.id {operator} ?" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.id {operator} ?" in compiled_str
     assert (
-        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id {operator} ?"
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id {operator} ?"
         in compiled_str
     )
     assert compiled.params["id_1"] == TARGET_ID
@@ -339,7 +340,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
     link_operator: Optional[GridLinkOperator],
     model_count: int,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     model = GridFilterModel.parse_obj(
@@ -367,9 +368,9 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE {ExampleModel.__tablename__}.{field} IS NULL" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.{field} IS NULL" in compiled_str
     assert (
-        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id IS NULL"
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id IS NULL"
         in compiled_str
     )
 
@@ -395,7 +396,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
 def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -424,9 +425,9 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE {ExampleModel.__tablename__}.{field} IS NOT NULL" in compiled_str
+    assert f"WHERE {ParentModel.__tablename__}.{field} IS NOT NULL" in compiled_str
     assert (
-        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id IS NOT NULL"
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id IS NOT NULL"
         in compiled_str
     )
 
@@ -449,7 +450,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     TARGET_IDS = [1, 2, 3]
@@ -483,11 +484,11 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert (
-        f"WHERE {ExampleModel.__tablename__}.id IN (__[POSTCOMPILE_id_1])"
+        f"WHERE {ParentModel.__tablename__}.id IN (__[POSTCOMPILE_id_1])"
         in compiled_str
     )
     assert (
-        f"{sql_link_operator} {ExampleModel.__tablename__}.grouping_id IN "
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id IN "
         + "(__[POSTCOMPILE_grouping_id_1])"
         in compiled_str
     )
@@ -509,7 +510,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -518,7 +519,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
             "items": [
                 {
                     "column_field": "name",
-                    "value": ExampleModel.__name__,
+                    "value": ParentModel.__name__,
                     "operator_value": "contains",
                 },
                 {
@@ -539,27 +540,26 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert (
-        f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ? || '%')"
-        in compiled_str
+        f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ? || '%')" in compiled_str
     )
     assert (
-        f"{sql_link_operator} ({ExampleModel.__tablename__}.grouping_id LIKE "
+        f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE "
         + "'%' || ? || '%')"
         in compiled_str
     )
-    assert compiled.params["name_1"] == ExampleModel.__name__
+    assert compiled.params["name_1"] == ParentModel.__name__
     assert compiled.params["grouping_id_1"] == 0
 
     rows = filtered_query.all()
     if link_operator == GridLinkOperator.And:
         assert len(rows) == model_count / 10
-        assert all(ExampleModel.__name__ in row.name for row in rows)
+        assert all(ParentModel.__name__ in row.name for row in rows)
         assert all("0" in str(row.grouping_id) for row in rows)
     else:
         # all have the name
         assert len(rows) == model_count
         assert all(
-            ExampleModel.__name__ in row.name or "0" in str(row.grouping_id)
+            ParentModel.__name__ in row.name or "0" in str(row.grouping_id)
             for row in rows
         )
 
@@ -567,7 +567,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     model_count: int,
     resolver: Resolver,
 ) -> None:
@@ -576,7 +576,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
             "items": [
                 {
                     "column_field": "name",
-                    "value": ExampleModel.__name__,
+                    "value": ParentModel.__name__,
                     "operator_value": "startsWith",
                 },
                 {
@@ -596,24 +596,24 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE ({ExampleModel.__tablename__}.name LIKE ? || '%')" in compiled_str
+    assert f"WHERE ({ParentModel.__tablename__}.name LIKE ? || '%')" in compiled_str
     assert (
-        f"{sql_link_operator} ({ExampleModel.__tablename__}.grouping_id LIKE ? || '%')"
+        f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE ? || '%')"
         in compiled_str
     )
-    assert compiled.params["name_1"] == ExampleModel.__name__
+    assert compiled.params["name_1"] == ParentModel.__name__
     assert compiled.params["grouping_id_1"] == 0
 
     rows = filtered_query.all()
     if link_operator == GridLinkOperator.And:
         groups = model_count / 10
         assert len(rows) == (groups - 1)
-        assert all(row.name.startswith(ExampleModel.__name__) for row in rows)
+        assert all(row.name.startswith(ParentModel.__name__) for row in rows)
         assert all(str(row.grouping_id).startswith("0") for row in rows)
     else:
         assert len(rows) == model_count
         assert all(
-            row.name.startswith(ExampleModel.__name__)
+            row.name.startswith(ParentModel.__name__)
             or str(row.grouping_id).startswith("0")
             for row in rows
         )
@@ -622,7 +622,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     VALUE = "0"
@@ -651,9 +651,9 @@ def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-    assert f"WHERE ({ExampleModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
+    assert f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
     assert (
-        f"{sql_link_operator} ({ExampleModel.__tablename__}.grouping_id LIKE '%' || ?)"
+        f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE '%' || ?)"
         in compiled_str
     )
     assert compiled.params["name_1"] == VALUE

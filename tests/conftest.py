@@ -1,27 +1,13 @@
 from datetime import datetime, timedelta
-from typing import Generator, List, Optional, Union
+from typing import Generator, Union
 
 from pytest import fixture
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    create_engine,
-    func,
-)
+from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import (
-    DeclarativeMeta,
-    Mapped,
-    Query,
-    Session,
-    registry,
-    relationship,
-)
+from sqlalchemy.orm import Query, Session
 
 from mui.v5.integrations.sqlalchemy import Resolver
+from tests.fixtures import Base, ChildModel, ParentModel
 
 GENERATED_MODEL_COUNT = 1000
 RESOLVABLE_FIELDS = (
@@ -37,78 +23,6 @@ RESOLVABLE_FIELDS = (
 )
 FIRST_DATE_STR = "2022-11-01T12:00:00.000000+00:00"
 FIRST_DATE_DATETIME = datetime.fromisoformat(FIRST_DATE_STR)
-mapper_registry = registry()
-
-
-class Base(metaclass=DeclarativeMeta):
-    __abstract__ = True
-
-    registry = mapper_registry
-    metadata = mapper_registry.metadata
-
-    __init__ = mapper_registry.constructor
-
-
-class ExampleModel(Base):
-    __tablename__ = "test_model"
-
-    def __hash__(self) -> int:
-        return hash((self.id,))
-
-    id: Mapped[int] = Column(  # pyright: ignore
-        Integer(),
-        autoincrement=True,
-        comment="Identifier",
-        primary_key=True,
-    )
-    created_at: Mapped[datetime] = Column(  # pyright:ignore
-        DateTime(timezone=True),
-        comment="When the row was created.",
-        nullable=False,
-        # equivalent to MariaDB's UTC_TIMESTAMP
-        server_default=func.DATETIME("now"),
-    )
-    grouping_id: Mapped[int] = Column(  # pyright: ignore
-        Integer(),
-        comment="A number to more easily group results to test multi-directional sort",
-        nullable=False,
-    )
-    null_field: Mapped[Optional[int]] = Column(  # pyright: ignore
-        Integer(),
-        comment="A null field",
-        default=None,
-        nullable=True,
-    )
-    name: Mapped[str] = Column(  # pyright: ignore
-        String(),
-        nullable=False,
-        comment="The name of the model",
-    )
-
-    children: Mapped[List["RelatedModel"]] = relationship(  # pyright: ignore
-        "RelatedModel", back_populates="parent", uselist=True
-    )
-
-
-class RelatedModel(Base):
-    __tablename__ = "test_related_model"
-
-    def __hash__(self) -> int:
-        return hash((self.id,))
-
-    id: Mapped[int] = Column(  # pyright: ignore
-        Integer(),
-        autoincrement=True,
-        comment="Identifier",
-        primary_key=True,
-    )
-    parent_id: Mapped[int] = Column(  # pyright: ignore
-        Integer(), ForeignKey(f"{ExampleModel.__tablename__}.id")
-    )
-
-    parent: Mapped["ExampleModel"] = relationship(  # pyright: ignore
-        "ExampleModel", back_populates="children", uselist=False
-    )
 
 
 def example_model_resolver(field: str) -> Union[int, str]:
@@ -129,15 +43,15 @@ def example_model_resolver(field: str) -> Union[int, str]:
     if field not in RESOLVABLE_FIELDS:
         raise ValueError("Incorrect configuration in RESOLVABLE_FIELDS constant")
     if field == "id":
-        return ExampleModel.id
+        return ParentModel.id
     if field in {"grouping_id", "groupingId", "groupingID"}:
-        return ExampleModel.grouping_id
+        return ParentModel.grouping_id
     if field in {"null_field", "nullField"}:
-        return ExampleModel.null_field
+        return ParentModel.null_field
     if field == "name":
-        return ExampleModel.name
+        return ParentModel.name
     if field in {"created_at", "createdAt"}:
-        return ExampleModel.created_at
+        return ParentModel.created_at
     raise ValueError("Resolver does not support this field name")
 
 
@@ -191,31 +105,31 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
         group = calculate_grouping_id(model_id=i)
         created = FIRST_DATE_DATETIME + timedelta(days=i - 1)
         # faked for testing of `is` equality operator and other date-time operators
-        model = ExampleModel(
+        model = ParentModel(
             created_at=created,
-            name=f"{ExampleModel.__name__} {i}",
+            name=f"{ParentModel.__name__} {i}",
             grouping_id=group,
         )
         session.add(model)
         session.commit()
         session.refresh(model)
         for _ in range(1, model_count + 1):
-            related_model = RelatedModel(parent_id=model.id)
+            related_model = ChildModel(parent_id=model.id)
             session.add(related_model)
     session.commit()
     yield session
 
 
 @fixture(scope="module")
-def query(session: Session) -> Generator["Query[ExampleModel]", None, None]:
+def query(session: Session) -> Generator["Query[ParentModel]", None, None]:
     """A fixture representing a SQLAlchemy query."""
-    yield (session.query(ExampleModel))
+    yield (session.query(ParentModel))
 
 
 @fixture(scope="module")
-def joined_query(session: Session) -> Generator["Query[ExampleModel]", None, None]:
+def joined_query(session: Session) -> Generator["Query[ParentModel]", None, None]:
     """A fixture representing a SQLAlchemy query."""
-    yield (session.query(RelatedModel).join(ExampleModel))
+    yield (session.query(ChildModel).join(ParentModel))
 
 
 @fixture(scope="module")

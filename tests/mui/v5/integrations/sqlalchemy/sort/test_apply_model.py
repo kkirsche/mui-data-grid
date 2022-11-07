@@ -5,13 +5,14 @@ from sqlalchemy.orm import Query
 from mui.v5.grid import GridSortDirection, GridSortItem, GridSortModel
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
 from mui.v5.integrations.sqlalchemy.sort import apply_sort_to_query_from_model
-from tests.conftest import RESOLVABLE_FIELDS, ExampleModel
+from tests.conftest import RESOLVABLE_FIELDS
+from tests.fixtures.sqlalchemy import ParentModel
 
 
 @mark.parametrize("direction", (GridSortDirection.ASC, GridSortDirection.DESC, None))
 def test_apply_sort_to_query_from_model_single_field(
     direction: GridSortDirection,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     item = GridSortItem(field="id", sort=direction)
@@ -23,7 +24,7 @@ def test_apply_sort_to_query_from_model_single_field(
     compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
-    assert f"ORDER BY {ExampleModel.__tablename__}.id {dir_str}" in compiled_str
+    assert f"ORDER BY {ParentModel.__tablename__}.id {dir_str}" in compiled_str
 
     sorted_results = sorted_query.all()
     assert len(sorted_results) > 0
@@ -48,7 +49,7 @@ def test_apply_sort_to_query_from_model_single_field(
 )
 def test_apply_sort_to_query_from_model_multiple_fields(
     direction: GridSortDirection,
-    query: "Query[ExampleModel]",
+    query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
     # order matters with how we're using the fields!
@@ -64,7 +65,7 @@ def test_apply_sort_to_query_from_model_multiple_fields(
     )
     compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    tbl = ExampleModel.__tablename__
+    tbl = ParentModel.__tablename__
     dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
     assert f"ORDER BY {tbl}.grouping_id {dir_str}, {tbl}.id {dir_str}" in compiled_str
 

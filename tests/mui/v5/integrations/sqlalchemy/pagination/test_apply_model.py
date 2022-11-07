@@ -7,7 +7,8 @@ from mui.v5.grid import GridPaginationModel
 from mui.v5.integrations.sqlalchemy.pagination import (
     apply_limit_offset_to_query_from_model,
 )
-from tests.conftest import GENERATED_MODEL_COUNT, ExampleModel
+from tests.conftest import GENERATED_MODEL_COUNT
+from tests.fixtures.sqlalchemy import ParentModel
 
 
 @given(
@@ -19,7 +20,7 @@ from tests.conftest import GENERATED_MODEL_COUNT, ExampleModel
     )
 )
 def test_apply_limit_offset_to_query_from_model(
-    model: GridPaginationModel, query: "Query[ExampleModel]", model_count: int
+    model: GridPaginationModel, query: "Query[ParentModel]", model_count: int
 ) -> None:
     paginated = apply_limit_offset_to_query_from_model(query=query, model=model)
     compiled = paginated.statement.compile(dialect=sqlite.dialect())
