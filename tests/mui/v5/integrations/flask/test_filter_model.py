@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 
 @given(st.builds(GridFilterModel))
-@settings(deadline=timedelta(milliseconds=600))
+@settings(deadline=timedelta(milliseconds=400))
 def test_parse_grid_filter_model_from_flask_request(instance: GridFilterModel) -> None:
     key = "filter_model"
     with app.app_context():
