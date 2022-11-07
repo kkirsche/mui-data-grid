@@ -1,4 +1,5 @@
 from enum import unique
+from random import choice
 
 from mui.compat import StrEnum
 
@@ -9,3 +10,10 @@ class Category(StrEnum):
     CATEGORY_2 = "cat-2"
     CATEGORY_3 = "cat-3"
     CATEGORY_4 = "cat-4"
+
+
+CATEGORIES = list(Category)
+
+
+def random_category() -> Category:
+    return choice(CATEGORIES)

@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from random import choice
 from typing import Generator, Union
 
 from pytest import fixture
@@ -8,7 +7,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Query, Session
 
 from mui.v5.integrations.sqlalchemy import Resolver
-from tests.fixtures import Base, Category, ChildModel, ParentModel
+from tests.fixtures import Base, ChildModel, ParentModel, random_category
 
 GENERATED_MODEL_COUNT = 1000
 RESOLVABLE_FIELDS = (
@@ -115,9 +114,7 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
         session.commit()
         session.refresh(model)
         for _ in range(1, model_count + 1):
-            related_model = ChildModel(
-                category=choice(list(Category)), parent_id=model.id
-            )
+            related_model = ChildModel(category=random_category(), parent_id=model.id)
             session.add(related_model)
     session.commit()
     yield session
