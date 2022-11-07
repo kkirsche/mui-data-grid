@@ -1,5 +1,5 @@
-from urllib.parse import quote
 from datetime import timedelta
+from urllib.parse import quote
 
 from flask import Flask
 from hypothesis import given, settings
