@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from math import floor
 from typing import Generator, Union
 
 from pytest import fixture
@@ -9,7 +10,9 @@ from sqlalchemy.orm import Query, Session
 from mui.v5.integrations.sqlalchemy import Resolver
 from tests.fixtures import Base, Category, ChildModel, ParentModel, category_from_id
 
-GENERATED_MODEL_COUNT = 1000
+GENERATED_PARENT_MODEL_COUNT = 1000
+GENERATED_CHILD_MODEL_COUNT = 100
+
 PARENT_MODEL_RESOLVABLE_FIELDS = (
     "created_at",
     "createdat",
@@ -25,6 +28,7 @@ CHILD_MODEL_RESOLVABLE_FIELDS = (
     "parent_id",
     "parentid",
 )
+RESOLVABLE_FIELDS = PARENT_MODEL_RESOLVABLE_FIELDS + CHILD_MODEL_RESOLVABLE_FIELDS
 FIRST_DATE_STR = "2022-11-01T12:00:00.000000+00:00"
 FIRST_DATE_DATETIME = datetime.fromisoformat(FIRST_DATE_STR)
 
@@ -89,10 +93,7 @@ def parent_model_resolver(field: str) -> Union[int, str]:
 
 def query_resolver(field: str) -> Union[int, str, Category]:
     normalized_field = field.lower()
-    if (
-        normalized_field not in PARENT_MODEL_RESOLVABLE_FIELDS
-        and normalized_field not in CHILD_MODEL_RESOLVABLE_FIELDS
-    ):
+    if normalized_field not in RESOLVABLE_FIELDS:
         raise ValueError(f"Ambiguous resolution key provided: {normalized_field}")
     return (
         child_model_resolver(field=field)
@@ -117,13 +118,43 @@ def calculate_grouping_id(model_id: int) -> int:
 
 
 @fixture(scope="session")
-def model_count() -> int:
-    """The number of models that were committed to the database.
+def parent_model_count() -> int:
+    """The number of parent models that were committed to the database.
 
     Returns:
-        int: The model count.
+        int: The parent model count.
     """
-    return GENERATED_MODEL_COUNT
+    return GENERATED_PARENT_MODEL_COUNT
+
+
+@fixture(scope="session")
+def child_model_count() -> int:
+    """The number of child models that were committed to the database.
+
+    Returns:
+        int: The child model count.
+    """
+    return GENERATED_PARENT_MODEL_COUNT
+
+
+@fixture(scope="session")
+def total_model_count(parent_model_count: int, child_model_count: int) -> int:
+    """The number of total models that were committed to the database.
+
+    Returns:
+        int: The total model count.
+    """
+    return parent_model_count * child_model_count
+
+
+@fixture(scope="session")
+def target_parent_id(parent_model_count: int) -> int:
+    """The target ID of a parent model.
+
+    Returns:
+        int: The ID of the parent model to target.
+    """
+    return floor(parent_model_count / 2)
 
 
 @fixture(scope="session")
@@ -140,14 +171,14 @@ def engine() -> Generator[Engine, None, None]:
 
 
 @fixture(scope="session")
-def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
+def session(engine: Engine, parent_model_count: int) -> Generator[Session, None, None]:
     """The SQLAlchemy session, after committing models to the database.
 
     Yields:
         Session: The SQLAlchemy session
     """
     session = Session(bind=engine, future=True)
-    for i in range(1, model_count + 1):
+    for i in range(1, parent_model_count + 1):
         group = calculate_grouping_id(model_id=i)
         created = FIRST_DATE_DATETIME + timedelta(days=i - 1)
         # faked for testing of `is` equality operator and other date-time operators
@@ -159,8 +190,8 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
         session.add(model)
         session.commit()
         session.refresh(model)
-        for j in range(1, model_count + 1):
-            seen_ids = model_count * j
+        for j in range(1, parent_model_count + 1):
+            seen_ids = parent_model_count * j
             related_model = ChildModel(
                 category=category_from_id(id=j + seen_ids), parent_id=model.id
             )

@@ -375,7 +375,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 # def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
 #     field: str,
 #     link_operator: Optional[GridLinkOperator],
-#     model_count: int,
+#     parent_model_count: int,
 #     query: "Query[ParentModel]",
 #     resolver: Resolver,
 # ) -> None:
@@ -419,7 +419,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 #         assert all(row.grouping_id is None for row in rows)
 #     else:
 #         if field == "null_field":
-#             assert row_count == model_count
+#             assert row_count == parent_model_count
 #         else:
 #             assert row_count == 0
 #         assert all(row.null_field is None or row.grouping_id is None for row in rows)
@@ -433,7 +433,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 #     field: str,
 #     link_operator: Optional[GridLinkOperator],
 #     query: "Query[ParentModel]",
-#     model_count: int,
+#     parent_model_count: int,
 #     resolver: Resolver,
 # ) -> None:
 #     model = GridFilterModel.parse_obj(
@@ -471,13 +471,13 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 #     row_count = len(rows)
 #     if link_operator == GridLinkOperator.And:
 #         if field == "id":
-#             assert row_count == model_count
+#             assert row_count == parent_model_count
 #         elif field == "null_field":
 #             assert row_count == 0
 #         assert all(row.grouping_id is not None for row in rows)
 #     else:
 #         # Or branch
-#         assert row_count == model_count
+#         assert row_count == parent_model_count
 #         assert all(
 #             row.null_field is not None or row.grouping_id is not None for row in rows
 #         )
@@ -547,7 +547,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 # def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
 #     link_operator: Optional[GridLinkOperator],
 #     query: "Query[ParentModel]",
-#     model_count: int,
+#     parent_model_count: int,
 #     resolver: Resolver,
 # ) -> None:
 #     model = GridFilterModel.parse_obj(
@@ -588,12 +588,12 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 
 #     rows = filtered_query.all()
 #     if link_operator == GridLinkOperator.And:
-#         assert len(rows) == model_count / 10
+#         assert len(rows) == parent_model_count / 10
 #         assert all(ParentModel.__name__ in row.name for row in rows)
 #         assert all("0" in str(row.grouping_id) for row in rows)
 #     else:
 #         # all have the name
-#         assert len(rows) == model_count
+#         assert len(rows) == parent_model_count
 #         assert all(
 #             ParentModel.__name__ in row.name or "0" in str(row.grouping_id)
 #             for row in rows
@@ -604,7 +604,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 # def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
 #     link_operator: Optional[GridLinkOperator],
 #     query: "Query[ParentModel]",
-#     model_count: int,
+#     parent_model_count: int,
 #     resolver: Resolver,
 # ) -> None:
 #     model = GridFilterModel.parse_obj(
@@ -642,12 +642,12 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 
 #     rows = filtered_query.all()
 #     if link_operator == GridLinkOperator.And:
-#         groups = model_count / 10
+#         groups = parent_model_count / 10
 #         assert len(rows) == (groups - 1)
 #         assert all(row.name.startswith(ParentModel.__name__) for row in rows)
 #         assert all(str(row.grouping_id).startswith("0") for row in rows)
 #     else:
-#         assert len(rows) == model_count
+#         assert len(rows) == parent_model_count
 #         assert all(
 #             row.name.startswith(ParentModel.__name__)
 #             or str(row.grouping_id).startswith("0")

@@ -30,15 +30,15 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
     query: "Query[ParentModel]",
     resolver: Resolver,
+    target_parent_id: int,
 ) -> None:
-    TARGET_ID = 300
-    TARGET_GROUP = calculate_grouping_id(model_id=TARGET_ID)
+    TARGET_GROUP = calculate_grouping_id(model_id=target_parent_id)
     model = GridFilterModel.parse_obj(
         {
             "items": [
                 {
                     "column_field": "id",
-                    "value": TARGET_ID,
+                    "value": target_parent_id,
                     "operator_value": "==",
                 },
                 {
@@ -63,16 +63,16 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
         f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id = ?"
         in compiled_str
     )
-    assert compiled.params["id_1"] == TARGET_ID
+    assert compiled.params["id_1"] == target_parent_id
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
     row = filtered_query.first()
     assert row is not None
     if link_operator == GridLinkOperator.And:
-        assert row.id == TARGET_ID
+        assert row.id == target_parent_id
         assert row.grouping_id == TARGET_GROUP
     else:
-        assert row.id == TARGET_ID or row.grouping_id == TARGET_GROUP
+        assert row.id == target_parent_id or row.grouping_id == TARGET_GROUP
 
 
 @mark.parametrize(
@@ -138,15 +138,16 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
     query: "Query[ParentModel]",
     resolver: Resolver,
+    target_parent_id: int,
+    parent_model_count: int,
 ) -> None:
-    TARGET_ID = 300
-    TARGET_GROUP = calculate_grouping_id(model_id=TARGET_ID)
+    TARGET_GROUP = calculate_grouping_id(model_id=target_parent_id)
     model = GridFilterModel.parse_obj(
         {
             "items": [
                 {
                     "column_field": "id",
-                    "value": TARGET_ID,
+                    "value": target_parent_id,
                     "operator_value": "!=",
                 },
                 {
@@ -171,21 +172,22 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
         f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id != ?"
         in compiled_str
     )
-    assert compiled.params["id_1"] == TARGET_ID
+    assert compiled.params["id_1"] == target_parent_id
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
 
     rows = filtered_query.all()
     if link_operator == GridLinkOperator.And:
         assert len(rows) == 900
-        assert all(row.id != TARGET_ID for row in rows)
+        assert all(row.id != target_parent_id for row in rows)
         assert all(row.grouping_id != TARGET_GROUP for row in rows)
     else:
         # because it's an `OR` clause, the != id ends up being the only
         # thing that evaluates, as it has both the ID and the group, while
         # the others at least have a differing ID.
-        assert len(rows) == 999
+        assert len(rows) == (parent_model_count - 1)
         assert all(
-            row.id != TARGET_ID or row.grouping_id != TARGET_GROUP for row in rows
+            row.id != target_parent_id or row.grouping_id != TARGET_GROUP
+            for row in rows
         )
 
 
@@ -339,7 +341,7 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
 def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
     link_operator: Optional[GridLinkOperator],
-    model_count: int,
+    parent_model_count: int,
     query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
@@ -383,7 +385,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
         assert all(row.grouping_id is None for row in rows)
     else:
         if field == "null_field":
-            assert row_count == model_count
+            assert row_count == parent_model_count
         else:
             assert row_count == 0
         assert all(row.null_field is None or row.grouping_id is None for row in rows)
@@ -397,7 +399,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
     link_operator: Optional[GridLinkOperator],
     query: "Query[ParentModel]",
-    model_count: int,
+    parent_model_count: int,
     resolver: Resolver,
 ) -> None:
     model = GridFilterModel.parse_obj(
@@ -435,13 +437,13 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     row_count = len(rows)
     if link_operator == GridLinkOperator.And:
         if field == "id":
-            assert row_count == model_count
+            assert row_count == parent_model_count
         elif field == "null_field":
             assert row_count == 0
         assert all(row.grouping_id is not None for row in rows)
     else:
         # Or branch
-        assert row_count == model_count
+        assert row_count == parent_model_count
         assert all(
             row.null_field is not None or row.grouping_id is not None for row in rows
         )
@@ -511,7 +513,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
 def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
     query: "Query[ParentModel]",
-    model_count: int,
+    parent_model_count: int,
     resolver: Resolver,
 ) -> None:
     model = GridFilterModel.parse_obj(
@@ -552,12 +554,12 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     if link_operator == GridLinkOperator.And:
-        assert len(rows) == model_count / 10
+        assert len(rows) == parent_model_count / 10
         assert all(ParentModel.__name__ in row.name for row in rows)
         assert all("0" in str(row.grouping_id) for row in rows)
     else:
         # all have the name
-        assert len(rows) == model_count
+        assert len(rows) == parent_model_count
         assert all(
             ParentModel.__name__ in row.name or "0" in str(row.grouping_id)
             for row in rows
@@ -568,7 +570,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
 def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
     link_operator: Optional[GridLinkOperator],
     query: "Query[ParentModel]",
-    model_count: int,
+    parent_model_count: int,
     resolver: Resolver,
 ) -> None:
     model = GridFilterModel.parse_obj(
@@ -606,12 +608,12 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     if link_operator == GridLinkOperator.And:
-        groups = model_count / 10
+        groups = parent_model_count / 10
         assert len(rows) == (groups - 1)
         assert all(row.name.startswith(ParentModel.__name__) for row in rows)
         assert all(str(row.grouping_id).startswith("0") for row in rows)
     else:
-        assert len(rows) == model_count
+        assert len(rows) == parent_model_count
         assert all(
             row.name.startswith(ParentModel.__name__)
             or str(row.grouping_id).startswith("0")
