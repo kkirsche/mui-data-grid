@@ -1,4 +1,5 @@
 from datetime import timedelta
+from math import floor
 
 from pytest import mark
 from sqlalchemy.dialects import sqlite
@@ -118,6 +119,7 @@ def test_apply_ne_apply_filter_to_query_from_model_single_field(
 def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
     operator: str,
     query: "Query[ParentModel]",
+    model_count: int,
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 500
@@ -145,10 +147,10 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
 
     rows = filtered_query.all()
     if operator == ">":
-        assert len(rows) == 500
+        assert len(rows) == floor(model_count / 2)
         assert all(row.id > TARGET_ID for row in rows)  # pyright: ignore
     else:
-        assert len(rows) == 499
+        assert len(rows) == floor(model_count / 2) - 1
         assert all(row.id < TARGET_ID for row in rows)  # pyright: ignore
 
 
@@ -156,6 +158,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_single_field(
 def test_apply_ge_le_apply_filter_to_query_from_model_single_field(
     operator: str,
     query: "Query[ParentModel]",
+    model_count: int,
     resolver: Resolver,
 ) -> None:
     TARGET_ID = 500
@@ -184,10 +187,10 @@ def test_apply_ge_le_apply_filter_to_query_from_model_single_field(
     rows = filtered_query.all()
     row_count = len(rows)
     if operator == ">=":
-        assert row_count == 501
+        assert row_count == floor(model_count / 2) + 1
         assert all(row.id >= TARGET_ID for row in rows)
     else:
-        assert row_count == 500
+        assert row_count == floor(model_count / 2)
         assert all(row.id <= TARGET_ID for row in rows)
 
 

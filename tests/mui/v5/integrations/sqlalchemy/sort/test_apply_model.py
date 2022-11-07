@@ -5,7 +5,7 @@ from sqlalchemy.orm import Query
 from mui.v5.grid import GridSortDirection, GridSortItem, GridSortModel
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
 from mui.v5.integrations.sqlalchemy.sort import apply_sort_to_query_from_model
-from tests.conftest import RESOLVABLE_FIELDS
+from tests.conftest import PARENT_MODEL_RESOLVABLE_FIELDS
 from tests.fixtures.sqlalchemy import ParentModel
 
 
@@ -16,7 +16,7 @@ def test_apply_sort_to_query_from_model_single_field(
     resolver: Resolver,
 ) -> None:
     item = GridSortItem(field="id", sort=direction)
-    assert item.field in RESOLVABLE_FIELDS
+    assert item.field in PARENT_MODEL_RESOLVABLE_FIELDS
     model: GridSortModel = [item]
     sorted_query = apply_sort_to_query_from_model(
         query=query, model=model, resolver=resolver
@@ -58,7 +58,7 @@ def test_apply_sort_to_query_from_model_multiple_fields(
         GridSortItem(field="id", sort=direction),
     ]
     for item in model:
-        assert item.field in RESOLVABLE_FIELDS
+        assert item.field in PARENT_MODEL_RESOLVABLE_FIELDS
 
     sorted_query = apply_sort_to_query_from_model(
         query=query, model=model, resolver=resolver

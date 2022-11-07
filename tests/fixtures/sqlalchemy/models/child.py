@@ -1,5 +1,3 @@
-from typing import Any
-
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, relationship
 
@@ -34,9 +32,3 @@ class ChildModel(Base):
     parent: Mapped["ParentModel"] = relationship(  # pyright: ignore
         "ParentModel", back_populates="children", uselist=False
     )
-
-    def __getattribute__(self, __name: str) -> Any:
-        normalized_name = __name.lower()
-        if normalized_name == "parentid":
-            return self.parent_id
-        return super().__getattribute__(__name)

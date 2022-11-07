@@ -7,10 +7,10 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Query, Session
 
 from mui.v5.integrations.sqlalchemy import Resolver
-from tests.fixtures import Base, ChildModel, ParentModel, random_category
+from tests.fixtures import Base, Category, ChildModel, ParentModel, category_from_id
 
 GENERATED_MODEL_COUNT = 1000
-RESOLVABLE_FIELDS = (
+PARENT_MODEL_RESOLVABLE_FIELDS = (
     "created_at",
     "createdat",
     "grouping_id",
@@ -20,11 +20,16 @@ RESOLVABLE_FIELDS = (
     "null_field",
     "nullfield",
 )
+CHILD_MODEL_RESOLVABLE_FIELDS = (
+    "category",
+    "parent_id",
+    "parentid",
+)
 FIRST_DATE_STR = "2022-11-01T12:00:00.000000+00:00"
 FIRST_DATE_DATETIME = datetime.fromisoformat(FIRST_DATE_STR)
 
 
-def example_model_resolver(field: str) -> Union[int, str]:
+def child_model_resolver(field: str) -> Union[int, str, Category]:
     """Resolves the model's field names to the corresponding column names.
 
     Args:
@@ -40,7 +45,34 @@ def example_model_resolver(field: str) -> Union[int, str]:
         Union[int, str]: The column (which mypy thinks is actually it's value)
     """
     normalized_field = field.lower()
-    if normalized_field not in RESOLVABLE_FIELDS:
+    if normalized_field not in CHILD_MODEL_RESOLVABLE_FIELDS:
+        raise ValueError(
+            "Incorrect configuration in CHILD_MODEL_RESOLVABLE_FIELDS constant"
+        )
+    if normalized_field == "category":
+        return ChildModel.category
+    if normalized_field in {"parent_id", "parentid"}:
+        return ChildModel.parent_id
+    raise ValueError("Resolver does not support this field name")
+
+
+def parent_model_resolver(field: str) -> Union[int, str]:
+    """Resolves the model's field names to the corresponding column names.
+
+    Args:
+        field (str): The field name being resolved.
+
+    Raises:
+        ValueError: Raised when the field is not a resolvable field.
+        ValueError: Raised when the resolver doesn't support the field even though
+            it was considered a resolvable field. This is considered a programming
+            error, but ensures MyPy is satisfied.
+
+    Returns:
+        Union[int, str]: The column (which mypy thinks is actually it's value)
+    """
+    normalized_field = field.lower()
+    if normalized_field not in PARENT_MODEL_RESOLVABLE_FIELDS:
         raise ValueError("Incorrect configuration in RESOLVABLE_FIELDS constant")
     if normalized_field == "id":
         return ParentModel.id
@@ -53,6 +85,20 @@ def example_model_resolver(field: str) -> Union[int, str]:
     if field in {"created_at", "createdat"}:
         return ParentModel.created_at
     raise ValueError("Resolver does not support this field name")
+
+
+def query_resolver(field: str) -> Union[int, str, Category]:
+    normalized_field = field.lower()
+    if (
+        normalized_field not in PARENT_MODEL_RESOLVABLE_FIELDS
+        and normalized_field not in CHILD_MODEL_RESOLVABLE_FIELDS
+    ):
+        raise ValueError(f"Ambiguous resolution key provided: {normalized_field}")
+    return (
+        child_model_resolver(field=field)
+        if normalized_field in CHILD_MODEL_RESOLVABLE_FIELDS
+        else parent_model_resolver(field=field)
+    )
 
 
 def calculate_grouping_id(model_id: int) -> int:
@@ -113,8 +159,11 @@ def session(engine: Engine, model_count: int) -> Generator[Session, None, None]:
         session.add(model)
         session.commit()
         session.refresh(model)
-        for _ in range(1, model_count + 1):
-            related_model = ChildModel(category=random_category(), parent_id=model.id)
+        for j in range(1, model_count + 1):
+            seen_ids = model_count * j
+            related_model = ChildModel(
+                category=category_from_id(id=j + seen_ids), parent_id=model.id
+            )
             session.add(related_model)
     session.commit()
     yield session
@@ -127,11 +176,11 @@ def query(session: Session) -> Generator["Query[ParentModel]", None, None]:
 
 
 @fixture(scope="module")
-def joined_query(session: Session) -> Generator["Query[ParentModel]", None, None]:
+def joined_query(session: Session) -> Generator["Query[ChildModel]", None, None]:
     """A fixture representing a SQLAlchemy query."""
     yield (session.query(ChildModel).join(ParentModel))
 
 
 @fixture(scope="module")
 def resolver() -> Resolver:
-    return example_model_resolver
+    return query_resolver

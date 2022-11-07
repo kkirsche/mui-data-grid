@@ -1,7 +1,7 @@
 from tests.fixtures.sqlalchemy.enums import (
     CATEGORIES,
     Category,
-    random_category,
+    category_from_id,
     values_callable,
 )
 from tests.fixtures.sqlalchemy.models import Base, ChildModel, ParentModel
@@ -13,6 +13,6 @@ __all__ = [
     "Category",
     "ChildModel",
     "ParentModel",
-    "random_category",
+    "category_from_id",
     "values_callable",
 ]

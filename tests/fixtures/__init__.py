@@ -4,7 +4,7 @@ from tests.fixtures.sqlalchemy import (
     Category,
     ChildModel,
     ParentModel,
-    random_category,
+    category_from_id,
     values_callable,
 )
 
@@ -15,6 +15,6 @@ __all__ = [
     "Category",
     "ChildModel",
     "ParentModel",
-    "random_category",
+    "category_from_id",
     "values_callable",
 ]
