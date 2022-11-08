@@ -1,6 +1,6 @@
 from datetime import timedelta
 from itertools import product
-from operator import gt, lt
+from operator import ge, gt, le, lt
 from typing import Optional
 
 from pytest import mark
@@ -360,133 +360,167 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
             )
 
 
-# @mark.parametrize(
-#     argnames=("operator", "link_operator"),
-#     argvalues=(tuple(product(("<=", ">="), LINK_OPERATOR_ARGVALUES))),
-# )
-# def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
-#     operator: str,
-#     link_operator: Optional[GridLinkOperator],
-#     query: "Query[ParentModel]",
-#     resolver: Resolver,
-# ) -> None:
-#     TARGET_ID = 500
-#     TARGET_GROUP = calculate_grouping_id(model_id=TARGET_ID)
-#     model = GridFilterModel.parse_obj(
-#         {
-#             "items": [
-#                 {
-#                     "column_field": "id",
-#                     "value": TARGET_ID,
-#                     "operator_value": operator,
-#                 },
-#                 {
-#                     "column_field": "grouping_id",
-#                     "value": TARGET_GROUP,
-#                     "operator_value": operator,
-#                 },
-#             ],
-#             "link_operator": link_operator,
-#             "quick_filter_logic_operator": None,
-#             "quick_filter_values": None,
-#         }
-#     )
-#     filtered_query = apply_filter_to_query_from_model(
-#         query=query, model=model, resolver=resolver
-#     )
-#     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
-#     compiled_str = str(compiled)
-#     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-#     assert f"WHERE {ParentModel.__tablename__}.id {operator} ?" in compiled_str
-#     assert (
-#         f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id {operator} ?"
-#         in compiled_str
-#     )
-#     assert compiled.params["id_1"] == TARGET_ID
-#     assert compiled.params["grouping_id_1"] == TARGET_GROUP
+@mark.parametrize(
+    argnames=("operator", "link_operator"),
+    argvalues=(tuple(product(("<=", ">="), LINK_OPERATOR_ARGVALUES))),
+)
+def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
+    operator: str,
+    link_operator: Optional[GridLinkOperator],
+    session: Session,
+    joined_query: "Query[ChildModel]",
+    resolver: Resolver,
+    target_parent_id: int,
+) -> None:
+    TARGET_GROUP = calculate_grouping_id(model_id=target_parent_id)
+    TARGET_CATEGORY = category_from_id(id=target_parent_id)
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                {
+                    "column_field": "id",
+                    "value": target_parent_id,
+                    "operator_value": operator,
+                },
+                {
+                    "column_field": "grouping_id",
+                    "value": TARGET_GROUP,
+                    "operator_value": operator,
+                },
+                {
+                    "column_field": "category",
+                    "value": TARGET_CATEGORY,
+                    "operator_value": operator,
+                },
+            ],
+            "link_operator": link_operator,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    filtered_query = apply_filter_to_query_from_model(
+        query=joined_query, model=model, resolver=resolver
+    )
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
+    assert f"WHERE {ParentModel.__tablename__}.id {operator} ?" in compiled_str
+    assert (
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id {operator} ?"
+        in compiled_str
+    )
+    assert (
+        f"{sql_link_operator} {ChildModel.__tablename__}.category {operator} ?"
+        in compiled_str
+    )
+    assert compiled.params["id_1"] == target_parent_id
+    assert compiled.params["grouping_id_1"] == TARGET_GROUP
+    assert compiled.params["category_1"] == TARGET_CATEGORY
 
-#     rows = filtered_query.all()
-#     row_count = len(rows)
-#     if operator == ">=":
-#         assert row_count == 501
-#         if link_operator == GridLinkOperator.And:
-#             assert all(row.id >= TARGET_ID for row in rows)
-#             assert all(
-#                 row.grouping_id >= TARGET_GROUP for row in rows
-#             )  # pyright: ignore
-#         else:
-#             assert all(
-#                 row.id >= TARGET_ID or row.grouping_id >= TARGET_GROUP for row in rows
-#             )
-#     else:
-#         if link_operator == GridLinkOperator.And:
-#             assert row_count == 500
-#             assert all(row.id <= TARGET_ID for row in rows)
-#             assert all(
-#                 row.grouping_id <= TARGET_GROUP for row in rows
-#             )  # pyright: ignore
-#         else:
-#             assert row_count == 599
-#             assert all(
-#                 row.id <= TARGET_ID or row.grouping_id <= TARGET_GROUP for row in rows
-#             )  # pyright: ignore
+    rows = filtered_query.all()
+    row_count = filtered_query.count()
+    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    op = ge if operator == ">=" else le
+    expected_row_count = (
+        session.query(ChildModel)
+        .join(ParentModel)
+        .filter(
+            join_filter(
+                op(ParentModel.id, target_parent_id),
+                op(ParentModel.grouping_id, TARGET_GROUP),
+                op(ChildModel.category, TARGET_CATEGORY),
+            )
+        )
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert op(row.parent.id, target_parent_id)
+            assert op(row.parent.grouping_id, TARGET_GROUP)
+            assert op(row.category, TARGET_CATEGORY)
+        else:
+            assert (
+                op(row.parent.id, target_parent_id)
+                or op(row.parent.grouping_id, TARGET_GROUP)
+                or op(row.category, TARGET_CATEGORY)
+            )
 
 
-# @mark.parametrize(
-#     argnames=("field", "link_operator"),
-#     argvalues=tuple(product(("id", "null_field"), LINK_OPERATOR_ARGVALUES)),
-# )
-# def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
-#     field: str,
-#     link_operator: Optional[GridLinkOperator],
-#     parent_model_count: int,
-#     query: "Query[ParentModel]",
-#     resolver: Resolver,
-# ) -> None:
-#     model = GridFilterModel.parse_obj(
-#         {
-#             "items": [
-#                 {
-#                     "column_field": field,
-#                     "value": None,
-#                     "operator_value": "isEmpty",
-#                 },
-#                 {
-#                     "column_field": "grouping_id",
-#                     "value": None,
-#                     "operatorValue": "isEmpty",
-#                 },
-#             ],
-#             "link_operator": link_operator,
-#             "quick_filter_logic_operator": None,
-#             "quick_filter_values": None,
-#         }
-#     )
-#     filtered_query = apply_filter_to_query_from_model(
-#         query=query, model=model, resolver=resolver
-#     )
-#     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
-#     compiled_str = str(compiled)
-#     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-#     assert f"WHERE {ParentModel.__tablename__}.{field} IS NULL" in compiled_str
-#     assert (
-#         f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id IS NULL"
-#         in compiled_str
-#     )
+@mark.parametrize(
+    argnames=("field", "link_operator"),
+    argvalues=tuple(product(("id", "null_field"), LINK_OPERATOR_ARGVALUES)),
+)
+def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
+    field: str,
+    link_operator: Optional[GridLinkOperator],
+    session: Session,
+    joined_query: "Query[ChildModel]",
+    resolver: Resolver,
+) -> None:
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                {
+                    "column_field": field,
+                    "value": None,
+                    "operator_value": "isEmpty",
+                },
+                {
+                    "column_field": "grouping_id",
+                    "value": None,
+                    "operatorValue": "isEmpty",
+                },
+                {
+                    "column_field": "category",
+                    "value": None,
+                    "operator_value": "isEmpty",
+                },
+            ],
+            "link_operator": link_operator,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    filtered_query = apply_filter_to_query_from_model(
+        query=joined_query, model=model, resolver=resolver
+    )
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
+    assert f"WHERE {ParentModel.__tablename__}.{field} IS NULL" in compiled_str
+    assert (
+        f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id IS NULL"
+        in compiled_str
+    )
 
-#     rows = filtered_query.all()
-#     row_count = len(rows)
-#     if link_operator == GridLinkOperator.And:
-#         # always zero because grouping_id is never empty
-#         assert row_count == 0
-#         assert all(row.null_field is None for row in rows)
-#         assert all(row.grouping_id is None for row in rows)
-#     else:
-#         if field == "null_field":
-#             assert row_count == parent_model_count
-#         else:
-#             assert row_count == 0
-#         assert all(row.null_field is None or row.grouping_id is None for row in rows)
+    rows = filtered_query.all()
+    row_count = filtered_query.count()
+    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    expected_row_count = (
+        session.query(ChildModel)
+        .join(ParentModel)
+        .filter(
+            join_filter(
+                getattr(ParentModel, field) == None,  # noqa: E711
+                ParentModel.grouping_id == None,  # noqa: E711
+                ChildModel.category == None,  # noqa: E711
+            )
+        )
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert getattr(row.parent, field) is None
+            assert row.parent.grouping_id is None
+            assert row.category is None
+        else:
+            assert (
+                getattr(row.parent, field) is None
+                or row.parent.grouping_id is None
+                or row.category is None
+            )
 
 
 # @mark.parametrize(
