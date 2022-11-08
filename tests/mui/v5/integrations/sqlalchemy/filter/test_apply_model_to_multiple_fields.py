@@ -1,5 +1,6 @@
 from datetime import timedelta
 from itertools import product
+from operator import ge, gt, le, lt
 from typing import Optional
 
 from pytest import mark
@@ -165,7 +166,6 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
     query: "Query[ParentModel]",
     resolver: Resolver,
     target_parent_id: int,
-    parent_model_count: int,
 ) -> None:
     TARGET_GROUP = calculate_grouping_id(model_id=target_parent_id)
     model = GridFilterModel.parse_obj(
@@ -272,43 +272,24 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
     rows = filtered_query.all()
     row_count = filtered_query.count()
     join_filter = and_ if link_operator == GridLinkOperator.And else or_
-    if operator == ">":
-        expected_row_count = (
-            session.query(ParentModel)
-            .filter(
-                join_filter(
-                    ParentModel.id > target_parent_id,
-                    ParentModel.grouping_id > TARGET_GROUP,
-                )
+    op = gt if operator == ">" else lt
+    expected_row_count = (
+        session.query(ParentModel)
+        .filter(
+            join_filter(
+                op(ParentModel.id, target_parent_id),
+                op(ParentModel.grouping_id, TARGET_GROUP),
             )
-            .count()
         )
-        assert row_count == expected_row_count
-        for row in rows:
-            if link_operator == GridLinkOperator.And:
-                assert row.id > target_parent_id
-                assert row.grouping_id > TARGET_GROUP
-            else:
-                assert row.id > target_parent_id or row.grouping_id > TARGET_GROUP
-
-    elif operator == "<":
-        expected_row_count = (
-            session.query(ParentModel)
-            .filter(
-                join_filter(
-                    ParentModel.id < target_parent_id,
-                    ParentModel.grouping_id < TARGET_GROUP,
-                )
-            )
-            .count()
-        )
-        assert row_count == expected_row_count
-        for row in rows:
-            if link_operator == GridLinkOperator.And:
-                assert row.id < target_parent_id
-                assert row.grouping_id < TARGET_GROUP
-            else:
-                assert row.id < target_parent_id or row.grouping_id < TARGET_GROUP
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert op(row.id, target_parent_id)
+            assert op(row.grouping_id, TARGET_GROUP)
+        else:
+            assert op(row.id, target_parent_id) or op(row.grouping_id, TARGET_GROUP)
 
 
 @mark.parametrize(
@@ -360,42 +341,24 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     rows = filtered_query.all()
     row_count = filtered_query.count()
     join_filter = and_ if link_operator == GridLinkOperator.And else or_
-    if operator == ">=":
-        expected_row_count = (
-            session.query(ParentModel)
-            .filter(
-                join_filter(
-                    ParentModel.id >= target_parent_id,
-                    ParentModel.grouping_id >= TARGET_GROUP,
-                )
+    op = ge if operator == ">=" else le
+    expected_row_count = (
+        session.query(ParentModel)
+        .filter(
+            join_filter(
+                op(ParentModel.id, target_parent_id),
+                op(ParentModel.grouping_id, TARGET_GROUP),
             )
-            .count()
         )
-        assert row_count == expected_row_count
-        for row in rows:
-            if link_operator == GridLinkOperator.And:
-                assert row.id >= target_parent_id
-                assert row.grouping_id >= TARGET_GROUP
-            else:
-                assert row.id >= target_parent_id or row.grouping_id >= TARGET_GROUP
-    else:
-        expected_row_count = (
-            session.query(ParentModel)
-            .filter(
-                join_filter(
-                    ParentModel.id <= target_parent_id,
-                    ParentModel.grouping_id <= TARGET_GROUP,
-                )
-            )
-            .count()
-        )
-        assert row_count == expected_row_count
-        for row in rows:
-            if link_operator == GridLinkOperator.And:
-                assert row.id <= target_parent_id
-                assert row.grouping_id <= TARGET_GROUP
-            else:
-                assert row.id <= target_parent_id or row.grouping_id <= TARGET_GROUP
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert op(row.id, target_parent_id)
+            assert op(row.grouping_id, TARGET_GROUP)
+        else:
+            assert op(row.id, target_parent_id) or op(row.grouping_id, TARGET_GROUP)
 
 
 @mark.parametrize(
