@@ -82,4 +82,31 @@ if __name__ == "__main__":
 
 #### SQLAlchemy
 
-Documentation coming soon!
+```python
+    # please see examples/main.py for the full code
+    models = get_grid_models_from_request(
+        filter_model_key=FILTER_MODEL_KEY,
+        pagination_model_key=PAGINATION_MODEL_KEY,
+        sort_model_key=SORT_MODEL_KEY,
+    )
+    session = Session()
+    try:
+        base_query = session.query(ExampleModel)
+        result_query = apply_request_grid_models_to_query(
+            query=base_query,
+            request_model=models,
+            column_resolver=example_model_resolver,
+        )
+        results = result_query.all()
+        total = result_query.order_by(None).count()
+        return jsonify(
+            {
+                "items": [result.dict() for result in results],
+                "page": models.pagination_model.page,
+                "pageSize": models.pagination_model.page_size,
+                "total": total,
+            }
+        )
+    finally:
+        session.close()
+```
