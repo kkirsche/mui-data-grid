@@ -1,6 +1,7 @@
 from pytest import mark
+from sqlalchemy import asc, desc
 from sqlalchemy.dialects import sqlite
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import Query, Session
 
 from mui.v5.grid import GridSortDirection, GridSortItem, GridSortModel
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
@@ -12,6 +13,7 @@ from tests.fixtures.sqlalchemy import ParentModel
 @mark.parametrize("direction", (GridSortDirection.ASC, GridSortDirection.DESC, None))
 def test_apply_sort_to_query_from_model_single_field(
     direction: GridSortDirection,
+    session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
@@ -27,16 +29,16 @@ def test_apply_sort_to_query_from_model_single_field(
     assert f"ORDER BY {ParentModel.__tablename__}.id {dir_str}" in compiled_str
 
     sorted_results = sorted_query.all()
-    assert len(sorted_results) > 0
-    for i, current_row in enumerate(sorted_results[1:]):
-        prev_row = sorted_results[i]
-        if item.sort == GridSortDirection.ASC:
-            assert prev_row.id < current_row.id
-        elif item.sort in {GridSortDirection.DESC, None}:
-            # None defaults the operator to DESC
-            # see src/mui/v5/integrations/sqlalchemy/sort/apply_item.py:_get_operator
-            # for more details.
-            assert prev_row.id > current_row.id
+    row_count = sorted_query.count()
+
+    direction_func = asc if direction == GridSortDirection.ASC else desc
+    expected = session.query(ParentModel).order_by(direction_func(ParentModel.id))
+    expected_row_count = expected.count()
+    expected_results = expected.all()
+
+    assert row_count == expected_row_count
+    for expected_item, sorted_item in zip(expected_results, sorted_results):
+        assert expected_item.id == sorted_item.id
 
 
 @mark.parametrize(
@@ -49,6 +51,7 @@ def test_apply_sort_to_query_from_model_single_field(
 )
 def test_apply_sort_to_query_from_model_multiple_fields(
     direction: GridSortDirection,
+    session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
 ) -> None:
@@ -70,17 +73,15 @@ def test_apply_sort_to_query_from_model_multiple_fields(
     assert f"ORDER BY {tbl}.grouping_id {dir_str}, {tbl}.id {dir_str}" in compiled_str
 
     sorted_results = sorted_query.all()
-    assert len(sorted_results) > 0
-    for i, current_row in enumerate(sorted_results[1:]):
-        prev_row = sorted_results[i]
-        if direction == GridSortDirection.ASC:
-            assert prev_row.id < current_row.id
-            if prev_row.grouping_id != current_row.grouping_id:
-                assert prev_row.grouping_id < current_row.grouping_id
-        elif direction in {GridSortDirection.DESC, None}:
-            # None defaults the operator to DESC
-            # see src/mui/v5/integrations/sqlalchemy/sort/apply_item.py:_get_operator
-            # for more details.
-            assert prev_row.id > current_row.id
-            if prev_row.grouping_id != current_row.grouping_id:
-                assert prev_row.grouping_id > current_row.grouping_id
+    row_count = sorted_query.count()
+
+    direction_func = asc if direction == GridSortDirection.ASC else desc
+    expected = session.query(ParentModel).order_by(
+        direction_func(ParentModel.grouping_id), direction_func(ParentModel.id)
+    )
+    expected_row_count = expected.count()
+    expected_results = expected.all()
+
+    assert row_count == expected_row_count
+    for expected_item, sorted_item in zip(expected_results, sorted_results):
+        assert expected_item.id == sorted_item.id

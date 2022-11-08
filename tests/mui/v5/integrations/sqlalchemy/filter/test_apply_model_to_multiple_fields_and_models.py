@@ -2,8 +2,9 @@ from datetime import timedelta
 from typing import Optional
 
 from pytest import mark
+from sqlalchemy import and_, or_
 from sqlalchemy.dialects import sqlite
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import Query, Session
 from typing_extensions import Literal
 
 from mui.v5.grid import GridFilterModel, GridLinkOperator
@@ -33,18 +34,19 @@ def _sql_link_operator_from(
 )
 def test_apply_eq_apply_filter_to_query_from_model_multiple_fields_and_model(
     link_operator: Optional[GridLinkOperator],
+    session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
+    target_parent_id: int,
 ) -> None:
-    TARGET_ID = 300
-    TARGET_GROUP = calculate_grouping_id(model_id=TARGET_ID)
+    TARGET_GROUP = calculate_grouping_id(model_id=target_parent_id)
     TARGET_CATEGORY = Category.CATEGORY_0
     model = GridFilterModel.parse_obj(
         {
             "items": [
                 {
                     "column_field": "id",
-                    "value": TARGET_ID,
+                    "value": target_parent_id,
                     "operator_value": "==",
                 },
                 {
@@ -74,22 +76,40 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields_and_model(
         f"{sql_link_operator} {ParentModel.__tablename__}.grouping_id = ?"
         in compiled_str
     )
-    assert compiled.params["id_1"] == TARGET_ID
+    assert (
+        f"{sql_link_operator} {ParentModel.__tablename__}.category = ?" in compiled_str
+    )
+    assert compiled.params["id_1"] == target_parent_id
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
     assert compiled.params["category_1"] == TARGET_CATEGORY
 
-    row = filtered_query.first()
-    assert row is not None
-    if link_operator == GridLinkOperator.And:
-        assert row.parent.id == TARGET_ID
-        assert row.parent.grouping_id == TARGET_GROUP
-        assert row.category == TARGET_CATEGORY
-    else:
-        assert (
-            row.parent.id == TARGET_ID
-            or row.parent.grouping_id == TARGET_GROUP
-            or row.category == TARGET_CATEGORY
+    rows = filtered_query.all()
+    row_count = filtered_query.count()
+    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    expected_row_count = (
+        session.query(ChildModel)
+        .join(ParentModel)
+        .filter(
+            join_filter(
+                ParentModel.id == target_parent_id,
+                ParentModel.grouping_id == TARGET_GROUP,
+                ChildModel.category == TARGET_CATEGORY,
+            )
         )
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert row.parent.id == target_parent_id
+            assert row.parent.grouping_id == TARGET_GROUP
+            assert row.category == TARGET_CATEGORY
+        else:
+            assert (
+                row.parent.id == target_parent_id
+                or row.parent.grouping_id == TARGET_GROUP
+                or row.category == TARGET_CATEGORY
+            )
 
 
 @mark.parametrize(
@@ -99,6 +119,7 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields_and_model(
 def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_model(
     expected_id: int,
     link_operator: Optional[GridLinkOperator],
+    session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
 ) -> None:
@@ -144,29 +165,32 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
     assert compiled.params["category_1"] == EXPECTED_CATEGORY
 
     rows = filtered_query.all()
-    if link_operator == GridLinkOperator.And:
-        # 1,000 child models / 4 categories = 250 child models with a single
-        # parent and category
-        assert len(rows) == 250
-        row = rows[0]
-        assert row is not None
-        assert row.parent.id == expected_id
-        assert row.parent.created_at == ROW_THIRD_DAY
-        assert row.category == EXPECTED_CATEGORY
-    else:
-        # 1,000 parent models
-        # 1,000 child models per parent
-        # 1,000 * 1,000 = 1,000,000 models total
-        # the categories are sub-divided into 4 groups
-        # 1,000,000 / 4 = 250,000 child models with a given category
-        #
-        assert len(rows) == 251_500
-        assert all(
-            row.parent.id == expected_id
-            or row.parent.created_at == ROW_THIRD_DAY
-            or row.category == EXPECTED_CATEGORY
-            for row in rows
+    row_count = filtered_query.count()
+    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    expected_row_count = (
+        session.query(ChildModel)
+        .join(ParentModel)
+        .filter(
+            join_filter(
+                ParentModel.created_at == THIRD_DAY,
+                ParentModel.id == expected_id,
+                ChildModel.category == EXPECTED_CATEGORY,
+            )
         )
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert row.parent.id == expected_id
+            assert row.parent.created_at == ROW_THIRD_DAY
+            assert row.category == EXPECTED_CATEGORY
+        else:
+            assert (
+                row.parent.id == expected_id
+                or row.parent.created_at == ROW_THIRD_DAY
+                or row.category == EXPECTED_CATEGORY
+            )
 
 
 # @mark.parametrize(argnames=("link_operator"), argvalues=LINK_OPERATOR_ARGVALUES)

@@ -1,7 +1,7 @@
 from hypothesis import given
 from hypothesis import strategies as st
 from sqlalchemy.dialects import sqlite
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import Query, Session
 
 from mui.v5.grid import GridPaginationModel
 from mui.v5.integrations.sqlalchemy.pagination import (
@@ -20,7 +20,9 @@ from tests.fixtures.sqlalchemy import ParentModel
     )
 )
 def test_apply_limit_offset_to_query_from_model(
-    model: GridPaginationModel, query: "Query[ParentModel]", parent_model_count: int
+    model: GridPaginationModel,
+    session: Session,
+    query: "Query[ParentModel]",
 ) -> None:
     paginated = apply_limit_offset_to_query_from_model(query=query, model=model)
     compiled = paginated.statement.compile(dialect=sqlite.dialect())
@@ -30,9 +32,8 @@ def test_apply_limit_offset_to_query_from_model(
     print(model, compiled.params)
     assert compiled.params["param_1"] == model.page_size
     assert compiled.params["param_2"] == model.offset
-    located = paginated.all()
-    final_row_number = model.offset + model.page_size
-    if parent_model_count < final_row_number:
-        assert len(located) < model.page_size
-    else:
-        assert len(located) == model.page_size
+    row_count = paginated.count()
+    expected_row_count = (
+        session.query(ParentModel).limit(model.page_size).offset(model.offset).count()
+    )
+    assert row_count == expected_row_count

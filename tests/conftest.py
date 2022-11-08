@@ -10,8 +10,10 @@ from sqlalchemy.orm import Query, Session
 from mui.v5.integrations.sqlalchemy import Resolver
 from tests.fixtures import Base, Category, ChildModel, ParentModel, category_from_id
 
-GENERATED_PARENT_MODEL_COUNT = 1000
+GENERATED_PARENT_MODEL_COUNT = 1_000
 GENERATED_CHILD_MODEL_COUNT = 100
+GENERATED_PARENT_GROUPS = 10
+PARENT_MODELS_PER_GROUP = floor(GENERATED_PARENT_MODEL_COUNT / GENERATED_PARENT_GROUPS)
 
 PARENT_MODEL_RESOLVABLE_FIELDS = (
     "created_at",
@@ -106,7 +108,7 @@ def calculate_grouping_id(model_id: int) -> int:
     """Calculate a grouping ID from the model's ID.
 
     Formula:
-        int(abs(model_id / 100))
+        floor(model_id % TOTAL_GROUPS)
 
     Args:
         model_id (int): The model's ID.
@@ -114,7 +116,7 @@ def calculate_grouping_id(model_id: int) -> int:
     Returns:
         int: The model's grouping ID.
     """
-    return int(abs(model_id / 100))
+    return floor(model_id % GENERATED_PARENT_GROUPS)
 
 
 @fixture(scope="session")
@@ -145,6 +147,16 @@ def total_model_count(parent_model_count: int, child_model_count: int) -> int:
         int: The total model count.
     """
     return parent_model_count * child_model_count
+
+
+@fixture(scope="session")
+def parent_model_group_count() -> int:
+    return GENERATED_PARENT_GROUPS
+
+
+@fixture(scope="session")
+def parent_models_per_group_count() -> int:
+    return PARENT_MODELS_PER_GROUP
 
 
 @fixture(scope="session")
