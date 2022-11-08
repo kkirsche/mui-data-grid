@@ -695,166 +695,251 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
             )
 
 
-# @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
-# def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
-#     link_operator: Optional[GridLinkOperator],
-#     query: "Query[ParentModel]",
-#     parent_model_count: int,
-#     resolver: Resolver,
-# ) -> None:
-#     model = GridFilterModel.parse_obj(
-#         {
-#             "items": [
-#                 {
-#                     "column_field": "name",
-#                     "value": ParentModel.__name__,
-#                     "operator_value": "contains",
-#                 },
-#                 {
-#                     "column_field": "grouping_id",
-#                     "value": 0,
-#                     "operator_value": "contains",
-#                 },
-#             ],
-#             "link_operator": link_operator,
-#             "quick_filter_logic_operator": None,
-#             "quick_filter_values": None,
-#         }
-#     )
-#     filtered_query = apply_filter_to_query_from_model(
-#         query=query, model=model, resolver=resolver
-#     )
-#     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
-#     compiled_str = str(compiled)
-#     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-#     assert (
-#         f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ? || '%')" in compiled_str # noqa
-#     )
-#     assert (
-#         f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE "
-#         + "'%' || ? || '%')"
-#         in compiled_str
-#     )
-#     assert compiled.params["name_1"] == ParentModel.__name__
-#     assert compiled.params["grouping_id_1"] == 0
+@mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
+def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
+    session: Session,
+    joined_query: "Query[ChildModel]",
+    resolver: Resolver,
+) -> None:
+    TARGET_NAME = ParentModel.__name__
+    TARGET_GROUP = 0
+    TARGET_CATEGORY = Category.CATEGORY_0.value[:3]
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                {
+                    "column_field": "name",
+                    "value": TARGET_NAME,
+                    "operator_value": "contains",
+                },
+                {
+                    "column_field": "grouping_id",
+                    "value": TARGET_GROUP,
+                    "operator_value": "contains",
+                },
+                {
+                    "column_field": "category",
+                    "value": TARGET_CATEGORY,
+                    "operator_value": "contains",
+                },
+            ],
+            "link_operator": link_operator,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    filtered_query = apply_filter_to_query_from_model(
+        query=joined_query, model=model, resolver=resolver
+    )
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
+    assert (
+        f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ? || '%')"
+        in compiled_str  # noqa
+    )
+    assert (
+        f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE "
+        + "'%' || ? || '%')"
+        in compiled_str
+    )
+    assert (
+        f"{sql_link_operator} ({ChildModel.__tablename__}.category LIKE "
+        + "'%' || ? || '%')"
+        in compiled_str
+    )
+    assert compiled.params["name_1"] == TARGET_NAME
+    assert compiled.params["grouping_id_1"] == TARGET_GROUP
+    assert compiled.params["category_1"] == TARGET_CATEGORY
 
-#     rows = filtered_query.all()
-#     if link_operator == GridLinkOperator.And:
-#         assert len(rows) == parent_model_count / 10
-#         assert all(ParentModel.__name__ in row.name for row in rows)
-#         assert all("0" in str(row.grouping_id) for row in rows)
-#     else:
-#         # all have the name
-#         assert len(rows) == parent_model_count
-#         assert all(
-#             ParentModel.__name__ in row.name or "0" in str(row.grouping_id)
-#             for row in rows
-#         )
-
-
-# @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
-# def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
-#     link_operator: Optional[GridLinkOperator],
-#     query: "Query[ParentModel]",
-#     parent_model_count: int,
-#     resolver: Resolver,
-# ) -> None:
-#     model = GridFilterModel.parse_obj(
-#         {
-#             "items": [
-#                 {
-#                     "column_field": "name",
-#                     "value": ParentModel.__name__,
-#                     "operator_value": "startsWith",
-#                 },
-#                 {
-#                     "column_field": "grouping_id",
-#                     "value": 0,
-#                     "operator_value": "startsWith",
-#                 },
-#             ],
-#             "link_operator": link_operator,
-#             "quick_filter_logic_operator": None,
-#             "quick_filter_values": None,
-#         }
-#     )
-#     filtered_query = apply_filter_to_query_from_model(
-#         query=query, model=model, resolver=resolver
-#     )
-#     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
-#     compiled_str = str(compiled)
-#     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-#     assert f"WHERE ({ParentModel.__tablename__}.name LIKE ? || '%')" in compiled_str
-#     assert (
-#         f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE ? || '%')"
-#         in compiled_str
-#     )
-#     assert compiled.params["name_1"] == ParentModel.__name__
-#     assert compiled.params["grouping_id_1"] == 0
-
-#     rows = filtered_query.all()
-#     if link_operator == GridLinkOperator.And:
-#         groups = parent_model_count / 10
-#         assert len(rows) == (groups - 1)
-#         assert all(row.name.startswith(ParentModel.__name__) for row in rows)
-#         assert all(str(row.grouping_id).startswith("0") for row in rows)
-#     else:
-#         assert len(rows) == parent_model_count
-#         assert all(
-#             row.name.startswith(ParentModel.__name__)
-#             or str(row.grouping_id).startswith("0")
-#             for row in rows
-#         )
+    rows = filtered_query.all()
+    row_count = filtered_query.count()
+    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    expected_row_count = (
+        session.query(ChildModel)
+        .join(ParentModel)
+        .filter(
+            join_filter(
+                ParentModel.name.contains(TARGET_NAME),
+                ParentModel.grouping_id.contains(TARGET_GROUP),
+                ChildModel.category.contains(TARGET_CATEGORY),
+            )
+        )
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert TARGET_NAME in row.parent.name
+            assert row.parent.grouping_id == TARGET_GROUP
+            assert TARGET_CATEGORY in row.category
+        else:
+            assert (
+                TARGET_NAME in row.parent.name
+                or row.parent.grouping_id == TARGET_GROUP
+                or TARGET_CATEGORY in row.category
+            )
 
 
-# @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
-# def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
-#     link_operator: Optional[GridLinkOperator],
-#     query: "Query[ParentModel]",
-#     resolver: Resolver,
-# ) -> None:
-#     VALUE = "0"
-#     model = GridFilterModel.parse_obj(
-#         {
-#             "items": [
-#                 {
-#                     "column_field": "name",
-#                     "value": VALUE,
-#                     "operator_value": "endsWith",
-#                 },
-#                 {
-#                     "column_field": "grouping_id",
-#                     "value": VALUE,
-#                     "operator_value": "endsWith",
-#                 },
-#             ],
-#             "link_operator": link_operator,
-#             "quick_filter_logic_operator": None,
-#             "quick_filter_values": None,
-#         }
-#     )
-#     filtered_query = apply_filter_to_query_from_model(
-#         query=query, model=model, resolver=resolver
-#     )
-#     compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
-#     compiled_str = str(compiled)
-#     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
-#     assert f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
-#     assert (
-#         f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE '%' || ?)"
-#         in compiled_str
-#     )
-#     assert compiled.params["name_1"] == VALUE
-#     assert compiled.params["grouping_id_1"] == VALUE
+@mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
+def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
+    session: Session,
+    joined_query: "Query[ChildModel]",
+    resolver: Resolver,
+) -> None:
+    TARGET_NAME = ParentModel.__name__
+    TARGET_GROUP = 0
+    TARGET_CATEGORY = Category.CATEGORY_0.value[:3]
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                {
+                    "column_field": "name",
+                    "value": TARGET_NAME,
+                    "operator_value": "startsWith",
+                },
+                {
+                    "column_field": "grouping_id",
+                    "value": TARGET_GROUP,
+                    "operator_value": "startsWith",
+                },
+                {
+                    "column_field": "category",
+                    "value": TARGET_CATEGORY,
+                    "operator_value": "startsWith",
+                },
+            ],
+            "link_operator": link_operator,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    filtered_query = apply_filter_to_query_from_model(
+        query=joined_query, model=model, resolver=resolver
+    )
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
+    assert f"WHERE ({ParentModel.__tablename__}.name LIKE ? || '%')" in compiled_str
+    assert (
+        f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE ? || '%')"
+        in compiled_str
+    )
+    assert (
+        f"{sql_link_operator} ({ChildModel.__tablename__}.category LIKE ? || '%')"
+        in compiled_str
+    )
+    assert compiled.params["name_1"] == TARGET_NAME
+    assert compiled.params["grouping_id_1"] == TARGET_GROUP
+    assert compiled.params["category_1"] == TARGET_CATEGORY
 
-#     rows = filtered_query.all()
-#     if link_operator == GridLinkOperator.And:
-#         assert len(rows) == 10
-#         assert all(row.name.endswith(VALUE) for row in rows)
-#         assert all(str(row.grouping_id).endswith(VALUE) for row in rows)
-#     else:
-#         assert len(rows) == 190
-#         assert all(
-#             row.name.endswith(VALUE) or str(row.grouping_id).endswith(VALUE)
-#             for row in rows
-#         )
+    rows = filtered_query.all()
+    row_count = filtered_query.count()
+    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    expected_row_count = (
+        session.query(ChildModel)
+        .join(ParentModel)
+        .filter(
+            join_filter(
+                ParentModel.name.startswith(TARGET_NAME),
+                ParentModel.grouping_id.startswith(TARGET_GROUP),
+                ChildModel.category.startswith(TARGET_CATEGORY),
+            )
+        )
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert row.parent.name.startswith(TARGET_NAME)
+            assert str(row.parent.grouping_id).startswith(str(TARGET_GROUP))
+            assert row.category.startswith(TARGET_CATEGORY)
+        else:
+            assert (
+                row.parent.name.startswith(TARGET_NAME)
+                or str(row.parent.grouping_id).startswith(str(TARGET_GROUP))
+                or row.category.startswith(TARGET_CATEGORY)
+            )
+
+
+@mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
+def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
+    link_operator: Optional[GridLinkOperator],
+    session: Session,
+    joined_query: "Query[ChildModel]",
+    resolver: Resolver,
+) -> None:
+    TARGET_NAME_AND_GROUP = "0"
+    TARGET_CATEGORY = Category.CATEGORY_0.value[3:]
+    model = GridFilterModel.parse_obj(
+        {
+            "items": [
+                {
+                    "column_field": "name",
+                    "value": TARGET_NAME_AND_GROUP,
+                    "operator_value": "endsWith",
+                },
+                {
+                    "column_field": "grouping_id",
+                    "value": TARGET_NAME_AND_GROUP,
+                    "operator_value": "endsWith",
+                },
+                {
+                    "column_field": "category",
+                    "value": TARGET_CATEGORY,
+                    "operator_value": "endsWith",
+                },
+            ],
+            "link_operator": link_operator,
+            "quick_filter_logic_operator": None,
+            "quick_filter_values": None,
+        }
+    )
+    filtered_query = apply_filter_to_query_from_model(
+        query=joined_query, model=model, resolver=resolver
+    )
+    compiled = filtered_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
+    assert f"WHERE ({ParentModel.__tablename__}.name LIKE '%' || ?)" in compiled_str
+    assert (
+        f"{sql_link_operator} ({ParentModel.__tablename__}.grouping_id LIKE '%' || ?)"
+        in compiled_str
+    )
+    assert (
+        f"{sql_link_operator} ({ChildModel.__tablename__}.category LIKE '%' || ?)"
+        in compiled_str
+    )
+    assert compiled.params["name_1"] == TARGET_NAME_AND_GROUP
+    assert compiled.params["grouping_id_1"] == TARGET_NAME_AND_GROUP
+    assert compiled.params["category_1"] == TARGET_CATEGORY
+
+    rows = filtered_query.all()
+    row_count = filtered_query.count()
+    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    expected_row_count = (
+        session.query(ChildModel)
+        .join(ParentModel)
+        .filter(
+            join_filter(
+                ParentModel.name.endswith(TARGET_NAME_AND_GROUP),
+                ParentModel.grouping_id.endswith(TARGET_NAME_AND_GROUP),
+                ChildModel.category.endswith(TARGET_CATEGORY),
+            )
+        )
+        .count()
+    )
+    assert row_count == expected_row_count
+    for row in rows:
+        if link_operator == GridLinkOperator.And:
+            assert row.parent.name.endswith(TARGET_NAME_AND_GROUP)
+            assert str(row.parent.grouping_id).endswith(TARGET_NAME_AND_GROUP)
+            assert row.category.endswith(TARGET_CATEGORY)
+        else:
+            assert (
+                row.parent.name.endswith(TARGET_NAME_AND_GROUP)
+                or str(row.parent.grouping_id).endswith(TARGET_NAME_AND_GROUP)
+                or row.category.endswith(TARGET_CATEGORY)
+            )
