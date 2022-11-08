@@ -10,7 +10,7 @@ from sqlalchemy.orm import Query, Session
 from mui.v5.integrations.sqlalchemy import Resolver
 from tests.fixtures import Base, Category, ChildModel, ParentModel, category_from_id
 
-GENERATED_PARENT_MODEL_COUNT = 1_000
+GENERATED_PARENT_MODEL_COUNT = 400
 GENERATED_CHILD_MODEL_COUNT = 100
 GENERATED_PARENT_GROUPS = 10
 PARENT_MODELS_PER_GROUP = floor(GENERATED_PARENT_MODEL_COUNT / GENERATED_PARENT_GROUPS)

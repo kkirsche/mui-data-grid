@@ -77,7 +77,7 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields_and_model(
         in compiled_str
     )
     assert (
-        f"{sql_link_operator} {ParentModel.__tablename__}.category = ?" in compiled_str
+        f"{sql_link_operator} {ChildModel.__tablename__}.category = ?" in compiled_str
     )
     assert compiled.params["id_1"] == target_parent_id
     assert compiled.params["grouping_id_1"] == TARGET_GROUP
@@ -160,6 +160,9 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
     sql_link_operator = _sql_link_operator_from(link_operator=link_operator)
     assert f"WHERE {ParentModel.__tablename__}.created_at = ?" in compiled_str
     assert f"{sql_link_operator} {ParentModel.__tablename__}.id = ?" in compiled_str
+    assert (
+        f"{sql_link_operator} {ChildModel.__tablename__}.category = ?" in compiled_str
+    )
     assert compiled.params["created_at_1"] == THIRD_DAY
     assert compiled.params["id_1"] == expected_id
     assert compiled.params["category_1"] == EXPECTED_CATEGORY
