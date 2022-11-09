@@ -135,9 +135,7 @@ class DataGridQuery(Generic[_T]):
         Returns:
             int: 0 if no pagination model exists, otherwise the page size.
         """
-        if self.pagination_model is None:
-            return 0
-        return self.pagination_model.page_size
+        return self.pagination_model.page_size if self.pagination_model else 0
 
     @overload
     def items(self, factory: None = ...) -> List[_T]:
@@ -178,9 +176,7 @@ class DataGridQuery(Generic[_T]):
                 models have been applied.
         """
         items = self.query.all()
-        if factory is not None:
-            return [factory(item) for item in items]
-        return items
+        return [factory(item) for item in items] if factory is not None else items
 
     def pages(self, total: Optional[int] = None) -> int:
         """Returns the number of pages to display all results.
@@ -205,6 +201,4 @@ class DataGridQuery(Generic[_T]):
         Returns:
             int: 0 if no pagination model exists, otherwise the page number.
         """
-        if self.pagination_model is None:
-            return 0
-        return self.pagination_model.page
+        return self.pagination_model.page if self.pagination_model else 0
