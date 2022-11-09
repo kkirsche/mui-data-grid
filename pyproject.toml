@@ -39,7 +39,6 @@ pyupgrade = "^3.2.0"
 [tool.poetry.group.flask.dependencies]
 flask = ">=2,<3"
 
-
 [tool.poetry.group.sqlalchemy.dependencies]
 sqlalchemy = ">=1.4,<3"
 sqlalchemy2-stubs = ">=0.0.2a29"
