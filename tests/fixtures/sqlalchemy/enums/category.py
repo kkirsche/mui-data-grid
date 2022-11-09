@@ -19,5 +19,8 @@ def category_from_id(id: int) -> Category:
     remainder = id % CATEGORY_COUNT
     for category in CATEGORIES:
         if str(category).endswith(str(remainder)):
-            return category
+            # this is due to StrEnum iteration.
+            if isinstance(category, Category):  # pyright: ignore
+                return category
+            raise ValueError("Category was invalid type")
     raise ValueError("Category does not exist with required suffix.")

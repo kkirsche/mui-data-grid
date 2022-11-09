@@ -3,7 +3,8 @@
 This structure is used to provide helpers related to pagination, such as
 total row counts.
 """
-from typing import Generic, List, Optional, TypeVar
+from math import ceil
+from typing import Callable, Generic, List, Optional, TypeVar, Union, overload
 
 from sqlalchemy.orm import Query
 
@@ -16,6 +17,7 @@ from mui.v5.integrations.sqlalchemy.resolver import Resolver
 from mui.v5.integrations.sqlalchemy.sort import apply_sort_to_query_from_model
 
 _T = TypeVar("_T")
+_R = TypeVar("_R")
 
 
 class DataGridQuery(Generic[_T]):
@@ -118,11 +120,83 @@ class DataGridQuery(Generic[_T]):
         """
         return self._query.order_by(None).count()
 
-    def items(self) -> List[_T]:
-        """Returns the results of the query.
+    @property
+    def per_page(self) -> int:
+        """Returns the page size.
+
+        Returns:
+            int: 0 if no pagination model exists, otherwise the page size.
+        """
+        if self.pagination_model is None:
+            return 0
+        return self.pagination_model.page_size
+
+    @overload
+    def items(self, factory: None = ...) -> List[_T]:
+        """When a factory function is not provided, simply return the models.
+
+        Args:
+            factory (None, optional): This is not provided. Defaults to None.
+
+        Returns:
+            List[_T]: The list of models, without conversion.
+        """
+        ...
+
+    @overload
+    def items(self, factory: Callable[[_T], _R]) -> List[_R]:
+        """When a factory function is provided, return a list of items created by
+        the factory.
+
+        Args:
+            factory (Callable[[_T], _R]): The factory to convert the type(s).
+
+        Returns:
+            List[_R]: The list of created items.
+        """
+        ...
+
+    def items(
+        self, factory: Optional[Callable[[_T], _R]] = None
+    ) -> Union[List[_T], List[_R]]:
+        """Returns all results of the query, after all models have been applied.
+
+        Args:
+            factory (Optional[Callable[[_T], _R]]): The factory function to convert the
+                model into a different type.
 
         Returns:
             List[_T]: The list of individual items located by the query after all
                 models have been applied.
         """
-        return self.query.all()
+        items = self.query.all()
+        if factory is not None:
+            return [factory(item) for item in items]
+        return items
+
+    def pages(self, total: Optional[int] = None) -> int:
+        """Returns the number of pages to display all results.
+
+        Args:
+            total (Optional[int], optional): The total number of results. This may
+                be provided to avoid the overhead of an additional database query to
+                retrieve the total. Defaults to None.
+
+        Returns:
+            int: The number of pages required to display all results at the current
+                page size.
+        """
+        if not total:
+            total = self.total()
+        return int(ceil(total / float(self.per_page)))
+
+    @property
+    def page(self) -> int:
+        """Returns the current page number.
+
+        Returns:
+            int: 0 if no pagination model exists, otherwise the page number.
+        """
+        if self.pagination_model is None:
+            return 0
+        return self.pagination_model.page
