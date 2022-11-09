@@ -54,10 +54,7 @@ def _get_operator_value(item: GridFilterItem) -> Callable[[Any, Any], Any]:
     Returns:
         Callable[[Any, Any], Any]: The operator.
     """
-    if item.operator_value == "==":
-        # equal
-        return eq
-    elif item.operator_value == "equals":
+    if item.operator_value in {"==", "=", "equals"}:
         # equal
         return eq
     elif item.operator_value == "!=":
@@ -90,6 +87,7 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
 
     Support:
         * ==: Equal to
+        * =: Equal to
         * !=: Not equal to
         * >: Greater than
         * <: Less than
@@ -114,7 +112,7 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
     column = resolver(item.column_field)
     operator: Optional[Callable[[Any, Any], Any]] = None
     # we have 1:1 mappings of these operators in Python
-    if item.operator_value in {"==", "equals", "!=", ">", ">=", "<", "<="}:
+    if item.operator_value in {"==", "=", "equals", "!=", ">", ">=", "<", "<="}:
         operator = _get_operator_value(item=item)
         return operator(column, item.value)
     # special cases:
