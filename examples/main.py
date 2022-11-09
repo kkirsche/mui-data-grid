@@ -55,6 +55,10 @@ class ExampleModel(Base):
         """
         return {"id": self.id, "groupNumber": self.group_number}
 
+    @staticmethod
+    def dict_factory(model: "ExampleModel") -> Dict[str, int]:
+        return model.dict()
+
 
 def example_model_resolver(field: str) -> int:
     """The column resolver for the example model class.
@@ -85,8 +89,7 @@ SORT_MODEL_KEY = "sort_model[]"
 PAGINATION_MODEL_KEY = None  # stored inline in the query string, not encoded as an obj
 
 
-@app.before_first_request
-def seed_db() -> None:
+def prepare_db() -> None:
     """Creates the database structure and seeds it with basic data for
     querying purposes.
     """
@@ -97,6 +100,11 @@ def seed_db() -> None:
             model = ExampleModel(group_number=group)
             session.add(model)
         session.commit()
+
+
+def cleanup_db() -> None:
+    """Not strictly needed because we're using an in-memory database"""
+    Base.metadata.drop_all(bind=engine)
 
 
 @app.route("/echo")
@@ -150,13 +158,14 @@ def print_query_results() -> Response:
             request_model=models,
             column_resolver=example_model_resolver,
         )
-
+        total = dg_query.total()
         return jsonify(
             {
-                "items": [result.dict() for result in dg_query.items()],
-                "page": models.pagination_model.page,
-                "pageSize": models.pagination_model.page_size,
-                "total": dg_query.total(),
+                "items": dg_query.items(factory=ExampleModel.dict_factory),
+                "page": dg_query.page,
+                "pageSize": dg_query.page_size,
+                "pages": dg_query.pages(total=total),
+                "total": total,
             }
         )
     finally:
@@ -164,4 +173,8 @@ def print_query_results() -> Response:
 
 
 if __name__ == "__main__":
-    app.run()
+    prepare_db()
+    try:
+        app.run()
+    finally:
+        cleanup_db()

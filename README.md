@@ -97,13 +97,17 @@ if __name__ == "__main__":
             request_model=models,
             column_resolver=example_model_resolver,
         )
-        items = dg_query.items()
+        # we calculate total separately so that we can re-use the result
+        # rather than have .pages() fire off an additional db query.
         total = dg_query.total()
+        def item_factory(item: ExampleModel) -> Dict[str, int]:
+            return item.dict()
         return jsonify(
             {
-                "items": [result.dict() for result in items],
-                "page": models.pagination_model.page,
-                "pageSize": models.pagination_model.page_size,
+                "items": dg_query.items(factory=item_factory),
+                "page": dg_query.page,
+                "pageSize": dg_query.page_size,
+                "pages": dg_query.pages(total=total),
                 "total": total,
             }
         )
