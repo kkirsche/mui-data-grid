@@ -1,0 +1,87 @@
+from pytest import mark
+from sqlalchemy import asc, desc
+from sqlalchemy.dialects import sqlite
+from sqlalchemy.orm import Query, Session
+
+from mui.v5.grid import GridSortDirection, GridSortItem, GridSortModel
+from mui.v5.integrations.sqlalchemy.resolver import Resolver
+from mui.v5.integrations.sqlalchemy.sort import apply_sort_to_query_from_model
+from tests.conftest import PARENT_MODEL_RESOLVABLE_FIELDS
+from tests.fixtures.sqlalchemy import ParentModel
+
+
+@mark.parametrize("direction", (GridSortDirection.ASC, GridSortDirection.DESC, None))
+def test_apply_sort_to_query_from_model_single_field(
+    direction: GridSortDirection,
+    session: Session,
+    query: "Query[ParentModel]",
+    resolver: Resolver,
+) -> None:
+    item = GridSortItem(field="id", sort=direction)
+    assert item.field in PARENT_MODEL_RESOLVABLE_FIELDS
+    model: GridSortModel = [item]
+    sorted_query = apply_sort_to_query_from_model(
+        query=query, model=model, resolver=resolver
+    )
+    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
+    assert f"ORDER BY {ParentModel.__tablename__}.id {dir_str}" in compiled_str
+
+    sorted_results = sorted_query.all()
+    row_count = sorted_query.count()
+
+    direction_func = asc if direction == GridSortDirection.ASC else desc
+    expected = session.query(ParentModel).order_by(direction_func(ParentModel.id))
+    expected_row_count = expected.count()
+    expected_results = expected.all()
+
+    assert row_count == expected_row_count
+    for expected_item, sorted_item in zip(expected_results, sorted_results):
+        assert expected_item.id == sorted_item.id
+
+
+@mark.parametrize(
+    "direction",
+    (
+        GridSortDirection.ASC,
+        GridSortDirection.DESC,
+        None,
+    ),
+)
+def test_apply_sort_to_query_from_model_multiple_fields(
+    direction: GridSortDirection,
+    session: Session,
+    query: "Query[ParentModel]",
+    resolver: Resolver,
+) -> None:
+    # order matters with how we're using the fields!
+    model: GridSortModel = [
+        GridSortItem(field="grouping_id", sort=direction),
+        GridSortItem(field="id", sort=direction),
+    ]
+    for item in model:
+        assert item.field in PARENT_MODEL_RESOLVABLE_FIELDS
+
+    sorted_query = apply_sort_to_query_from_model(
+        query=query, model=model, resolver=resolver
+    )
+    compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
+    compiled_str = str(compiled)
+    tbl = ParentModel.__tablename__
+    dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
+    assert f"ORDER BY {tbl}.grouping_id {dir_str}, {tbl}.id {dir_str}" in compiled_str
+
+    sorted_results = sorted_query.all()
+    row_count = sorted_query.count()
+
+    direction_func = asc if direction == GridSortDirection.ASC else desc
+    expected = session.query(ParentModel).order_by(
+        direction_func(ParentModel.grouping_id), direction_func(ParentModel.id)
+    )
+    expected_row_count = expected.count()
+    expected_results = expected.all()
+
+    assert row_count == expected_row_count
+    for expected_item, sorted_item in zip(expected_results, sorted_results):
+        assert expected_item.id == sorted_item.id

@@ -9,7 +9,7 @@ name = "mui-data-grid"
 packages = [{ include = "mui", from = "src" }]
 readme = "README.md"
 repository = "https://github.com/kkirsche/mui-data-grid"
-version = "0.2.0"
+version = "0.6.2"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4"
@@ -17,7 +17,8 @@ pydantic = ">=1,<2"
 typing-extensions = ">=4.4.0,<5"
 
 [tool.poetry.extras]
-flask = ["flask"]
+flask = ["flask@>=2,<3"]
+sqlalchemy = ["sqlalchemy@>=1.4,<3"]
 
 [tool.poetry.group.github-actions.dependencies]
 bandit = "^1.7.4"
@@ -26,17 +27,21 @@ codespell = "^2.2.2"
 example-isort-formatting-plugin = "^0.0.4"
 example-isort-sorting-plugin = "^0.0.3"
 flake8 = "^5.0.4"
-flake8-bugbear = "^22.9.23"
+flake8-bugbear = "^22.10.27"
 flake8-pyi = "^22.10.0"
-hypothesis = "^6.56.3"
+hypothesis = "^6.56.4"
 interrogate = "^1.5.0"
 isort = "^5.10.1"
-mypy = "^0.982"
-pytest = "^7.1.3"
-pyupgrade = "^3.1.0"
+mypy = "^0.990"
+pytest = "^7.2.0"
+pyupgrade = "^3.2.0"
 
 [tool.poetry.group.flask.dependencies]
 flask = ">=2,<3"
+
+[tool.poetry.group.sqlalchemy.dependencies]
+sqlalchemy = ">=1.4,<3"
+sqlalchemy2-stubs = ">=0.0.2a29"
 
 [build-system]
 requires = ["poetry-core"]
@@ -56,7 +61,7 @@ target-version = ['py37']
 [tool.mypy]
 exclude = ['^compat\.py$']
 follow_imports = "normal"
-plugins = ["pydantic.mypy"]
+plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
 python_version = "3.7"
 strict = true
 warn_return_any = true
@@ -77,6 +82,8 @@ warn_untyped_fields = true
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers --strict-config -p no:pastebin -p no:nose"
+minversion = "7.2"
+empty_parameter_set_mark = "fail_at_collect"
 testpaths = ["tests"]
 
 [tool.interrogate]
@@ -95,3 +102,10 @@ ignore-semiprivate = false
 ignore-setters = false
 quiet = false
 verbose = 1
+
+[tool.pyright]
+exclude = ["**/__pycache__", "**/.git"]
+include = ["src"]
+pythonPlatform = "All"
+pythonVersion = "3.7"
+typeCheckingMode = "strict"

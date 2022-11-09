@@ -27,3 +27,16 @@ class GridPaginationModel(GridBaseModel):
         alias="pageSize",
         example=15,
     )
+
+    @property
+    def offset(self) -> int:
+        """Calculates the SQL offset.
+
+        A SQL offset is the number of rows to skip before the first result. This is
+        created by multiplying the page number (page 0 being the first) with the page
+        size, or number of rows per page).
+
+        Returns:
+            int: The page offset
+        """
+        return self.page * self.page_size

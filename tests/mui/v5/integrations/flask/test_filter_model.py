@@ -1,7 +1,8 @@
+from datetime import timedelta
 from urllib.parse import quote
 
 from flask import Flask
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from mui.v5.grid.filter.item import GridFilterItem
@@ -13,6 +14,7 @@ app = Flask(__name__)
 
 
 @given(st.builds(GridFilterModel))
+@settings(deadline=timedelta(milliseconds=400))
 def test_parse_grid_filter_model_from_flask_request(instance: GridFilterModel) -> None:
     key = "filter_model"
     with app.app_context():
