@@ -506,13 +506,14 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
         .join(ParentModel)
         .filter(
             join_filter(
-                getattr(ParentModel, field) == None,  # noqa: E711
-                ParentModel.grouping_id == None,  # noqa: E711
-                ChildModel.category == None,  # noqa: E711
+                getattr(ParentModel, field) is None,
+                ParentModel.grouping_id is None,
+                ChildModel.category is None,
             )
         )
         .count()
     )
+
     assert row_count == expected_row_count
     for row in rows:
         if link_operator == GridLinkOperator.And:

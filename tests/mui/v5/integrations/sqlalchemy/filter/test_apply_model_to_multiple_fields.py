@@ -410,13 +410,13 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
         session.query(ParentModel)
         .filter(
             join_filter(
-                # don't use is, that's pointer comparison not value
-                getattr(ParentModel, field) == None,  # noqa: E711
-                ParentModel.grouping_id == None,  # noqa: E711
+                getattr(ParentModel, field) is None,
+                ParentModel.grouping_id is None,
             )
         )
         .count()
     )
+
     assert row_count == expected_row_count
 
     for row in rows:
