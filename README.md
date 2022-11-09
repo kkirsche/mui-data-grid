@@ -92,16 +92,16 @@ if __name__ == "__main__":
     session = Session()
     try:
         base_query = session.query(ExampleModel)
-        result_query = apply_request_grid_models_to_query(
+        dg_query = apply_request_grid_models_to_query(
             query=base_query,
             request_model=models,
             column_resolver=example_model_resolver,
         )
-        results = result_query.all()
-        total = result_query.order_by(None).count()
+        items = dg_query.items()
+        total = dg_query.total()
         return jsonify(
             {
-                "items": [result.dict() for result in results],
+                "items": [result.dict() for result in items],
                 "page": models.pagination_model.page,
                 "pageSize": models.pagination_model.page_size,
                 "total": total,

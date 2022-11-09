@@ -145,19 +145,18 @@ def print_query_results() -> Response:
     session = Session()
     try:
         base_query = session.query(ExampleModel)
-        result_query = apply_request_grid_models_to_query(
+        dg_query = apply_request_grid_models_to_query(
             query=base_query,
             request_model=models,
             column_resolver=example_model_resolver,
         )
-        results = result_query.all()
-        total = result_query.order_by(None).count()
+
         return jsonify(
             {
-                "items": [result.dict() for result in results],
+                "items": [result.dict() for result in dg_query.items()],
                 "page": models.pagination_model.page,
                 "pageSize": models.pagination_model.page_size,
-                "total": total,
+                "total": dg_query.total(),
             }
         )
     finally:
