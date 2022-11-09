@@ -54,22 +54,22 @@ def _get_operator_value(item: GridFilterItem) -> Callable[[Any, Any], Any]:
     Returns:
         Callable[[Any, Any], Any]: The operator.
     """
-    if item.operator_value in {"==", "=", "equals"}:
+    if item.operator_value in {"==", "=", "equals", "eq"}:
         # equal
         return eq
-    elif item.operator_value == "!=":
+    elif item.operator_value in {"!=", "ne"}:
         # not equal
         return ne
-    elif item.operator_value == ">":
+    elif item.operator_value in {">", "gt"}:
         # less than
         return gt
-    elif item.operator_value == ">=":
+    elif item.operator_value in {">=", "ge"}:
         # less than or equal to
         return ge
-    elif item.operator_value == "<":
+    elif item.operator_value in {"<", "lt"}:
         # greater than
         return lt
-    elif item.operator_value == "<=":
+    elif item.operator_value in {"<=", "le"}:
         # greater than or equal to
         return le
     else:
@@ -86,20 +86,35 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
     This does not currently support custom operators.
 
     Support:
-        * ==: Equal to
-        * =: Equal to
-        * !=: Not equal to
-        * >: Greater than
-        * <: Less than
-        * >=: Greater than or equal to
-        * <=: Less than or equal to
-        * equals: Equal to
-        * isEmpty: IS NULL
-        * isNotEmpty: IS NOT NULL
-        * isAnyOf: IN [?, ?, ?]
-        * contains: '%' || ? || '%'
-        * startsWith: ? || '%'
-        * endsWith: '%' || ?
+        * Equal to
+            * =
+            * ==
+            * eq
+            * equals
+            * is
+                * DateTime aware
+                * Not Time, Date, or other temporal type aware.
+        * Not equal to
+            * !=
+            * ne
+        * Greater than
+            * >
+            * gt
+        * Less than
+            * <
+            * lt
+        * Greater than or equal to
+            * >=
+            * ge
+        * Less than or equal to
+            * <=
+            * le
+        * isEmpty (`IS NULL` query)
+        * isNotEmpty (`IS NOT NULL` clause)
+        * isAnyOf (`IN [?, ?, ?]` clause)
+        * contains (`'%' || ? || '%'` clause)
+        * startsWith (`? || '%'` clause)
+        * endsWith (`'%' || ?` clause)
 
     Args:
         item (GridFilterItem): The item being applied to the column.

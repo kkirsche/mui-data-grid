@@ -4,7 +4,7 @@ This structure is used to provide helpers related to pagination, such as
 total row counts.
 """
 from math import ceil
-from typing import Callable, Generic, List, Optional, TypeVar, Union, overload
+from typing import Generic, List, Optional, TypeVar, Union, overload
 
 from sqlalchemy.orm import Query
 
@@ -15,6 +15,7 @@ from mui.v5.integrations.sqlalchemy.pagination import (
 )
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
 from mui.v5.integrations.sqlalchemy.sort import apply_sort_to_query_from_model
+from mui.v5.integrations.sqlalchemy.structures.factory import Factory
 
 _T = TypeVar("_T")
 _R = TypeVar("_R")
@@ -115,13 +116,20 @@ class DataGridQuery(Generic[_T]):
     def total(self) -> int:
         """Returns the total number of rows that exist with the filter.
 
+        This disables ordering (sorting) to improve performance.
+
         Returns:
-            int: _description_
+            int: The count of total items before pagination, but after filtering.
         """
         return self._query.order_by(None).count()
 
     @property
     def per_page(self) -> int:
+        """Alias for page_size."""
+        return self.page_size
+
+    @property
+    def page_size(self) -> int:
         """Returns the page size.
 
         Returns:
@@ -144,7 +152,7 @@ class DataGridQuery(Generic[_T]):
         ...
 
     @overload
-    def items(self, factory: Callable[[_T], _R]) -> List[_R]:
+    def items(self, factory: Factory[_T, _R]) -> List[_R]:
         """When a factory function is provided, return a list of items created by
         the factory.
 
@@ -157,7 +165,7 @@ class DataGridQuery(Generic[_T]):
         ...
 
     def items(
-        self, factory: Optional[Callable[[_T], _R]] = None
+        self, factory: Optional[Factory[_T, _R]] = None
     ) -> Union[List[_T], List[_R]]:
         """Returns all results of the query, after all models have been applied.
 
