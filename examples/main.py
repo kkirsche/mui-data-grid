@@ -57,6 +57,14 @@ class ExampleModel(Base):
 
     @staticmethod
     def dict_factory(model: "ExampleModel") -> Dict[str, int]:
+        """A factory function for converting the model to a dictionary.
+
+        Args:
+            model (ExampleModel): The model to convert.
+
+        Returns:
+            Dict[str, int]: The dictionary representation of the model.
+        """
         return model.dict()
 
 

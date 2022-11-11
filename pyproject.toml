@@ -9,7 +9,7 @@ name = "mui-data-grid"
 packages = [{ include = "mui", from = "src" }]
 readme = "README.md"
 repository = "https://github.com/kkirsche/mui-data-grid"
-version = "0.6.2"
+version = "0.6.3"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4"
@@ -34,7 +34,7 @@ interrogate = "^1.5.0"
 isort = "^5.10.1"
 mypy = "^0.990"
 pytest = "^7.2.0"
-pyupgrade = "^3.2.0"
+pyupgrade = "^3.2.2"
 
 [tool.poetry.group.flask.dependencies]
 flask = ">=2,<3"

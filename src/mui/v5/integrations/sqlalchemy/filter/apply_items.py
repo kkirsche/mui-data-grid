@@ -1,7 +1,8 @@
 """The apply_model module is responsible for applying a GridSortModel to a query."""
+from collections.abc import Collection
 from datetime import datetime
 from operator import eq, ge, gt, le, lt, ne
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar, cast
 
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Query
@@ -130,7 +131,6 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
     if item.operator_value in {"==", "=", "equals", "!=", ">", ">=", "<", "<="}:
         operator = _get_operator_value(item=item)
         return operator(column, item.value)
-    # special cases:
     elif item.operator_value == "is":
         # to compare a datetime, we need to do a datetime equality check,
         # rather than comparing a string and datetime.
@@ -145,6 +145,11 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
     elif item.operator_value == "isAnyOf":
         # TODO: improve detection of this for error handling
         # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.in_ # noqa
+        if item.value is None or (
+            isinstance(item.value, Collection)
+            and len(cast(Collection[object], item.value)) == 0
+        ):
+            return column.in_(tuple())
         return column.in_(item.value)
     elif item.operator_value == "contains":
         # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.contains # noqa
