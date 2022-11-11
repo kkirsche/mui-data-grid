@@ -151,12 +151,18 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
             return column.in_(tuple())
         return column.in_(item.value)
     elif item.operator_value == "contains":
+        if item.value is None:
+            return column.contains("")
         # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.contains # noqa
         return column.contains(item.value)
     elif item.operator_value == "startsWith":
+        if item.value is None:
+            return column.startswith("")
         # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.startswith # noqa
         return column.startswith(item.value)
     elif item.operator_value == "endsWith":
+        if item.value is None:
+            return column.endswith("")
         # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.endswith # noqa
         return column.endswith(item.value)
     else:
