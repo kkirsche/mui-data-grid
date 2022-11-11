@@ -21,6 +21,4 @@ def apply_startswith_operator(column: Any, value: Any) -> Any:
     # only '=', '!=', 'is_()', 'is_not()', 'is_distinct_from()',
     # 'is_not_distinct_from()' operators can be used with None/True/False
     # so below have to special case them.
-    if value is None:
-        return column.startswith("")
-    return column.startswith(value)
+    return column.startswith("") if value is None else column.startswith(value)
