@@ -1,8 +1,7 @@
 """The apply_model module is responsible for applying a GridSortModel to a query."""
-from collections.abc import Collection
 from datetime import datetime
 from operator import eq, ge, gt, le, lt, ne
-from typing import Any, Callable, Optional, TypeVar, cast
+from typing import Any, Callable, Collection, Optional, TypeVar, cast
 
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Query
