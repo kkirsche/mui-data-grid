@@ -1,14 +1,22 @@
 """The apply_model module is responsible for applying a GridSortModel to a query."""
-from datetime import datetime
-from operator import eq, ge, gt, le, lt, ne
-from typing import Any, Callable, Collection, Optional, TypeVar, cast
+from typing import Any, Callable, TypeVar
 
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.elements import BooleanClauseList
-from sqlalchemy.sql.sqltypes import DateTime
 
 from mui.v5.grid import GridFilterItem, GridFilterModel, GridLinkOperator
+from mui.v5.integrations.sqlalchemy.filter.applicators import (
+    SUPPORTED_BASIC_OPERATORS,
+    apply_basic_operator,
+    apply_contains_operator,
+    apply_endswith_operator,
+    apply_is_any_of_operator,
+    apply_is_empty_operator,
+    apply_is_not_empty_operator,
+    apply_is_operator,
+    apply_startswith_operator,
+)
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
 
 _Q = TypeVar("_Q")
@@ -33,47 +41,6 @@ def _get_link_operator(
         return or_
     else:
         return and_
-
-
-def _get_operator_value(item: GridFilterItem) -> Callable[[Any, Any], Any]:
-    """Retrieve the Python operator function from the filter item's operator value.
-
-    As an example, this function converts strings such as "==", "!=", and ">=" to the
-    functions operator.eq, operator.ne, operator.ge respectively.
-
-    This has special support for the "equals" operator which is treated as an alias
-    for the "==" operator.
-
-
-    Args:
-        item (GridFilterItem): The grid filter item being operated on.
-
-    Raises:
-        ValueError: Raised when the operator value is not supported by the integration.
-
-    Returns:
-        Callable[[Any, Any], Any]: The operator.
-    """
-    if item.operator_value in {"==", "=", "equals", "eq"}:
-        # equal
-        return eq
-    elif item.operator_value in {"!=", "ne"}:
-        # not equal
-        return ne
-    elif item.operator_value in {">", "gt"}:
-        # less than
-        return gt
-    elif item.operator_value in {">=", "ge"}:
-        # less than or equal to
-        return ge
-    elif item.operator_value in {"<", "lt"}:
-        # greater than
-        return lt
-    elif item.operator_value in {"<=", "le"}:
-        # greater than or equal to
-        return le
-    else:
-        raise ValueError(f"Unsupported operator {item.operator_value}")
 
 
 def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
@@ -125,49 +92,23 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         Any: The comparison operator for use in SQLAlchemy queries.
     """
     column = resolver(item.column_field)
-    operator: Optional[Callable[[Any, Any], Any]] = None
     # we have 1:1 mappings of these operators in Python
-    if item.operator_value in {"==", "=", "equals", "!=", ">", ">=", "<", "<="}:
-        operator = _get_operator_value(item=item)
-        return operator(column, item.value)
+    if item.operator_value in SUPPORTED_BASIC_OPERATORS:
+        return apply_basic_operator(column, item)
     elif item.operator_value == "is":
-        # to compare a datetime, we need to do a datetime equality check,
-        # rather than comparing a string and datetime.
-        if isinstance(column.type, DateTime) and item.value is not None:
-            return eq(column, datetime.fromisoformat(item.value))
-        else:
-            return eq(column, item.value)
+        return apply_is_operator(column, item.value)
     elif item.operator_value == "isEmpty":
-        return eq(column, None)
+        return apply_is_empty_operator(column)
     elif item.operator_value == "isNotEmpty":
-        return ne(column, None)
-    # Per SQLAlchemy 1.4.43:
-    # only '=', '!=', 'is_()', 'is_not()', 'is_distinct_from()',
-    # 'is_not_distinct_from()' operators can be used with None/True/False
-    # so below have to special case them.
+        return apply_is_not_empty_operator(column)
     elif item.operator_value == "isAnyOf":
-        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.in_ # noqa
-        if item.value is None or (
-            isinstance(item.value, Collection)
-            and len(cast(Collection[object], item.value)) == 0
-        ):
-            return column.in_(tuple())
-        return column.in_(item.value)
+        return apply_is_any_of_operator(column, item.value)
     elif item.operator_value == "contains":
-        if item.value is None:
-            return column.contains("")
-        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.contains # noqa
-        return column.contains(item.value)
+        return apply_contains_operator(column, item.value)
     elif item.operator_value == "startsWith":
-        if item.value is None:
-            return column.startswith("")
-        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.startswith # noqa
-        return column.startswith(item.value)
+        return apply_startswith_operator(column, item.value)
     elif item.operator_value == "endsWith":
-        if item.value is None:
-            return column.endswith("")
-        # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.endswith # noqa
-        return column.endswith(item.value)
+        return apply_endswith_operator(column, item.value)
     else:
         raise ValueError(f"Unsupported operator {item.operator_value}")
 
