@@ -141,8 +141,11 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         return eq(column, None)
     elif item.operator_value == "isNotEmpty":
         return ne(column, None)
+    # Per SQLAlchemy 1.4.43:
+    # only '=', '!=', 'is_()', 'is_not()', 'is_distinct_from()',
+    # 'is_not_distinct_from()' operators can be used with None/True/False
+    # so below have to special case them.
     elif item.operator_value == "isAnyOf":
-        # TODO: improve detection of this for error handling
         # https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnOperators.in_ # noqa
         if item.value is None or (
             isinstance(item.value, Collection)
