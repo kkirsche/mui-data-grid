@@ -27,7 +27,7 @@ def _get_link_operator(
 ) -> Callable[[Any], BooleanClauseList[Any]]:
     """Retrieves the correct filter operator for a model.
 
-    If the link operator is None, `OR` is used by default.
+    If the link operator is None, `AND` is used by default.
 
     Args:
         model (GridFilterModel): The grid filter model which is being applied to the
@@ -37,10 +37,10 @@ def _get_link_operator(
         Callable[[Any], BooleanClauseList[Any]]: The `or_` and `and_` operators for
             application to SQLAlchemy filters.
     """
-    if model.link_operator is None or model.link_operator == GridLinkOperator.Or:
-        return or_
-    else:
+    if model.link_operator is None or model.link_operator == GridLinkOperator.And:
         return and_
+    else:
+        return or_
 
 
 def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
@@ -142,7 +142,9 @@ def apply_filter_items_to_query_from_items(
             # and the filter value.
             # Basically, it builds something like this, dynamically:
             # .filter(and_(gt(Request.id, 100), eq(Request.title, "Example"))
-            apply_operator_to_column(item=item, resolver=resolver)
-            for item in model.items
+            *[
+                apply_operator_to_column(item=item, resolver=resolver)
+                for item in model.items
+            ]
         )
     )
