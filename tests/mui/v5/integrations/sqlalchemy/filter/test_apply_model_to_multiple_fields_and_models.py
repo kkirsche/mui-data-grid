@@ -1,7 +1,7 @@
 from datetime import timedelta
 from itertools import product
 from operator import ge, gt, le, lt
-from typing import Optional
+from typing import Any, Callable, Optional
 
 from pytest import mark
 from sqlalchemy import and_, or_
@@ -27,7 +27,13 @@ LINK_OPERATOR_ARGVALUES = (GridLinkOperator.And, GridLinkOperator.Or, None)
 def _sql_link_operator_from(
     link_operator: Optional[GridLinkOperator],
 ) -> Literal["AND", "OR"]:
-    return "AND" if link_operator == GridLinkOperator.And else "OR"
+    return "OR" if link_operator == GridLinkOperator.Or else "AND"
+
+
+def _join_filter_from(
+    link_operator: Optional[GridLinkOperator],
+) -> Callable[..., Any]:
+    return or_ if link_operator == GridLinkOperator.Or else and_
 
 
 @mark.parametrize(
@@ -87,7 +93,7 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields_and_model(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -171,7 +177,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -252,7 +258,7 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -336,7 +342,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     base_query = session.query(ChildModel).join(ParentModel)
     op = gt if operator == ">" else lt
     expected_row_count = base_query.filter(
@@ -419,7 +425,7 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     op = ge if operator == ">=" else le
     expected_row_count = (
         session.query(ChildModel)
@@ -500,7 +506,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -576,7 +582,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -668,7 +674,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -755,7 +761,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -837,7 +843,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
@@ -918,7 +924,7 @@ def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
 
     rows = filtered_query.all()
     row_count = filtered_query.count()
-    join_filter = and_ if link_operator == GridLinkOperator.And else or_
+    join_filter = _join_filter_from(link_operator=link_operator)
     expected_row_count = (
         session.query(ChildModel)
         .join(ParentModel)
