@@ -3,7 +3,6 @@
 Supports parsing a GridFilterModel from Flask's request.args
 """
 from flask import request
-from functools import partial
 from typing_extensions import Literal
 
 from mui.v5.grid.filter import GridFilterModel
