@@ -2,6 +2,7 @@
 
 Supports parsing the filter, pagination, and sort models from Flask's request.args."""
 from typing import Optional
+from typing_extensions import Literal
 
 from mui.v5.grid.request import RequestGridModels
 from mui.v5.integrations.flask.filter.model import get_grid_filter_model_from_request
@@ -15,6 +16,8 @@ def get_grid_models_from_request(
     sort_model_key: str = "sort_model[]",
     filter_model_key: str = "filter_model",
     pagination_model_key: Optional[str] = None,
+    sort_model_format: Literal["json"] = "json",
+    filter_model_format: Literal["json"] = "json",
 ) -> RequestGridModels:
     """Parses the filter, sort, and pagination models from the request.
 
@@ -44,8 +47,12 @@ def get_grid_models_from_request(
         RequestGridModels: The located grid models.
     """
     return RequestGridModels(
-        filter_model=get_grid_filter_model_from_request(key=filter_model_key),
-        sort_model=get_grid_sort_model_from_request(key=sort_model_key),
+        filter_model=get_grid_filter_model_from_request(
+            key=filter_model_key, model_format=filter_model_format
+        ),
+        sort_model=get_grid_sort_model_from_request(
+            key=sort_model_key, model_format=sort_model_format
+        ),
         pagination_model=get_grid_pagination_model_from_request(
             key=pagination_model_key
         ),
