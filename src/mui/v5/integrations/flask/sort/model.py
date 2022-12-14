@@ -3,10 +3,10 @@
 Supports parsing a GridSortModel from Flask's request.args
 """
 from flask import request
-from pydantic import parse_obj_as
+from pydantic import parse_raw_as
 from typing_extensions import Literal
 
-from mui.v5.grid.sort import GridSortItem, GridSortModel
+from mui.v5.grid.sort import GridSortModel
 
 
 def get_grid_sort_model_from_request(
@@ -32,6 +32,8 @@ def get_grid_sort_model_from_request(
     # getlist returns [] as a default when the key doesn't exist
     # https://github.com/pallets/werkzeug/blob/main/src/werkzeug/datastructures.py#L395
     if model_format == "json":
-        value = request.args.getlist(key=key, type=GridSortItem.parse_raw)
-        return parse_obj_as(GridSortModel, value)
+        value = request.args.get(key=key)
+        if value is None:
+            raise ValueError(f"{key} not found in request args: {request.args}")
+        return parse_raw_as(GridSortModel, value)
     raise ValueError(f"Invalid model format: {model_format}")
