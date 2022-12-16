@@ -18,4 +18,4 @@ def apply_after_operator(column: Any, value: Any) -> Any:
     """
     # if the column is after the received date, it will be greater than the
     # received date
-    return gt(column, datetime.fromisoformat(value))
+    return gt(column, datetime.fromisoformat(value)) if value is not None else column

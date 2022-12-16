@@ -6,7 +6,7 @@ from datetime import datetime
 from operator import eq
 from typing import Any
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, Date, Time
 
 
 def apply_is_operator(column: Any, value: Any) -> Any:
@@ -23,7 +23,7 @@ def apply_is_operator(column: Any, value: Any) -> Any:
     Returns:
         Any: The column after applying the is filter using the provided value.
     """
-    if isinstance(column.type, DateTime) and value is not None:
+    if isinstance(column.type, (DateTime, Time, Date)) and value is not None:
         return eq(column, datetime.fromisoformat(value))
     else:
         return eq(column, value)
