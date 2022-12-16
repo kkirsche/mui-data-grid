@@ -18,4 +18,4 @@ def apply_on_or_after_operator(column: Any, value: Any) -> Any:
     """
     # if the column is on or after the received date, it will be greater than or equal
     # to the received date
-    return ge(column, datetime.fromisoformat(value))
+    return ge(column, datetime.fromisoformat(value)) if value is not None else column

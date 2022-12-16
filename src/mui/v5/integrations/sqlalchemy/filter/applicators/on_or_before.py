@@ -18,4 +18,4 @@ def apply_on_or_before_operator(column: Any, value: Any) -> Any:
     """
     # if the column is on or before the received date, it will be less than or equal to
     # the received date.
-    return le(column, datetime.fromisoformat(value))
+    return le(column, datetime.fromisoformat(value)) if value is not None else column
