@@ -13,7 +13,7 @@ This is an unofficial toolbox to make integrating a Python web application with 
 ## Features
 
 - Grid Sort Model support
-- Grid Filter Model support (partial: missing datetime operators and quick filter support)
+- Grid Filter Model support (partial: missing quick filter support)
 - Grid Pagination Model support (LIMIT / OFFSET based, cursor not currently supported)
 - Flask integration
 - SQLAlchemy integration
