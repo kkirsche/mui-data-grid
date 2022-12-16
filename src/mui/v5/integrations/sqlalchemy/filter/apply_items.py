@@ -8,13 +8,18 @@ from sqlalchemy.sql.elements import BooleanClauseList
 from mui.v5.grid import GridFilterItem, GridFilterModel, GridLinkOperator
 from mui.v5.integrations.sqlalchemy.filter.applicators import (
     SUPPORTED_BASIC_OPERATORS,
+    apply_after_operator,
     apply_basic_operator,
+    apply_before_operator,
     apply_contains_operator,
     apply_endswith_operator,
     apply_is_any_of_operator,
     apply_is_empty_operator,
     apply_is_not_empty_operator,
     apply_is_operator,
+    apply_not_operator,
+    apply_on_or_after_operator,
+    apply_on_or_before_operator,
     apply_startswith_operator,
 )
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
@@ -109,6 +114,16 @@ def apply_operator_to_column(item: GridFilterItem, resolver: Resolver) -> Any:
         return apply_startswith_operator(column, item.value)
     elif item.operator_value == "endsWith":
         return apply_endswith_operator(column, item.value)
+    elif item.operator_value == "not":
+        return apply_not_operator(column, item.value)
+    elif item.operator_value == "before":
+        return apply_before_operator(column, item.value)
+    elif item.operator_value == "after":
+        return apply_after_operator(column, item.value)
+    elif item.operator_value == "onOrBefore":
+        return apply_on_or_before_operator(column, item.value)
+    elif item.operator_value == "onOrAfter":
+        return apply_on_or_after_operator(column, item.value)
     else:
         raise ValueError(f"Unsupported operator {item.operator_value}")
 
