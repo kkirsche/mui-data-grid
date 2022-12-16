@@ -33,7 +33,5 @@ def get_grid_sort_model_from_request(
     # https://github.com/pallets/werkzeug/blob/main/src/werkzeug/datastructures.py#L395
     if model_format == "json":
         value = request.args.get(key=key)
-        if value is None:
-            raise ValueError(f"{key} not found in request args: {request.args}")
-        return parse_raw_as(GridSortModel, value)
+        return parse_raw_as(GridSortModel, value) if value is not None else []
     raise ValueError(f"Invalid model format: {model_format}")
