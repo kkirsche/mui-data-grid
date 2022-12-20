@@ -151,7 +151,7 @@ def apply_filter_items_to_query_from_items(
         # the link operator is either the and_ or or_ sqlalchemy function to determine
         # how the boolean clause list is applied
         link_operator(
-            # the _get_operator_value returns a function which we immediately call.
+            # the get_operator_value returns a function which we immediately call.
             # The function is a comparison function supported by SQLAlchemy such as
             # eq, ne, le, lt, etc. which is applied to the model's resolved column
             # and the filter value.

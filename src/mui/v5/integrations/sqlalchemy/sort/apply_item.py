@@ -1,5 +1,5 @@
 """The apply_item module is responsible for building the item's UnaryExpression."""
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Optional
 
 from sqlalchemy import asc, desc
 from sqlalchemy.sql.elements import UnaryExpression
@@ -9,12 +9,14 @@ from mui.v5.grid.sort import GridSortDirection
 from mui.v5.grid.sort.item import GridSortItem
 from mui.v5.integrations.sqlalchemy.resolver import Resolver
 
-_Q = TypeVar("_Q")
+
+def _no_operation(column: Any) -> None:
+    return None
 
 
-def _get_operator(
+def get_operator(
     item: GridSortItem,
-) -> Callable[[Any], UnaryExpression[NullType]]:
+) -> Callable[[Any], Optional[UnaryExpression[NullType]]]:
     """Retrieves the correct sort operator for an item.
 
     Args:
@@ -25,7 +27,9 @@ def _get_operator(
             SQLAlchemy. `desc` when the direction is None (default value) or
             GridSortDirection.DESC, otherwise `asc`.
     """
-    if item.sort is None or item.sort == GridSortDirection.DESC:
+    if item.sort is None:
+        return _no_operation
+    elif item.sort == GridSortDirection.DESC:
         return desc
     else:
         return asc
@@ -55,7 +59,7 @@ def _get_column(item: GridSortItem, resolver: Resolver) -> Any:
 
 def get_sort_expression_from_item(
     item: GridSortItem, resolver: Resolver
-) -> UnaryExpression[NullType]:
+) -> Optional[UnaryExpression[NullType]]:
     """Resolves the operator and column, returning the generated unary expression.
 
     This is meant to be used within an order_by call in SQLAlchemy:
@@ -74,6 +78,6 @@ def get_sort_expression_from_item(
     Returns:
         UnaryExpression[NullType]: _description_
     """
-    operator = _get_operator(item=item)
+    operator = get_operator(item=item)
     column = _get_column(item=item, resolver=resolver)
     return operator(column)

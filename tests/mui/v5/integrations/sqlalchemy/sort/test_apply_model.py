@@ -1,3 +1,5 @@
+from typing import Any, Callable, Optional
+
 from pytest import mark
 from sqlalchemy import asc, desc
 from sqlalchemy.dialects import sqlite
@@ -10,9 +12,36 @@ from tests.conftest import PARENT_MODEL_RESOLVABLE_FIELDS
 from tests.fixtures.sqlalchemy import ParentModel
 
 
+def _no_operation(column: Any) -> None:
+    """Returns the column, unsorted"""
+    return None
+
+
+def _get_direction_function(
+    direction: Optional[GridSortDirection],
+) -> Callable[..., Any]:
+    if direction == GridSortDirection.ASC:
+        return asc
+    elif direction == GridSortDirection.DESC:
+        return desc
+    else:
+        return _no_operation
+
+
+def _get_direction_str(
+    direction: Optional[GridSortDirection],
+) -> Optional[str]:
+    if direction == GridSortDirection.ASC:
+        return "ASC"
+    elif direction == GridSortDirection.DESC:
+        return "DESC"
+    else:
+        return None
+
+
 @mark.parametrize("direction", (GridSortDirection.ASC, GridSortDirection.DESC, None))
 def test_apply_sort_to_query_from_model_single_field(
-    direction: GridSortDirection,
+    direction: Optional[GridSortDirection],
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -25,20 +54,22 @@ def test_apply_sort_to_query_from_model_single_field(
     )
     compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
-    dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
-    assert f"ORDER BY {ParentModel.__tablename__}.id {dir_str}" in compiled_str
+    dir_str = _get_direction_str(direction=direction)
+    if dir_str is not None:
+        assert f"ORDER BY {ParentModel.__tablename__}.id {dir_str}" in compiled_str
 
     sorted_results = sorted_query.all()
     row_count = sorted_query.count()
 
-    direction_func = asc if direction == GridSortDirection.ASC else desc
+    direction_func = _get_direction_function(direction=direction)
     expected = session.query(ParentModel).order_by(direction_func(ParentModel.id))
     expected_row_count = expected.count()
     expected_results = expected.all()
 
     assert row_count == expected_row_count
-    for expected_item, sorted_item in zip(expected_results, sorted_results):
-        assert expected_item.id == sorted_item.id
+    if direction is not None:
+        for expected_item, sorted_item in zip(expected_results, sorted_results):
+            assert expected_item.id == sorted_item.id
 
 
 @mark.parametrize(
@@ -50,7 +81,7 @@ def test_apply_sort_to_query_from_model_single_field(
     ),
 )
 def test_apply_sort_to_query_from_model_multiple_fields(
-    direction: GridSortDirection,
+    direction: Optional[GridSortDirection],
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -69,13 +100,16 @@ def test_apply_sort_to_query_from_model_multiple_fields(
     compiled = sorted_query.statement.compile(dialect=sqlite.dialect())
     compiled_str = str(compiled)
     tbl = ParentModel.__tablename__
-    dir_str = "DESC" if direction in {GridSortDirection.DESC, None} else "ASC"
-    assert f"ORDER BY {tbl}.grouping_id {dir_str}, {tbl}.id {dir_str}" in compiled_str
+    dir_str = _get_direction_str(direction=direction)
+    if dir_str is not None:
+        assert (
+            f"ORDER BY {tbl}.grouping_id {dir_str}, {tbl}.id {dir_str}" in compiled_str
+        )
 
     sorted_results = sorted_query.all()
     row_count = sorted_query.count()
 
-    direction_func = asc if direction == GridSortDirection.ASC else desc
+    direction_func = _get_direction_function(direction=direction)
     expected = session.query(ParentModel).order_by(
         direction_func(ParentModel.grouping_id), direction_func(ParentModel.id)
     )
@@ -83,5 +117,6 @@ def test_apply_sort_to_query_from_model_multiple_fields(
     expected_results = expected.all()
 
     assert row_count == expected_row_count
-    for expected_item, sorted_item in zip(expected_results, sorted_results):
-        assert expected_item.id == sorted_item.id
+    if direction is not None:
+        for expected_item, sorted_item in zip(expected_results, sorted_results):
+            assert expected_item.id == sorted_item.id
