@@ -6,7 +6,7 @@ from datetime import datetime
 from operator import eq
 from typing import Any
 
-from sqlalchemy import DateTime, Date, Time
+from sqlalchemy import Date, DateTime, Time
 
 
 def apply_is_operator(column: Any, value: Any) -> Any:
