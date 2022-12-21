@@ -11,6 +11,11 @@ from mui.v5.integrations.sqlalchemy.resolver import Resolver
 
 
 def _no_operation(column: Any) -> None:
+    """Used when an unsorted operation is requested.
+
+    Returns:
+        None
+    """
     return None
 
 
