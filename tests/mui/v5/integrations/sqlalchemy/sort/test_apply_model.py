@@ -57,6 +57,8 @@ def test_apply_sort_to_query_from_model_single_field(
     dir_str = _get_direction_str(direction=direction)
     if dir_str is not None:
         assert f"ORDER BY {ParentModel.__tablename__}.id {dir_str}" in compiled_str
+    else:
+        assert "ORDER BY" not in compiled_str
 
     sorted_results = sorted_query.all()
     row_count = sorted_query.count()
@@ -105,6 +107,8 @@ def test_apply_sort_to_query_from_model_multiple_fields(
         assert (
             f"ORDER BY {tbl}.grouping_id {dir_str}, {tbl}.id {dir_str}" in compiled_str
         )
+    else:
+        assert "ORDER BY" not in compiled_str
 
     sorted_results = sorted_query.all()
     row_count = sorted_query.count()

@@ -44,6 +44,12 @@ def apply_sort_to_query_from_model(
         # 1
         # 2
         # 3
-        *[get_sort_expression_from_item(item=item, resolver=resolver) for item in model]
+        *[
+            get_sort_expression_from_item(item=item, resolver=resolver)
+            for item in model
+            # if we don't skip item.sort None here, multiple order bys will cause
+            # an ORDER BY NULL, NULL clause instead of skipping the ORDER BY
+            if item.sort is not None
+        ]
     )
     return query
