@@ -24,14 +24,14 @@ tzdata = { version = "^2024.1", platform = "win32" }
 
 [tool.poetry.group.github-actions.dependencies]
 codespell = "^2.3.0"
-hypothesis = "^6.110.1"
+hypothesis = "^6.112.0"
 interrogate = "^1.7.0"
-mypy = "^1.11.1"
-pytest = "^8.3.2"
-ruff = "^0.5.7"
+mypy = "^1.11.2"
+pytest = "^8.3.3"
+ruff = "^0.6.4"
 
 [tool.poetry.group.flask.dependencies]
-flask = "^3.0.2"
+flask = "^3.0.3"
 
 [tool.poetry.group.sqlalchemy.dependencies]
 sqlalchemy = ">=1.4,<2"
