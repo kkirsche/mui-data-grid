@@ -16,7 +16,7 @@ python = ">=3.9,<4"
 pydantic = ">=2.3.0,<3"
 typing-extensions = ">=4.7.1,<5"
 # https://docs.python.org/3/library/sysconfig.html#sysconfig.get_platform
-tzdata = { version = "^2024.1", platform = "win32" }
+tzdata = {version = ">=2024.1", platform = "win32"}
 
 # [tool.poetry.extras]
 # flask = ["flask@>=2,<3"]
@@ -31,7 +31,7 @@ pytest = "^8.3.3"
 ruff = "^0.6.4"
 
 [tool.poetry.group.flask.dependencies]
-flask = "^3.0.3"
+flask = ">=3.0.3,<4"
 
 [tool.poetry.group.sqlalchemy.dependencies]
 sqlalchemy = ">=1.4,<2"
