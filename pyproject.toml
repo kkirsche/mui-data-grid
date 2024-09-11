@@ -1,0 +1,156 @@
+[tool.poetry]
+authors = ["Kevin Kirsche <kev.kirsche@gmail.com>"]
+description = "Unofficial backend utilities for using Material-UI's X-Data-Grid component"
+# TODO: finish support for this
+# documentation = "https://mui-data-grid.readthedocs.io/en/latest/"
+include = ["src/mui/py.typed", "LICENSE"]
+license = "MIT"
+name = "mui-data-grid"
+packages = [{ include = "mui", from = "src" }]
+readme = "README.md"
+repository = "https://github.com/kkirsche/mui-data-grid"
+version = "0.14.1"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4"
+pydantic = ">=2.3.0,<3"
+typing-extensions = ">=4.7.1,<5"
+# https://docs.python.org/3/library/sysconfig.html#sysconfig.get_platform
+tzdata = { version = "^2024.1", platform = "win32" }
+
+# [tool.poetry.extras]
+# flask = ["flask@>=2,<3"]
+# sqlalchemy = ["sqlalchemy@>=1.4,<2"]
+
+[tool.poetry.group.github-actions.dependencies]
+codespell = "^2.3.0"
+hypothesis = "^6.110.1"
+interrogate = "^1.7.0"
+mypy = "^1.11.1"
+pytest = "^8.3.2"
+ruff = "^0.5.7"
+
+[tool.poetry.group.flask.dependencies]
+flask = "^3.0.2"
+
+[tool.poetry.group.sqlalchemy.dependencies]
+sqlalchemy = ">=1.4,<2"
+sqlalchemy2-stubs = ">=0.0.2a35"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+exclude = ['^compat\.py$']
+follow_imports = "normal"
+local_partial_types = true
+plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
+python_version = "3.9"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+    "tests.mui.v5.grid.sort.test_model",
+    "tests.mui.v5.grid.sort.test_item",
+]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --strict-config -p no:pastebin -p no:nose"
+minversion = "8.1"
+empty_parameter_set_mark = "fail_at_collect"
+testpaths = ["tests"]
+
+[tool.interrogate]
+color = true
+exclude = ["tests"]
+fail-under = 95
+ignore-init-method = false
+ignore-init-module = true
+ignore-magic = false
+ignore-module = false
+ignore-nested-classes = false
+ignore-nested-functions = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-semiprivate = false
+ignore-setters = false
+quiet = false
+verbose = 1
+
+[tool.pyright]
+exclude = ["**/__pycache__", "**/.git"]
+include = ["src"]
+pythonPlatform = "All"
+pythonVersion = "3.9"
+typeCheckingMode = "strict"
+
+[tool.ruff]
+extend-exclude = ["tests"]
+line-length = 88
+target-version = "py39"
+fix = true
+preview = true
+
+[tool.ruff.lint]
+# https://beta.ruff.rs/docs/settings/#select
+# https://beta.ruff.rs/docs/rules/ defines what the select codes mean
+select = [
+    "ASYNC",
+    "ARG",
+    "B",
+    "C4",
+    "C90",
+    "DTZ",
+    "E",
+    "F",
+    "FIX",
+    "FLY",
+    "G",
+    "I",
+    "ICN",
+    "PERF",
+    "PGH",
+    "PIE",
+    "PL",
+    "PT",
+    "PTH",
+    "PYI",
+    "Q",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "SLOT",
+    "TD",
+    "TID",
+    "TRY",
+    "UP",
+    "W",
+    "YTT",
+]
+extend-ignore = [
+    "PLR0911", # Too many return statements
+    "PLR0912", # Too many branches - waiting to use match
+    "PLR0913", # Too many arguments to function call (n > 5)
+    "TRY003",  # Avoid specifying long messages outside the exception class
+    "ISC001",  # Ruff warns that this is not compatible with the formatter
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.format]
+# Use Unix-style line endings.
+line-ending = "lf"
+docstring-code-format = true
