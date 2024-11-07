@@ -38,9 +38,9 @@ def apply_is_operator(column: Any, value: Any, timezone: Optional[ZoneInfo]) -> 
         # "" is used to represent "any" in MUI v5
         if value in {"", "any"}:
             return column.in_((True, False))
-        elif value == "true":
+        elif value == "true" or value is True:
             return eq(column, True)
-        elif value == "false":
+        elif value == "false" or value is False:
             return eq(column, False)
         else:
             raise ValueError(f"Unexpected boolean filter value received: {value}")
