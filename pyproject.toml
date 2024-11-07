@@ -9,14 +9,14 @@ name = "mui-data-grid"
 packages = [{ include = "mui", from = "src" }]
 readme = "README.md"
 repository = "https://github.com/kkirsche/mui-data-grid"
-version = "0.14.1"
+version = "0.14.2"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4"
 pydantic = ">=2.3.0,<3"
 typing-extensions = ">=4.7.1,<5"
 # https://docs.python.org/3/library/sysconfig.html#sysconfig.get_platform
-tzdata = {version = ">=2024.1", platform = "win32"}
+tzdata = { version = ">=2024.2", platform = "win32" }
 
 # [tool.poetry.extras]
 # flask = ["flask@>=2,<3"]
@@ -24,11 +24,11 @@ tzdata = {version = ">=2024.1", platform = "win32"}
 
 [tool.poetry.group.github-actions.dependencies]
 codespell = "^2.3.0"
-hypothesis = "^6.112.2"
+hypothesis = "^6.116.0"
 interrogate = "^1.7.0"
-mypy = "^1.11.2"
+mypy = "^1.13.0"
 pytest = "^8.3.3"
-ruff = "^0.6.8"
+ruff = "^0.7.2"
 
 [tool.poetry.group.flask.dependencies]
 flask = ">=3.0.3,<4"
