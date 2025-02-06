@@ -6,5 +6,4 @@ filterable SQLAlchemy model.
 
 from mui.v5.integrations.sqlalchemy.resolver.types import Resolver
 
-# isort: unique-list
 __all__ = ["Resolver"]

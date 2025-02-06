@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, time
+from datetime import timezone as dt_timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -36,7 +37,9 @@ def is_timezone_aware(value: datetime | time) -> bool:
     return False
 
 
-def apply_timezone_to_datetime(dt: datetime, timezone: ZoneInfo | None) -> datetime:
+def apply_timezone_to_datetime(
+    dt: datetime, timezone: ZoneInfo | dt_timezone | None
+) -> datetime:
     if is_timezone_aware(value=dt):
         # don't convert an aware timezone to a naive one
         if timezone is None:

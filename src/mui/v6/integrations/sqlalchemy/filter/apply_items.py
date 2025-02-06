@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timezone as dt_timezone
 from typing import Any, Callable, TypeVar
 from zoneinfo import ZoneInfo
 
@@ -58,7 +59,7 @@ def _get_link_operator(
 
 
 def apply_operator_to_column(
-    item: GridFilterItem, resolver: Resolver, timezone: ZoneInfo | None
+    item: GridFilterItem, resolver: Resolver, timezone: ZoneInfo | dt_timezone | None
 ) -> Any:
     """Applies the operator value represented by the GridFilterItem to the column.
 
@@ -146,7 +147,7 @@ def apply_filter_items_to_query_from_items(
     query: Query[_Q],
     model: GridFilterModel,
     resolver: Resolver,
-    timezone: ZoneInfo | None,
+    timezone: ZoneInfo | dt_timezone | None,
 ) -> Query[_Q]:
     """Applies a grid filter model's items section to a SQLAlchemy query.
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime, time
+from datetime import timezone as dt_timezone
 from operator import ne
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -13,7 +14,9 @@ from mui.v6.integrations.sqlalchemy.utils import (
 )
 
 
-def apply_not_operator(column: Any, value: Any, timezone: ZoneInfo | None) -> Any:
+def apply_not_operator(
+    column: Any, value: Any, timezone: ZoneInfo | dt_timezone | None
+) -> Any:
     """Handles applying the not x-data-grid operator to a column.
 
     The not operator exists on enum selections as well as datetimes. Care

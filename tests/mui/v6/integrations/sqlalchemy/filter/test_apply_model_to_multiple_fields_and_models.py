@@ -1,7 +1,8 @@
+from __future__ import annotations
 from datetime import timedelta
 from itertools import product
 from operator import ge, gt, le, lt
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 from zoneinfo import ZoneInfo
 
 from pytest import mark
@@ -26,13 +27,13 @@ LINK_OPERATOR_ARGVALUES = (GridLogicOperator.And, GridLogicOperator.Or, None)
 
 
 def _sql_logic_operator_from(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
 ) -> Literal["AND", "OR"]:
     return "OR" if logic_operator == GridLogicOperator.Or else "AND"
 
 
 def _join_filter_from(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
 ) -> Callable[..., Any]:
     return or_ if logic_operator == GridLogicOperator.Or else and_
 
@@ -42,7 +43,7 @@ def _join_filter_from(
     argvalues=LINK_OPERATOR_ARGVALUES,
 )
 def test_apply_eq_apply_filter_to_query_from_model_multiple_fields_and_model(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -127,7 +128,7 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields_and_model(
 )
 def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_model(
     expected_id: int,
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -207,7 +208,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_multi_field_and_mode
 
 @mark.parametrize(argnames=("logic_operator"), argvalues=LINK_OPERATOR_ARGVALUES)
 def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -295,7 +296,7 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -373,7 +374,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -460,7 +461,7 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -540,7 +541,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -612,7 +613,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("logic_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -704,7 +705,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("logic_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -791,7 +792,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("logic_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,
@@ -873,7 +874,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("logic_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
-    logic_operator: Optional[GridLogicOperator],
+    logic_operator: GridLogicOperator | None,
     session: Session,
     joined_query: "Query[ChildModel]",
     resolver: Resolver,

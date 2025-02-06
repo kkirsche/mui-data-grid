@@ -4,6 +4,7 @@ GridFilterModel, GridSortModel, and GridPaginationModel to a SQLAlchemy ORM quer
 
 from __future__ import annotations
 
+from datetime import timezone
 from typing import TypeVar
 from zoneinfo import ZoneInfo
 
@@ -61,7 +62,7 @@ def apply_data_grid_models_to_query(  # noqa: PLR0917
     filter_model: GridFilterModel | None = None,
     sort_model: GridSortModel | None = None,
     pagination_model: GridPaginationModel | None = None,
-    timezone: ZoneInfo | None = None,
+    timezone: ZoneInfo | timezone | None = None,
 ) -> DataGridQuery[T]:
     """Applies the provided X-Data-Grid state models to the SQLAlchemy ORM Query.
 
@@ -74,11 +75,11 @@ def apply_data_grid_models_to_query(  # noqa: PLR0917
         column_resolver (Resolver): The resolver responsible for taking an X-Data-Grid
             field name (from the UI configuration) and resolving it to the appropriate
             SQLAlchemy model column.
-        filter_model (Optional[GridFilterModel], optional): The filter model to apply
+        filter_model (GridFilterModel | None, optional): The filter model to apply
             to the query. If None, this stage will be skipped. Defaults to None.
-        sort_model (Optional[GridSortModel], optional): The sort model to apply to the
+        sort_model (GridSortModel | None, optional): The sort model to apply to the
             query. If None, this stage will be skipped. Defaults to None.
-        pagination_model (Optional[GridPaginationModel], optional): The pagination
+        pagination_model (GridPaginationModel | None, optional): The pagination
             model to apply to the query. If None, this stage will be skipped.
             Defaults to None.
 

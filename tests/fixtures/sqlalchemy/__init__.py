@@ -6,7 +6,7 @@ from tests.fixtures.sqlalchemy.enums import (
 )
 from tests.fixtures.sqlalchemy.models import Base, ChildModel, ParentModel
 
-# isort: unique-list
+
 __all__ = [
     "Base",
     "CATEGORIES",

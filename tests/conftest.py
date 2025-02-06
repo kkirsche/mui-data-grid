@@ -1,6 +1,7 @@
+from __future__ import annotations
 from datetime import datetime, timedelta
 from math import floor
-from typing import Generator, Union
+from typing import Generator
 
 from pytest import fixture
 from sqlalchemy import create_engine
@@ -35,7 +36,7 @@ FIRST_DATE_STR = "2022-11-01T12:00:00.000000+00:00"
 FIRST_DATE_DATETIME = datetime.fromisoformat(FIRST_DATE_STR)
 
 
-def child_model_resolver(field: str) -> Union[int, str, Category]:
+def child_model_resolver(field: str) -> int | str | Category:
     """Resolves the model's field names to the corresponding column names.
 
     Args:
@@ -48,7 +49,7 @@ def child_model_resolver(field: str) -> Union[int, str, Category]:
             error, but ensures MyPy is satisfied.
 
     Returns:
-        Union[int, str]: The column (which mypy thinks is actually it's value)
+        int | str: The column (which mypy thinks is actually it's value)
     """
     normalized_field = field.lower()
     if normalized_field not in CHILD_MODEL_RESOLVABLE_FIELDS:
@@ -62,7 +63,7 @@ def child_model_resolver(field: str) -> Union[int, str, Category]:
     raise ValueError("Resolver does not support this field name")
 
 
-def parent_model_resolver(field: str) -> Union[int, str]:
+def parent_model_resolver(field: str) -> int | str:
     """Resolves the model's field names to the corresponding column names.
 
     Args:
@@ -75,7 +76,7 @@ def parent_model_resolver(field: str) -> Union[int, str]:
             error, but ensures MyPy is satisfied.
 
     Returns:
-        Union[int, str]: The column (which mypy thinks is actually it's value)
+        int | str: The column (which mypy thinks is actually it's value)
     """
     normalized_field = field.lower()
     if normalized_field not in PARENT_MODEL_RESOLVABLE_FIELDS:
@@ -93,7 +94,7 @@ def parent_model_resolver(field: str) -> Union[int, str]:
     raise ValueError("Resolver does not support this field name")
 
 
-def query_resolver(field: str) -> Union[int, str, Category]:
+def query_resolver(field: str) -> int | str | Category:
     normalized_field = field.lower()
     if normalized_field not in RESOLVABLE_FIELDS:
         raise ValueError(f"Ambiguous resolution key provided: {normalized_field}")

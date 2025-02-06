@@ -1,6 +1,9 @@
 """The apply_model module is responsible for applying a GridSortModel to a query."""
 
-from typing import Optional, TypeVar
+from __future__ import annotations
+
+from datetime import timezone as dt_timezone
+from typing import TypeVar
 from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Query
@@ -15,11 +18,11 @@ _Q = TypeVar("_Q")
 
 
 def apply_filter_to_query_from_model(
-    query: "Query[_Q]",
+    query: Query[_Q],
     model: GridFilterModel,
     resolver: Resolver,
-    timezone: Optional[ZoneInfo],
-) -> "Query[_Q]":
+    timezone: ZoneInfo | dt_timezone | None,
+) -> Query[_Q]:
     """Applies a GridFilterModel to a SQLAlchemy query.
 
     If the model is an empty list, the query is returned, as-is.

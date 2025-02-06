@@ -1,5 +1,6 @@
+from __future__ import annotations
 from datetime import datetime
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, relationship
@@ -42,7 +43,7 @@ class ParentModel(Base):
         comment="A number to more easily group results to test multi-directional sort",
         nullable=False,
     )
-    null_field: Mapped[Optional[int]] = sa.Column(  # pyright: ignore
+    null_field: Mapped[int | None] = sa.Column(  # type: ignore[misc]
         sa.Integer(),
         comment="A null field",
         default=None,

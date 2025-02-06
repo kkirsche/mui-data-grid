@@ -33,7 +33,7 @@ from mui.v5.grid import (
 # do not re-export the integrations, they are optional dependencies, so they should
 # only be retrieved directly from the specific integration
 
-# isort: unique-list
+
 __all__ = [
     "CamelCaseGridFilterItemDict",
     "CamelCaseGridFilterModelDict",

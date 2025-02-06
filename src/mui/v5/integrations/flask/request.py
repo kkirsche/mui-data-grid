@@ -2,8 +2,9 @@
 
 Supports parsing the filter, pagination, and sort models from Flask's request.args."""
 
+from __future__ import annotations
+
 from datetime import timezone
-from typing import Optional, Union
 from zoneinfo import ZoneInfo
 
 from typing_extensions import Literal
@@ -20,11 +21,11 @@ from mui.v5.integrations.flask.timezone import get_grid_timezone_from_request
 def get_grid_models_from_request(  # noqa: PLR0917
     sort_model_key: str = "sort_model[]",
     filter_model_key: str = "filter_model",
-    pagination_model_key: Optional[str] = None,
+    pagination_model_key: str | None = None,
     timezone_model_key: str = "timezone",
     sort_model_format: Literal["json"] = "json",
     filter_model_format: Literal["json"] = "json",
-    default_timezone: Optional[Union[timezone, ZoneInfo]] = None,
+    default_timezone: timezone | ZoneInfo | None = None,
 ) -> RequestGridModels:
     """Parses the filter, sort, and pagination models from the request.
 

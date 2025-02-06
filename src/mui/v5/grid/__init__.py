@@ -25,7 +25,6 @@ from mui.v5.grid.pagination import GridPaginationModel
 from mui.v5.grid.request import RequestGridModels
 from mui.v5.grid.sort import Field, GridSortDirection, GridSortItem, GridSortModel, Sort
 
-# isort: unique-list
 __all__ = [
     "CamelCaseGridFilterItemDict",
     "CamelCaseGridFilterModelDict",

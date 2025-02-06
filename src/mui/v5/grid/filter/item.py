@@ -14,11 +14,11 @@ from typing_extensions import TypeAlias, TypedDict
 from mui.v5.grid.base import GridBaseModel, OptionalKeys
 
 ColumnField: TypeAlias = str
-Id: TypeAlias = int | str | None
+Id: TypeAlias = "int | str | None"
 # https://mui.com/x/react-data-grid/filtering/#customize-the-operators
 # https://mui.com/x/api/data-grid/grid-filter-operator/
-OperatorValue: TypeAlias = str | None
-Value: TypeAlias = Any | None
+OperatorValue: TypeAlias = "str | None"
+Value: TypeAlias = "Any | None"
 
 
 class SnakeCaseGridFilterItemDict(TypedDict):
@@ -76,7 +76,7 @@ class CamelCaseGridFilterItemDict(TypedDict):
 Both formats are supported by the GridFilterItem model.
 """
 GridFilterItemDict: TypeAlias = (
-    CamelCaseGridFilterItemDict | SnakeCaseGridFilterItemDict
+    "CamelCaseGridFilterItemDict | SnakeCaseGridFilterItemDict"
 )
 
 

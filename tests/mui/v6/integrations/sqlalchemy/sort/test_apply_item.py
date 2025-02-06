@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from pytest import mark
 
@@ -9,7 +9,7 @@ from mui.v6.integrations.sqlalchemy.sort.apply_item import get_operator
 @mark.parametrize(
     "sort_direction", (GridSortDirection.ASC, GridSortDirection.DESC, None)
 )
-def test_get_operator(sort_direction: Optional[GridSortDirection]) -> None:
+def test_get_operator(sort_direction: GridSortDirection | None) -> None:
     item = GridSortItem.model_validate({"field": "id", "sort": sort_direction})
     f = get_operator(item=item)
     if sort_direction == GridSortDirection.ASC:

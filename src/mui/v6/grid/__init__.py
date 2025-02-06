@@ -24,7 +24,6 @@ from mui.v6.grid.request import RequestGridModels
 from mui.v6.grid.sort import Field as SortField
 from mui.v6.grid.sort import GridSortDirection, GridSortItem, GridSortModel, Sort
 
-# isort: unique-list
 __all__ = [
     "CamelCaseGridFilterModelDict",
     "FilterField",

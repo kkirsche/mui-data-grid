@@ -1,6 +1,8 @@
 """The apply_item module is responsible for building the item's UnaryExpression."""
 
-from typing import Any, Callable, Optional
+from __future__ import annotations
+
+from typing import Any, Callable
 
 from sqlalchemy import asc, desc
 from sqlalchemy.sql.elements import UnaryExpression
@@ -22,7 +24,7 @@ def _no_operation(column: Any) -> None:  # noqa: ARG001
 
 def get_operator(
     item: GridSortItem,
-) -> Callable[[Any], Optional[UnaryExpression[NullType]]]:
+) -> Callable[[Any], UnaryExpression[NullType] | None]:
     """Retrieves the correct sort operator for an item.
 
     Args:
@@ -65,7 +67,7 @@ def _get_column(item: GridSortItem, resolver: Resolver) -> Any:
 
 def get_sort_expression_from_item(
     item: GridSortItem, resolver: Resolver
-) -> Optional[UnaryExpression[NullType]]:
+) -> UnaryExpression[NullType] | None:
     """Resolves the operator and column, returning the generated unary expression.
 
     This is meant to be used within an order_by call in SQLAlchemy:

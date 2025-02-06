@@ -8,7 +8,7 @@ from tests.fixtures.sqlalchemy import (
     values_callable,
 )
 
-# isort: unique-list
+
 __all__ = [
     "Base",
     "CATEGORIES",

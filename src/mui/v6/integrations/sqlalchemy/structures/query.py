@@ -6,6 +6,7 @@ total row counts.
 
 from __future__ import annotations
 
+from datetime import timezone as dt_timezone
 from math import ceil
 from typing import Generic, TypeVar, overload
 from zoneinfo import ZoneInfo
@@ -38,7 +39,7 @@ class DataGridQuery(Generic[_T]):
     pagination_model: GridPaginationModel | None
     query: Query[_T]
     sort_model: GridSortModel | None
-    timezone: ZoneInfo | None
+    timezone: ZoneInfo | dt_timezone | None
 
     def __init__(  # noqa: PLR0917
         self,
@@ -47,7 +48,7 @@ class DataGridQuery(Generic[_T]):
         filter_model: GridFilterModel | None = None,
         sort_model: GridSortModel | None = None,
         pagination_model: GridPaginationModel | None = None,
-        timezone: ZoneInfo | None = None,
+        timezone: ZoneInfo | dt_timezone | None = None,
     ) -> None:
         """Initialize a new data grid query.
 
@@ -55,11 +56,11 @@ class DataGridQuery(Generic[_T]):
             query (Query[_T]): The base query which the models will be applied to.
             column_resolver (Resolver): The field resolver which converts a UI field
                 to the corresponding SQLAlchemy column, column property, etc.
-            filter_model (Optional[GridFilterModel], optional): The filter model to
+            filter_model (GridFilterModel | None, optional): The filter model to
                 apply, if provided. Defaults to None.
-            sort_model (Optional[GridSortModel], optional): The sort model to apply,
+            sort_model (GridSortModel | None, optional): The sort model to apply,
                 if provided. Defaults to None.
-            pagination_model (Optional[GridPaginationModel], optional): The pagination
+            pagination_model (GridPaginationModel | None, optional): The pagination
                 model to apply, if provided. Defaults to None.
         """
         self.column_resovler = column_resolver
@@ -174,7 +175,7 @@ class DataGridQuery(Generic[_T]):
         """Returns all results of the query, after all models have been applied.
 
         Args:
-            factory (Optional[Callable[[_T], _R]]): The factory function to convert the
+            factory (Callable[[_T], _R] | None): The factory function to convert the
                 model into a different type.
 
         Returns:
@@ -188,7 +189,7 @@ class DataGridQuery(Generic[_T]):
         """Returns the number of pages to display all results.
 
         Args:
-            total (Optional[int], optional): The total number of results. This may
+            total (int | None, optional): The total number of results. This may
                 be provided to avoid the overhead of an additional database query to
                 retrieve the total. Defaults to None.
 

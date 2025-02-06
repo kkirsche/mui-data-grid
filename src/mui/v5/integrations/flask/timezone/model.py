@@ -3,8 +3,9 @@
 Supports parsing a GridSortModel from Flask's request.args
 """
 
+from __future__ import annotations
+
 from datetime import timezone
-from typing import Optional, Union
 from zoneinfo import ZoneInfo
 
 from flask import request
@@ -14,8 +15,8 @@ from typing_extensions import Literal
 def get_grid_timezone_from_request(
     key: str = "timezone",
     model_format: Literal["json"] = "json",
-    default: Optional[Union[timezone, ZoneInfo]] = None,
-) -> Optional[Union[ZoneInfo, timezone]]:
+    default: timezone | ZoneInfo | None = None,
+) -> ZoneInfo | timezone | None:
     """Retrieves a timezone from request.args.
 
     Currently, this only supports a JSON encoded model, but in the future the plan is

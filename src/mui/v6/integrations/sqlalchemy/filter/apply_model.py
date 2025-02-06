@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timezone as dt_timezone
 from typing import TypeVar
 from zoneinfo import ZoneInfo
 
@@ -20,7 +21,7 @@ def apply_filter_to_query_from_model(
     query: Query[_Q],
     model: GridFilterModel,
     resolver: Resolver,
-    timezone: ZoneInfo | None,
+    timezone: ZoneInfo | dt_timezone | None,
 ) -> Query[_Q]:
     """Applies a GridFilterModel to a SQLAlchemy query.
 

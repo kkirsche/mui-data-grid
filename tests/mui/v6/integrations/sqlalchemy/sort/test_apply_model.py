@@ -1,4 +1,5 @@
-from typing import Any, Callable, Optional
+from __future__ import annotations
+from typing import Any, Callable
 
 from pytest import mark
 from sqlalchemy import asc, desc
@@ -18,7 +19,7 @@ def _no_operation(column: Any) -> None:
 
 
 def _get_direction_function(
-    direction: Optional[GridSortDirection],
+    direction: GridSortDirection | None,
 ) -> Callable[..., Any]:
     if direction == GridSortDirection.ASC:
         return asc
@@ -29,8 +30,8 @@ def _get_direction_function(
 
 
 def _get_direction_str(
-    direction: Optional[GridSortDirection],
-) -> Optional[str]:
+    direction: GridSortDirection | None,
+) -> str | None:
     if direction == GridSortDirection.ASC:
         return "ASC"
     elif direction == GridSortDirection.DESC:
@@ -41,7 +42,7 @@ def _get_direction_str(
 
 @mark.parametrize("direction", (GridSortDirection.ASC, GridSortDirection.DESC, None))
 def test_apply_sort_to_query_from_model_single_field(
-    direction: Optional[GridSortDirection],
+    direction: GridSortDirection | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -83,7 +84,7 @@ def test_apply_sort_to_query_from_model_single_field(
     ),
 )
 def test_apply_sort_to_query_from_model_multiple_fields(
-    direction: Optional[GridSortDirection],
+    direction: GridSortDirection | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,

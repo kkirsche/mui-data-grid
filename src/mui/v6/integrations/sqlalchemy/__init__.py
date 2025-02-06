@@ -21,7 +21,6 @@ from mui.v6.integrations.sqlalchemy.utils import (
     is_timezone_aware,
 )
 
-# isort: unique-list
 __all__ = [
     "DataGridQuery",
     "Resolver",

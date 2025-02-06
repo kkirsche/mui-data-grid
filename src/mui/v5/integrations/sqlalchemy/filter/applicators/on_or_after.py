@@ -1,15 +1,18 @@
 """The is on or after applicator applies the is on or after operator to the data."""
 
+from __future__ import annotations
+
 from datetime import datetime
+from datetime import timezone as dt_timezone
 from operator import ge
-from typing import Any, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from mui.v5.integrations.sqlalchemy.utils import apply_timezone_to_datetime
 
 
 def apply_on_or_after_operator(
-    column: Any, value: Any, timezone: Optional[ZoneInfo]
+    column: Any, value: Any, timezone: ZoneInfo | dt_timezone | None
 ) -> Any:
     """Handles applying the on or after x-data-grid operator to a column.
 

@@ -1,6 +1,9 @@
 """The apply_model module is responsible for applying a GridSortModel to a query."""
 
-from typing import Any, Callable, Optional, TypeVar
+from __future__ import annotations
+
+from datetime import timezone as dt_timezone
+from typing import Any, Callable, TypeVar
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_, or_
@@ -55,7 +58,7 @@ def _get_link_operator(
 
 
 def apply_operator_to_column(
-    item: GridFilterItem, resolver: Resolver, timezone: Optional[ZoneInfo]
+    item: GridFilterItem, resolver: Resolver, timezone: ZoneInfo | dt_timezone | None
 ) -> Any:
     """Applies the operator value represented by the GridFilterItem to the column.
 
@@ -137,11 +140,11 @@ def apply_operator_to_column(
 
 
 def apply_filter_items_to_query_from_items(
-    query: "Query[_Q]",
+    query: Query[_Q],
     model: GridFilterModel,
     resolver: Resolver,
-    timezone: Optional[ZoneInfo],
-) -> "Query[_Q]":
+    timezone: ZoneInfo | dt_timezone | None,
+) -> Query[_Q]:
     """Applies a grid filter model's items section to a SQLAlchemy query.
 
     Args:

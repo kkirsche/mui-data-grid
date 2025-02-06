@@ -26,7 +26,6 @@ from mui.v5.grid.filter.model import (
     SnakeCaseGridFilterModelDict,
 )
 
-# isort: unique-list
 __all__ = [
     "CamelCaseGridFilterItemDict",
     "CamelCaseGridFilterModelDict",

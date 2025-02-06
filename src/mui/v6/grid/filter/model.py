@@ -4,7 +4,9 @@ The grid filter model is responsible for modelling, or representing using
 programming data structures, the state of the data grid.
 """
 
-from typing import Any, ClassVar, Optional, Union
+from __future__ import annotations
+
+from typing import Any, ClassVar
 
 from pydantic import AliasChoices, Field
 from typing_extensions import TypeAlias, TypedDict
@@ -20,13 +22,13 @@ from mui.v6.grid.logic.operator import GridLogicOperator, GridLogicOperatorLiter
 ItemsLiterals: TypeAlias = list[GridFilterItemDict]
 Items: TypeAlias = list[GridFilterItem]
 
-LogicOperatorLiterals: TypeAlias = Optional[GridLogicOperatorLiterals]
-LogicOperator: TypeAlias = Optional[GridLogicOperator]
+LogicOperatorLiterals: TypeAlias = "GridLogicOperatorLiterals | None"
+LogicOperator: TypeAlias = "GridLogicOperator | None"
 
-QuickFilterLogicOperatorLiterals: TypeAlias = Optional[GridLogicOperatorLiterals]
-QuickFilterLogicOperator: TypeAlias = Optional[GridLogicOperator]
+QuickFilterLogicOperatorLiterals: TypeAlias = "GridLogicOperatorLiterals | None"
+QuickFilterLogicOperator: TypeAlias = "GridLogicOperator | None"
 
-QuickFilterValues: TypeAlias = Optional[list[Any]]
+QuickFilterValues: TypeAlias = "list[Any] | None"
 
 
 class SnakeCaseGridFilterModelDict(TypedDict):
@@ -54,12 +56,12 @@ class SnakeCaseGridFilterModelDict(TypedDict):
             - Alias: quickFilterValues
     """
 
-    items: Union[ItemsLiterals, Items]
-    logic_operator: Union[LogicOperatorLiterals, LogicOperator]
+    items: ItemsLiterals | Items
+    logic_operator: LogicOperatorLiterals | LogicOperator
     quick_filter_values: QuickFilterValues
-    quick_filter_logic_operator: Union[
-        QuickFilterLogicOperatorLiterals, QuickFilterLogicOperator
-    ]
+    quick_filter_logic_operator: (
+        QuickFilterLogicOperatorLiterals | QuickFilterLogicOperator
+    )
 
 
 class CamelCaseGridFilterModelDict(TypedDict):
@@ -87,12 +89,12 @@ class CamelCaseGridFilterModelDict(TypedDict):
             - Alias: quickFilterValues
     """
 
-    items: Union[ItemsLiterals, Items]
-    logicOperator: Union[LogicOperatorLiterals, LogicOperator]
+    items: ItemsLiterals | Items
+    logicOperator: LogicOperatorLiterals | LogicOperator
     quickFilterValues: QuickFilterValues
-    quickFilterLogicOperator: Union[
-        QuickFilterLogicOperatorLiterals, QuickFilterLogicOperator
-    ]
+    quickFilterLogicOperator: (
+        QuickFilterLogicOperatorLiterals | QuickFilterLogicOperator
+    )
 
 
 """The GridFilterModelDict is an alias for either a snake or camel case grid
@@ -100,9 +102,9 @@ filter model.
 
 Both formats are supported by the GridFilterModel model.
 """
-GridFilterModelDict: TypeAlias = Union[
-    SnakeCaseGridFilterModelDict, CamelCaseGridFilterModelDict
-]
+GridFilterModelDict: TypeAlias = (
+    "SnakeCaseGridFilterModelDict | CamelCaseGridFilterModelDict"
+)
 
 
 class GridFilterModel(GridBaseModel):

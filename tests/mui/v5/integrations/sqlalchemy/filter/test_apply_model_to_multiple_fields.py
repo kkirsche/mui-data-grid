@@ -1,7 +1,8 @@
+from __future__ import annotations
 from datetime import timedelta
 from itertools import product
 from operator import ge, gt, le, lt
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 from zoneinfo import ZoneInfo
 
 from pytest import mark
@@ -20,13 +21,13 @@ LINK_OPERATOR_ARGVALUES = (GridLinkOperator.And, GridLinkOperator.Or, None)
 
 
 def _sql_link_operator_from(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
 ) -> Literal["AND", "OR"]:
     return "OR" if link_operator == GridLinkOperator.Or else "AND"
 
 
 def _join_filter_from(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
 ) -> Callable[..., Any]:
     return or_ if link_operator == GridLinkOperator.Or else and_
 
@@ -36,7 +37,7 @@ def _join_filter_from(
     argvalues=LINK_OPERATOR_ARGVALUES,
 )
 def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -104,7 +105,7 @@ def test_apply_eq_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
     expected_id: int,
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -168,7 +169,7 @@ def test_apply_is_datetime_apply_filter_to_query_from_model_single_field(
 
 @mark.parametrize(argnames=("link_operator"), argvalues=LINK_OPERATOR_ARGVALUES)
 def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -236,7 +237,7 @@ def test_apply_ne_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -305,7 +306,7 @@ def test_apply_gt_lt_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
     operator: str,
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -374,7 +375,7 @@ def test_apply_ge_le_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -440,7 +441,7 @@ def test_apply_is_empty_apply_filter_to_query_from_model_multiple_fields(
 )
 def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
     field: str,
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -502,7 +503,7 @@ def test_apply_is_not_empty_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -573,7 +574,7 @@ def test_apply_is_any_of_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -638,7 +639,7 @@ def test_apply_contains_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,
@@ -702,7 +703,7 @@ def test_apply_starts_with_apply_filter_to_query_from_model_multiple_fields(
 
 @mark.parametrize(argnames=("link_operator"), argvalues=(LINK_OPERATOR_ARGVALUES))
 def test_apply_ends_with_apply_filter_to_query_from_model_multiple_fields(
-    link_operator: Optional[GridLinkOperator],
+    link_operator: GridLinkOperator | None,
     session: Session,
     query: "Query[ParentModel]",
     resolver: Resolver,

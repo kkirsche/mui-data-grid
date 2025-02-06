@@ -22,13 +22,13 @@ from mui.v5.grid.link.operator import GridLinkOperator, GridLinkOperatorLiterals
 ItemsLiterals: TypeAlias = list[GridFilterItemDict]
 Items: TypeAlias = list[GridFilterItem]
 
-LinkOperatorLiterals: TypeAlias = GridLinkOperatorLiterals | None
-LinkOperator: TypeAlias = GridLinkOperator | None
+LinkOperatorLiterals: TypeAlias = "GridLinkOperatorLiterals | None"
+LinkOperator: TypeAlias = "GridLinkOperator | None"
 
-QuickFilterLogicOperatorLiterals: TypeAlias = GridLinkOperatorLiterals | None
-QuickFilterLogicOperator: TypeAlias = GridLinkOperator | None
+QuickFilterLogicOperatorLiterals: TypeAlias = "GridLinkOperatorLiterals | None"
+QuickFilterLogicOperator: TypeAlias = "GridLinkOperator | None"
 
-QuickFilterValues: TypeAlias = list[Any] | None
+QuickFilterValues: TypeAlias = "list[Any] | None"
 
 
 class SnakeCaseGridFilterModelDict(TypedDict):
@@ -103,7 +103,7 @@ filter model.
 Both formats are supported by the GridFilterModel model.
 """
 GridFilterModelDict: TypeAlias = (
-    SnakeCaseGridFilterModelDict | CamelCaseGridFilterModelDict
+    "SnakeCaseGridFilterModelDict | CamelCaseGridFilterModelDict"
 )
 
 

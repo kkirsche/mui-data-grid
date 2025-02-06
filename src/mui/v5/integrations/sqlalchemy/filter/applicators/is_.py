@@ -3,9 +3,12 @@
 Meant as an equality check.
 """
 
+from __future__ import annotations
+
 from datetime import date, datetime, time
+from datetime import timezone as dt_timezone
 from operator import eq
-from typing import Any, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from mui.v5.integrations.sqlalchemy.utils import (
@@ -14,7 +17,9 @@ from mui.v5.integrations.sqlalchemy.utils import (
 )
 
 
-def apply_is_operator(column: Any, value: Any, timezone: Optional[ZoneInfo]) -> Any:
+def apply_is_operator(
+    column: Any, value: Any, timezone: ZoneInfo | dt_timezone | None
+) -> Any:
     """Handles applying the is x-data-grid operator to a column.
 
     The is operator requires special handling when differentiating between data

@@ -39,7 +39,6 @@ from mui.v5.integrations.sqlalchemy.filter.applicators.startswith import (
     apply_startswith_operator,
 )
 
-# isort: unique-list
 __all__ = [
     "SUPPORTED_BASIC_OPERATORS",
     "apply_after_operator",

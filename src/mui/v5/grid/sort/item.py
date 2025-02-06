@@ -9,8 +9,8 @@ from mui.v5.grid.base import GridBaseModel
 from mui.v5.grid.sort.direction import GridSortDirection, GridSortDirectionLiterals
 
 Field: TypeAlias = str
-Sort: TypeAlias = GridSortDirection | None
-SortLiterals: TypeAlias = GridSortDirectionLiterals | None
+Sort: TypeAlias = "GridSortDirection | None"
+SortLiterals: TypeAlias = "GridSortDirectionLiterals | None"
 
 
 class GridSortItem(GridBaseModel):

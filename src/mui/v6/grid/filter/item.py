@@ -4,17 +4,19 @@ filter items.
 Each filter item corresponds to a configured filter from the data grid's filter window.
 """
 
-from typing import Any, ClassVar, Optional, Union
+from __future__ import annotations
+
+from typing import Any, ClassVar
 
 from pydantic import Field as PydanticField
 from typing_extensions import TypeAlias, TypedDict
 
 from mui.v6.grid.base import GridBaseModel, OptionalKeys
 
-Id: TypeAlias = Optional[Union[int, str]]
+Id: TypeAlias = "int | str | None"
 Field: TypeAlias = str
 # https://mui.com/x/react-data-grid/filtering/#customize-the-operators
-Value: TypeAlias = Optional[Any]
+Value: TypeAlias = "Any | None"
 # https://mui.com/x/api/data-grid/grid-filter-operator/
 Operator: TypeAlias = str
 
