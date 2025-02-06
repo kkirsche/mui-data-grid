@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, relationship
@@ -55,6 +55,6 @@ class ParentModel(Base):
         comment="The name of the model",
     )
 
-    children: Mapped[List["ChildModel"]] = relationship(  # pyright: ignore
+    children: Mapped[list["ChildModel"]] = relationship(  # pyright: ignore
         "ChildModel", back_populates="parent", uselist=True
     )

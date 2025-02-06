@@ -156,7 +156,7 @@ class DataGridQuery(Generic[_T]):
             factory (None, optional): This is not provided. Defaults to None.
 
         Returns:
-            List[_T]: The list of models, without conversion.
+            list[_T]: The list of models, without conversion.
         """
 
     @overload
@@ -168,7 +168,7 @@ class DataGridQuery(Generic[_T]):
             factory (Callable[[_T], _R]): The factory to convert the type(s).
 
         Returns:
-            List[_R]: The list of created items.
+            list[_R]: The list of created items.
         """
 
     def items(self, factory: Factory[_T, _R] | None = None) -> list[_T] | list[_R]:
@@ -179,7 +179,7 @@ class DataGridQuery(Generic[_T]):
                 model into a different type.
 
         Returns:
-            List[_T]: The list of individual items located by the query after all
+            list[_T]: The list of individual items located by the query after all
                 models have been applied.
         """
         items = self.query.all()
