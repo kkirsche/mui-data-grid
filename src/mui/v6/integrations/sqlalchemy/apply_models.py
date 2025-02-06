@@ -2,7 +2,9 @@
 GridFilterModel, GridSortModel, and GridPaginationModel to a SQLAlchemy ORM query.
 """
 
-from typing import Optional, TypeVar
+from __future__ import annotations
+
+from typing import TypeVar
 from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Query
@@ -20,10 +22,10 @@ T = TypeVar("T")
 
 
 def apply_request_grid_models_to_query(
-    query: "Query[T]",
+    query: Query[T],
     request_model: RequestGridModels,
     column_resolver: Resolver,
-) -> "DataGridQuery[T]":
+) -> DataGridQuery[T]:
     """Applies a RequestGridModels object to a query.
 
     This is a utility function to ensure that the models are applied in a SQLAlchemy
@@ -54,13 +56,13 @@ def apply_request_grid_models_to_query(
 
 
 def apply_data_grid_models_to_query(  # noqa: PLR0917
-    query: "Query[T]",
+    query: Query[T],
     column_resolver: Resolver,
-    filter_model: Optional[GridFilterModel] = None,
-    sort_model: Optional[GridSortModel] = None,
-    pagination_model: Optional[GridPaginationModel] = None,
-    timezone: Optional[ZoneInfo] = None,
-) -> "DataGridQuery[T]":
+    filter_model: GridFilterModel | None = None,
+    sort_model: GridSortModel | None = None,
+    pagination_model: GridPaginationModel | None = None,
+    timezone: ZoneInfo | None = None,
+) -> DataGridQuery[T]:
     """Applies the provided X-Data-Grid state models to the SQLAlchemy ORM Query.
 
     This method is provided to allow for implementing support for only specific

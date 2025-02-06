@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 """An example script demonstrating how to use this library."""
+
 # examples/main.py
+from __future__ import annotations
 
 from math import floor
-from typing import Optional
 
 import sqlalchemy as sa
 from flask import Flask, jsonify
@@ -56,7 +57,7 @@ class ExampleModel(Base):
         return {"id": self.id, "groupNumber": self.group_number}
 
     @staticmethod
-    def dict_factory(model: "ExampleModel") -> dict[str, int]:
+    def dict_factory(model: ExampleModel) -> dict[str, int]:
         """A factory function for converting the model to a dictionary.
 
         Args:
@@ -94,7 +95,7 @@ MODELS_TO_CREATE = 100
 GROUPS_TO_CREATE = 4
 FILTER_MODEL_KEY = "filter_model"
 SORT_MODEL_KEY = "sort_model[]"
-PAGINATION_MODEL_KEY: Optional[str] = (
+PAGINATION_MODEL_KEY: str | None = (
     None  # stored inline in the query string, not encoded as an obj
 )
 

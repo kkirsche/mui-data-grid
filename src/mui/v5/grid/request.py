@@ -1,7 +1,9 @@
 """The request module contains the model used to store parsed models."""
 
+from __future__ import annotations
+
 from datetime import timezone as dt_timezone
-from typing import ClassVar, Optional, Union
+from typing import ClassVar
 from zoneinfo import ZoneInfo
 
 from pydantic import AliasChoices, ConfigDict, Field, field_validator
@@ -68,7 +70,7 @@ class RequestGridModels(GridBaseModel):
         validation_alias=AliasChoices("sort_model", "sortModel"),
         examples=[[GridSortItem(field="fieldName", sort=GridSortDirection.DESC)]],
     )
-    timezone: Optional[Union[ZoneInfo, dt_timezone]] = Field(
+    timezone: ZoneInfo | dt_timezone | None = Field(
         default=None,
         title="Timezone",
         description="The timezone to apply to filtered data.",

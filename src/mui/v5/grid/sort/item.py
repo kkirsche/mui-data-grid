@@ -1,6 +1,6 @@
 """The item module holds the GridSortItem and related types."""
 
-from typing import Optional
+from __future__ import annotations
 
 from pydantic import Field as PyField
 from typing_extensions import TypeAlias
@@ -9,8 +9,8 @@ from mui.v5.grid.base import GridBaseModel
 from mui.v5.grid.sort.direction import GridSortDirection, GridSortDirectionLiterals
 
 Field: TypeAlias = str
-Sort: TypeAlias = Optional[GridSortDirection]
-SortLiterals: TypeAlias = Optional[GridSortDirectionLiterals]
+Sort: TypeAlias = GridSortDirection | None
+SortLiterals: TypeAlias = GridSortDirectionLiterals | None
 
 
 class GridSortItem(GridBaseModel):

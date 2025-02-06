@@ -4,7 +4,9 @@ filter items.
 Each filter item corresponds to a configured filter from the data grid's filter window.
 """
 
-from typing import Any, ClassVar, Optional, Union
+from __future__ import annotations
+
+from typing import Any, ClassVar
 
 from pydantic import AliasChoices, Field
 from typing_extensions import TypeAlias, TypedDict
@@ -12,11 +14,11 @@ from typing_extensions import TypeAlias, TypedDict
 from mui.v5.grid.base import GridBaseModel, OptionalKeys
 
 ColumnField: TypeAlias = str
-Id: TypeAlias = Optional[Union[int, str]]
+Id: TypeAlias = int | str | None
 # https://mui.com/x/react-data-grid/filtering/#customize-the-operators
 # https://mui.com/x/api/data-grid/grid-filter-operator/
-OperatorValue: TypeAlias = Optional[str]
-Value: TypeAlias = Optional[Any]
+OperatorValue: TypeAlias = str | None
+Value: TypeAlias = Any | None
 
 
 class SnakeCaseGridFilterItemDict(TypedDict):
@@ -73,9 +75,9 @@ class CamelCaseGridFilterItemDict(TypedDict):
 
 Both formats are supported by the GridFilterItem model.
 """
-GridFilterItemDict: TypeAlias = Union[
-    CamelCaseGridFilterItemDict, SnakeCaseGridFilterItemDict
-]
+GridFilterItemDict: TypeAlias = (
+    CamelCaseGridFilterItemDict | SnakeCaseGridFilterItemDict
+)
 
 
 class GridFilterItem(GridBaseModel):

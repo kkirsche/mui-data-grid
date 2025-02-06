@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime, time
-from typing import Any, Optional, Union
+from typing import Any
 from zoneinfo import ZoneInfo
 
 
@@ -24,7 +26,7 @@ def get_python_type_from_column(column: Any) -> Any:
     return python_type
 
 
-def is_timezone_aware(value: Union[datetime, time]) -> bool:
+def is_timezone_aware(value: datetime | time) -> bool:
     # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
     if value.tzinfo is not None:
         if isinstance(value, datetime):
@@ -34,7 +36,7 @@ def is_timezone_aware(value: Union[datetime, time]) -> bool:
     return False
 
 
-def apply_timezone_to_datetime(dt: datetime, timezone: Optional[ZoneInfo]) -> datetime:
+def apply_timezone_to_datetime(dt: datetime, timezone: ZoneInfo | None) -> datetime:
     if is_timezone_aware(value=dt):
         # don't convert an aware timezone to a naive one
         if timezone is None:
