@@ -15,6 +15,9 @@ from mui.v6.integrations.sqlalchemy.filter.applicators.before import (
 from mui.v6.integrations.sqlalchemy.filter.applicators.contains import (
     apply_contains_operator,
 )
+from mui.v6.integrations.sqlalchemy.filter.applicators.does_not_contain import (
+    apply_does_not_contain_operator,
+)
 from mui.v6.integrations.sqlalchemy.filter.applicators.endswith import (
     apply_endswith_operator,
 )
@@ -46,6 +49,7 @@ __all__ = [
     "apply_basic_operator",
     "apply_before_operator",
     "apply_contains_operator",
+    "apply_does_not_contain_operator",
     "apply_endswith_operator",
     "apply_is_any_of_operator",
     "apply_is_empty_operator",
