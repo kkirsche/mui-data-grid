@@ -198,7 +198,7 @@ class DataGridQuery(Generic[_T]):
         """
         if not total:
             total = self.total()
-        return int(ceil(total / float(self.per_page)))
+        return ceil(total / float(self.per_page))
 
     @property
     def page(self) -> int:

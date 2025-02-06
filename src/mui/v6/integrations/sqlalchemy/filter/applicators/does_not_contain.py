@@ -7,6 +7,7 @@ from typing import Any
 
 from sqlalchemy import not_
 
+
 def apply_does_not_contain_operator(column: Any, value: Any) -> Any:
     """Handles applying the doesNotContain x-data-grid operator to a column.
 

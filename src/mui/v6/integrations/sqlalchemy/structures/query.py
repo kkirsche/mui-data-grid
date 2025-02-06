@@ -4,8 +4,10 @@ This structure is used to provide helpers related to pagination, such as
 total row counts.
 """
 
+from __future__ import annotations
+
 from math import ceil
-from typing import Generic, Optional, TypeVar, Union, overload
+from typing import Generic, TypeVar, overload
 from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Query
@@ -30,22 +32,22 @@ class DataGridQuery(Generic[_T]):
         Generic (_type_): The model being retrieved by the query.
     """
 
-    _query: "Query[_T]"
+    _query: Query[_T]
     column_resovler: Resolver
-    filter_model: Optional[GridFilterModel]
-    pagination_model: Optional[GridPaginationModel]
-    query: "Query[_T]"
-    sort_model: Optional[GridSortModel]
-    timezone: Optional[ZoneInfo]
+    filter_model: GridFilterModel | None
+    pagination_model: GridPaginationModel | None
+    query: Query[_T]
+    sort_model: GridSortModel | None
+    timezone: ZoneInfo | None
 
     def __init__(  # noqa: PLR0917
         self,
-        query: "Query[_T]",
+        query: Query[_T],
         column_resolver: Resolver,
-        filter_model: Optional[GridFilterModel] = None,
-        sort_model: Optional[GridSortModel] = None,
-        pagination_model: Optional[GridPaginationModel] = None,
-        timezone: Optional[ZoneInfo] = None,
+        filter_model: GridFilterModel | None = None,
+        sort_model: GridSortModel | None = None,
+        pagination_model: GridPaginationModel | None = None,
+        timezone: ZoneInfo | None = None,
     ) -> None:
         """Initialize a new data grid query.
 
@@ -73,7 +75,7 @@ class DataGridQuery(Generic[_T]):
         query = self._paginate_query(query=query)
         self.query = query
 
-    def _filter_query(self, query: "Query[_T]") -> "Query[_T]":
+    def _filter_query(self, query: Query[_T]) -> Query[_T]:
         """Applies the filter model to the query.
 
         Args:
@@ -91,7 +93,7 @@ class DataGridQuery(Generic[_T]):
             timezone=self.timezone,
         )
 
-    def _order_query(self, query: "Query[_T]") -> "Query[_T]":
+    def _order_query(self, query: Query[_T]) -> Query[_T]:
         """Applies the sort model to the query.
 
         Args:
@@ -106,7 +108,7 @@ class DataGridQuery(Generic[_T]):
             query=query, model=self.sort_model, resolver=self.column_resovler
         )
 
-    def _paginate_query(self, query: "Query[_T]") -> "Query[_T]":
+    def _paginate_query(self, query: Query[_T]) -> Query[_T]:
         """Applies the pagination model to the query.
 
         Args:
@@ -168,9 +170,7 @@ class DataGridQuery(Generic[_T]):
             List[_R]: The list of created items.
         """
 
-    def items(
-        self, factory: Optional[Factory[_T, _R]] = None
-    ) -> Union[list[_T], list[_R]]:
+    def items(self, factory: Factory[_T, _R] | None = None) -> list[_T] | list[_R]:
         """Returns all results of the query, after all models have been applied.
 
         Args:
@@ -184,7 +184,7 @@ class DataGridQuery(Generic[_T]):
         items = self.query.all()
         return [factory(item) for item in items] if factory is not None else items
 
-    def pages(self, total: Optional[int] = None) -> int:
+    def pages(self, total: int | None = None) -> int:
         """Returns the number of pages to display all results.
 
         Args:
@@ -198,7 +198,7 @@ class DataGridQuery(Generic[_T]):
         """
         if not total:
             total = self.total()
-        return int(ceil(total / float(self.per_page)))
+        return ceil(total / float(self.per_page))
 
     @property
     def page(self) -> int:

@@ -1,8 +1,10 @@
 """The is not applicator applies the is not operator to the data."""
 
+from __future__ import annotations
+
 from datetime import date, datetime, time
 from operator import ne
-from typing import Any, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from mui.v6.integrations.sqlalchemy.utils import (
@@ -11,7 +13,7 @@ from mui.v6.integrations.sqlalchemy.utils import (
 )
 
 
-def apply_not_operator(column: Any, value: Any, timezone: Optional[ZoneInfo]) -> Any:
+def apply_not_operator(column: Any, value: Any, timezone: ZoneInfo | None) -> Any:
     """Handles applying the not x-data-grid operator to a column.
 
     The not operator exists on enum selections as well as datetimes. Care
