@@ -13,6 +13,7 @@ from mui.v6.integrations.sqlalchemy.filter.applicators import (
     apply_basic_operator,
     apply_before_operator,
     apply_contains_operator,
+    apply_does_not_contain_operator,
     apply_endswith_operator,
     apply_is_any_of_operator,
     apply_is_empty_operator,
@@ -93,6 +94,7 @@ def apply_operator_to_column(
         * isNotEmpty (`IS NOT NULL` clause)
         * isAnyOf (`IN [?, ?, ?]` clause)
         * contains (`'%' || ? || '%'` clause)
+        * doesNotContain (`NOT '%' || ? || '%'` clause)
         * startsWith (`? || '%'` clause)
         * endsWith (`'%' || ?` clause)
 
@@ -118,6 +120,8 @@ def apply_operator_to_column(
         return apply_is_any_of_operator(column, item.value)
     elif item.operator == "contains":
         return apply_contains_operator(column, item.value)
+    elif item.operator == "doesNotContain":
+        return apply_does_not_contain_operator(column, item.value)
     elif item.operator == "startsWith":
         return apply_startswith_operator(column, item.value)
     elif item.operator == "endsWith":
